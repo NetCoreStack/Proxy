@@ -29,6 +29,26 @@ public void ConfigureServices(IServiceCollection services)
     services.AddMvc();
 }
 ```
+
+#### Example Dependency Injection
+```csharp
+public class TestController : Controller
+{
+    private readonly IGuidelineApi _api;
+
+    public TestController(IGuidelineApi api)
+    {
+        _api = api;
+    }
+
+    public async Task<IActionResult> GetPostsAsync()
+    {
+        var items = await _api.GetPostsAsync();
+        return Json(items);
+    }
+}
+```
+
 #### Add Configuration Section to the appsettings.json file (or your configuration file)
 ##### Example for development environment:
 ```json
