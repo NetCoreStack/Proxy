@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0-*",
+
+  "buildOptions": {
+    "copyToOutput": "appsettings.json" 
+  },
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.1",
+    "dotnet-test-xunit": "2.2.0-*",
+    "Microsoft.DotNet.InternalAbstractions": "1.0.0",
+    "Moq": "4.6.36-*",
+    "xunit": "2.2.0-*",
+    "Microsoft.AspNetCore.Mvc": "1.1.0",
+    "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
+    "Microsoft.Extensions.Logging": "1.1.0",
+    "NetCoreStack.Proxy": "1.0.0-*",
+    "NetCoreStack.Common": "1.0.0-*",
+    "NetCoreStack.Proxy.Test.Contracts": "1.0.0-*",
+    "Microsoft.AspNetCore.Hosting": "1.1.0",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.1.0",
+    "Microsoft.Extensions.Configuration.Json": "1.1.0",
+    "NetCoreStack.Proxy.ServerApp": "1.0.0-*",
+    "Microsoft.AspNetCore.TestHost": "1.1.0"
+  },
+
+  "testRunner": "xunit",
+
+  "frameworks": {
+    "netcoreapp1.1": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.1.0",
+          "type": "platform"
+        },
+        "System.Diagnostics.TraceSource": "4.3.0-*"
+      }
+    }
+  }
+}
