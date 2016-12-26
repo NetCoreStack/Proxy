@@ -3,7 +3,10 @@
 This project is demonstrating manage and consume distributed API - Micro Service 
 from different regions (endpoints) with ease. 
 
-This project aims to:
+Flying Proxy allows the management of scalable applications, trigger many operations at the same time from your clients (SPA Web App or Mobile App) and 
+start to consume your new resource (Backend Instance, APIs) that you can simply add.
+
+Flying Proxy aims to:
 - Simple scalability
 - Effective and type-safe management of distributed architecture
 - Better performance
