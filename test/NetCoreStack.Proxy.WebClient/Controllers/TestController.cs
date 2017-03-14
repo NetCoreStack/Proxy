@@ -20,6 +20,18 @@ namespace NetCoreStack.Proxy.WebClient.Controllers
             return Json(items);
         }
 
+        public async Task<IActionResult> DirectStreamTransport()
+        {
+            var items = await _api.GetCollectionStream();
+            return Json(items);
+        }
+
+        public IActionResult DirectStreamTransports()
+        {
+            var items = _api.GetCollectionStreams();
+            return Json(items);
+        }
+
         public async Task<IActionResult> GetWithReferenceType()
         {
             var simpleModel = new SimpleModel

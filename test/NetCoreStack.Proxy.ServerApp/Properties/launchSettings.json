@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:15815/",
+      "applicationUrl": "http://localhost:15815/swagger/ui/index.html",
       "sslPort": 0
     }
   },
@@ -19,7 +19,7 @@
     "NetCoreStack.Proxy.ServerApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:5000/api/values",
+      "launchUrl": "http://localhost:5000/swagger/ui",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

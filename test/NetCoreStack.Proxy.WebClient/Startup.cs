@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetCoreStack.Common;
 using NetCoreStack.Proxy.Test.Contracts;
-using System.Collections.Generic;
+using Swashbuckle.Swagger.Model;
 using System.IO;
 
 namespace NetCoreStack.Proxy.WebClient
@@ -27,6 +26,18 @@ namespace NetCoreStack.Proxy.WebClient
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSwaggerGen(c =>
+            {
+                c.SingleApiVersion(new Info
+                {
+                    Version = "v1",
+                    Title = "API V1",
+                    TermsOfService = "None"
+                });
+
+                c.DescribeAllEnumsAsStrings();
+            });
+
             // Add NetCoreProxy Dependencies and Configuration
             services.AddNetCoreProxy(Configuration, options =>
             {
@@ -59,6 +70,9 @@ namespace NetCoreStack.Proxy.WebClient
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUi();
         }
 
         public static void Main(string[] args)

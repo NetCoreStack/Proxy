@@ -52,6 +52,7 @@ namespace NetCoreStack.Proxy
                 var genericRegistry = registryDelegate.MakeGenericMethod(type);
                 genericRegistry.Invoke(null, new object[] { services });
             }
+
             services.AddSingleton(proxyBuilderOptions);
         }
 

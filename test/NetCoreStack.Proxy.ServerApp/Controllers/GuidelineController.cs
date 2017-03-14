@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NetCoreStack.Common;
 using NetCoreStack.Proxy.Test.Contracts;
 using Newtonsoft.Json;
 using System;
@@ -31,6 +32,51 @@ namespace NetCoreStack.Proxy.ServerApp.Controllers
             var items = JsonConvert.DeserializeObject<List<Post>>(content);
             Logger.LogDebug($"{nameof(GetPostsAsync)}, PostsCount:{items.Count}");
             return items;
+        }
+
+        /// <summary>
+        /// CollectionResult Direct Stream Transport - Return the client without Deserialization
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet(nameof(GetCollectionStream))]
+        public async Task<CollectionResult<Post>> GetCollectionStream()
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, new Uri("https://jsonplaceholder.typicode.com/posts"));
+            var response = await Factory.Client.SendAsync(httpRequest);
+            var content = await response.Content.ReadAsStringAsync();
+            var items = JsonConvert.DeserializeObject<List<Post>>(content);
+
+
+            var count = items.Count;
+            Logger.LogDebug($"{nameof(GetPostsAsync)}, PostsCount:{items.Count}");
+            return new CollectionResult<Post>
+            {
+                Data = items,
+                Draw = 1,
+                TotalRecords = count,
+                TotalRecordsFiltered = count
+            };
+        }
+
+        [HttpGet(nameof(GetCollectionStreams))]
+        public IEnumerable<CollectionResult<Post>> GetCollectionStreams()
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, new Uri("https://jsonplaceholder.typicode.com/posts"));
+            var response = Factory.Client.SendAsync(httpRequest).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+            var items = JsonConvert.DeserializeObject<List<Post>>(content);
+            var count = items.Count;
+            Logger.LogDebug($"{nameof(GetPostsAsync)}, PostsCount:{items.Count}");
+            return new List<CollectionResult<Post>>
+            {
+                new CollectionResult<Post>
+                {
+                    Data = items,
+                    Draw = 1,
+                    TotalRecords = count,
+                    TotalRecordsFiltered = count
+                }
+            };
         }
 
         [HttpGet(nameof(GetWithReferenceType))]

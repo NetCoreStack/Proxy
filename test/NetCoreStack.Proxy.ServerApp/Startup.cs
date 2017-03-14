@@ -47,9 +47,7 @@ namespace NetCoreStack.Proxy.ServerApp
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseMvc(routes => {
-                routes.MapRoute(name: "default", template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc();
 
             app.UseSwagger();
             app.UseSwaggerUi();

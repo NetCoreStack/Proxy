@@ -17,6 +17,10 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         Task<IEnumerable<Post>> GetPostsAsync();
 
+        Task<CollectionResult<Post>> GetCollectionStream();
+
+        IEnumerable<CollectionResult<Post>> GetCollectionStreams();
+
         Task GetWithReferenceType(SimpleModel model);
 
         [HttpPost]

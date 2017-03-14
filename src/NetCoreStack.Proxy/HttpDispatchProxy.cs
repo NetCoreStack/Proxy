@@ -49,20 +49,6 @@ namespace NetCoreStack.Proxy
             return this;
         }
 
-        protected void DirectStreamTransport(ResponseContext context)
-        {
-            _proxyManager.HttpContext.Response.ContentType = Constants.ContentTypeJsonWithEncoding;
-            _proxyManager.HttpContext.Response.Headers.Add(Constants.MetadataInnerHeader, context.MetadataInner);
-            _proxyManager.HttpContext.Response.Headers.Add(Constants.MetadataHeader, context.Metadata);
-
-            if (!context.ResultContent.HasValue())
-            {
-                throw new ArgumentNullException(nameof(context.ResultContent));
-            }
-
-            _proxyManager.HttpContext.Items.Add(Constants.CollectionResultItemKey, context.ResultContent);
-        }
-
         private async Task<ResponseContext> InternalInvokeAsync(MethodInfo targetMethod, object[] args, Type genericReturnType = null)
         {
             var requestContext = new RequestContext(targetMethod,
@@ -99,11 +85,6 @@ namespace NetCoreStack.Proxy
                 throw new ProxyException(result, new HttpRequestException());
             }
 
-            if (descriptor.MethodDescriptor.IsDirectStreamTransport)
-            {
-                DirectStreamTransport(responseContext);
-            }
-
             return responseContext;
         }
 
@@ -126,15 +107,7 @@ namespace NetCoreStack.Proxy
 
             var responseContext = await InternalInvokeAsync(method, args, typeof(T));
             var methodDescriptor = responseContext.RequestDescriptor.MethodDescriptor;
-            if (methodDescriptor.IsDirectStreamTransport)
-            {
-                // Dummy null return, Performance improvements for CollectionResult type.
-                return default(T);
-            }
-            else
-            {
-                return (T)responseContext.Value;
-            }
+            return (T)responseContext.Value;
         }
 
         public override object Invoke(MethodInfo method, object[] args)

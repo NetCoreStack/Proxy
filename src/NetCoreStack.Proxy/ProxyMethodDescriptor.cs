@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using NetCoreStack.Common;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -25,32 +23,10 @@ namespace NetCoreStack.Proxy
 
         public List<ParameterDescriptor> Parameters { get; set; }
 
-        public bool IsDirectStreamTransport
-        {
-            get
-            {
-                return ReturnType.IsDirectStreamTransport();
-            }
-        }
-
         public bool IsVoidReturn { get; }
         public bool IsTaskReturn { get; }
-
         public bool IsGenericTaskReturn { get; }
         public bool IsActionResult { get; }
-
-        public bool IsCollectionResult
-        {
-            get
-            {
-                if (ReturnType.IsAssignableFrom(typeof(CollectionResult)))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-        }
 
         public ProxyMethodDescriptor(MethodInfo methodInfo)
         {
