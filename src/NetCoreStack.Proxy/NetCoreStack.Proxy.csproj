@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.1" />
     <PackageReference Include="NetCoreStack.Common" Version="1.0.0-*" />
-    <PackageReference Include="NetCoreStack.DispatchProxyAsync" Version="1.0.0-*" />
+    <PackageReference Include="NetCoreStack.DispatchProxyAsync" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
