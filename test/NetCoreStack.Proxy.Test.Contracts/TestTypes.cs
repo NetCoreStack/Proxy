@@ -6,7 +6,7 @@ namespace NetCoreStack.Proxy.Test.Contracts
     {
         public string Name { get; set; }
         public DateTime Date { get; set; }
-        public object Value { get; set; }
+        public string Value { get; set; }
     }
 
     public class Post

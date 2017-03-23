@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
+using NetCoreStack.Common.Extensions;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -46,21 +47,23 @@ namespace NetCoreStack.Proxy
         public IDictionary<string, object> Resolve(object[] args)
         {
             var values = new Dictionary<string, object>();
-
             if (HttpMethod == HttpMethod.Get)
             {
-                if (args.Length > 1)
-                    throw new ArgumentOutOfRangeException($"Methods marked with HTTP GET can take one reference type parameter.");
-
-                if (args.Length != 0)
+                // Ref type parameter resolver
+                if (Parameters.Count == 1 && Parameters[0].ParameterType.IsReferenceType())
                 {
                     var obj = args[0].ToDictionary();
                     values.Merge(obj, true);
+                    return values;
+                }
+
+                if (Parameters.Count > 1 && Parameters.Any(x => x.ParameterType.IsReferenceType()))
+                {
+                    throw new ArgumentOutOfRangeException($"Methods marked with HTTP GET can take only one reference type parameter at the same time.");
                 }
             }
-            else
-                values.MergeArgs(args, Parameters.ToArray());
 
+            values.MergeArgs(args, Parameters.ToArray());
             return values;
         }
     }

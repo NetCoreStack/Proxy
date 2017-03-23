@@ -9,9 +9,9 @@ namespace NetCoreStack.Proxy.Test.Contracts
     [ApiRoute("api/[controller]", regionKey: "Main")]
     public interface IGuidelineApi : IApiContract
     {
-        void VoidOperation();
+        Task VoidOperation();
 
-        int PrimitiveReturn(int i, string s, long l, DateTime dt);
+        Task<int> PrimitiveReturn(int i, string s, long l, DateTime dt);
 
         Task TaskOperation();
 

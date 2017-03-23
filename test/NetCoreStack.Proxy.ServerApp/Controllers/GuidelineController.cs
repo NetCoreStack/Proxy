@@ -88,8 +88,9 @@ namespace NetCoreStack.Proxy.ServerApp.Controllers
         }
 
         [HttpGet(nameof(PrimitiveReturn))]
-        public int PrimitiveReturn(int i, string s, long l, DateTime dt)
+        public async Task<int> PrimitiveReturn(int i, string s, long l, DateTime dt)
         {
+            await Task.CompletedTask;
             Logger.LogDebug($"{nameof(PrimitiveReturn)}, i:{i}, s:{s}, l:{l}, dt:{dt}");
             return i + 10;
         }
@@ -110,8 +111,9 @@ namespace NetCoreStack.Proxy.ServerApp.Controllers
         }
 
         [HttpGet(nameof(VoidOperation))]
-        public void VoidOperation()
+        public async Task VoidOperation()
         {
+            await Task.CompletedTask;
             var str = "Hello World!";
             Logger.LogDebug($"{nameof(VoidOperation)}, {str}");
         }

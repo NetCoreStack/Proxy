@@ -14,6 +14,12 @@ namespace NetCoreStack.Proxy.WebClient.Controllers
             _api = api;
         }
 
+        public async Task<IActionResult> PrimitiveReturn()
+        {
+            var items = await _api.PrimitiveReturn(12, "Hello World", long.MaxValue, DateTime.Now);
+            return Json(items);
+        }
+
         public async Task<IActionResult> GetPostsAsync()
         {
             var items = await _api.GetPostsAsync();
@@ -30,6 +36,19 @@ namespace NetCoreStack.Proxy.WebClient.Controllers
         {
             var items = _api.GetCollectionStreams();
             return Json(items);
+        }
+
+        public async Task<IActionResult> TaskActionPost()
+        {
+            var simpleModel = new SimpleModel
+            {
+                Name = "WebClient",
+                Date = DateTime.Now,
+                Value = "<<string>>"
+            };
+
+            await _api.TaskActionPost(simpleModel);
+            return Json(simpleModel);
         }
 
         public async Task<IActionResult> GetWithReferenceType()
