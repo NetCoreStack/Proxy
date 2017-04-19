@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NetCoreStack.Common;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Internal;
 using System;
 using System.Reflection;

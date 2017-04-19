@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NetCoreStack.Proxy.Extensions;
 using NetCoreStack.Proxy.Internal;
 using System;
 using System.Net.Http;

@@ -1,15 +1,12 @@
-﻿using NetCoreStack.Common;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
-using System;
-using NetCoreStack.Proxy.Extensions;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
+﻿using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using NetCoreStack.Common.Extensions;
+using NetCoreStack.Contracts;
+using NetCoreStack.Proxy.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
 
 namespace NetCoreStack.Proxy.Internal
 {
@@ -32,16 +29,16 @@ namespace NetCoreStack.Proxy.Internal
             var descriptors = new List<ProxyDescriptor>();
             foreach (var proxyType in types)
             {
-                var path = proxyType.GetTypeInfo().GetCustomAttribute<ApiRouteAttribute>();
-                if (path == null)
+                var pathAttr = proxyType.GetTypeInfo().GetCustomAttribute<ApiRouteAttribute>();
+                if (pathAttr == null)
                     throw new ArgumentNullException($"{nameof(ApiRouteAttribute)} required for Proxy - Api interface.");
 
-                if (!path.RegionKey.HasValue())
-                    throw new ArgumentOutOfRangeException($"Specify the \"{nameof(path.RegionKey)}\"!");
+                if (!pathAttr.RegionKey.HasValue())
+                    throw new ArgumentOutOfRangeException($"Specify the \"{nameof(pathAttr.RegionKey)}\"!");
 
-                var route = proxyType.Name.GetApiRawName(path.Template);
+                var route = proxyType.Name.GetApiRawName(pathAttr.RouteTemplate);
 
-                ProxyDescriptor descriptor = new ProxyDescriptor(proxyType, path.RegionKey, route);
+                ProxyDescriptor descriptor = new ProxyDescriptor(proxyType, pathAttr.RegionKey, route);
 
                 var interfaces = proxyType.GetInterfaces()
                     .Except(new List<Type> { typeof(IApiContract), typeof(IDependency) }).ToList();
@@ -69,21 +66,12 @@ namespace NetCoreStack.Proxy.Internal
                         proxyMethodDescriptor.Timeout = timeoutAttr.Timeout;
 
                     var httpMethodAttribute = method.GetCustomAttributes(inherit: true)
-                        .OfType<HttpMethodAttribute>().FirstOrDefault();
+                        .OfType<HttpMethodMarkerAttribute>().FirstOrDefault();
 
                     if (httpMethodAttribute != null)
                     {
-                        if (httpMethodAttribute is HttpPostAttribute)
+                        if (httpMethodAttribute is HttpPostMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Post;
-
-                        else if (httpMethodAttribute is HttpGetAttribute)
-                            proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
-
-                        else if (httpMethodAttribute is HttpPutAttribute)
-                            proxyMethodDescriptor.HttpMethod = HttpMethod.Put;
-
-                        else if (httpMethodAttribute is HttpDeleteAttribute)
-                            proxyMethodDescriptor.HttpMethod = HttpMethod.Delete;
                     }
                     else
                     {
@@ -94,18 +82,6 @@ namespace NetCoreStack.Proxy.Internal
                     proxyMethodDescriptor.Parameters = new List<ParameterDescriptor>();
                     foreach (var parameter in method.GetParameters())
                     {
-                        //if (proxyMethodDescriptor.HttpMethod == HttpMethod.Get)
-                        //{
-                        //    if (parameter.ParameterType.IsReferenceType() &&
-                        //        !typeof(IQueryStringTransferable).IsAssignableFrom(parameter.ParameterType))
-                        //    {
-                        //        throw new InvalidOperationException($"API methods that take a reference type parameter and are marked with HttpGet " +
-                        //            $"should be derived from the {nameof(IQueryStringTransferable)} " +
-                        //           $"or method should be marked as HttpPost. MethodName: \"{method.Name}\", " + 
-                        //           $"ParameterType: \"{parameter.ParameterType.Name}\"");
-                        //    }
-                        //}
-
                         proxyMethodDescriptor.Parameters.Add(new ParameterDescriptor()
                         {
                             Name = parameter.Name,

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
 
 namespace NetCoreStack.Proxy.Extensions
 {
@@ -23,6 +22,17 @@ namespace NetCoreStack.Proxy.Extensions
             }
 
             return selector.Value.ToString();
+        }
+
+        public static void Merge(this IDictionary<string, object> instance, IDictionary<string, object> from, bool replaceExisting)
+        {
+            foreach (KeyValuePair<string, object> entry in from)
+            {
+                if (replaceExisting || !instance.ContainsKey(entry.Key))
+                {
+                    instance[entry.Key] = entry.Value;
+                }
+            }
         }
 
         public static void MergeArgs(this IDictionary<string, object> dictionary, object[] args, ParameterDescriptor[] parameters)

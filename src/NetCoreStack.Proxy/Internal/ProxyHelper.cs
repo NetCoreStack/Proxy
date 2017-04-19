@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using NetCoreStack.Common;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Reflection;

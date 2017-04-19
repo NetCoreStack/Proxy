@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,14 @@ namespace NetCoreStack.Proxy.Tests
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var items = await guidelineApi.GetPostsAsync();
             Assert.True(items.GetType() == typeof(List<Post>));
+        }
+
+        [Fact]
+        public async Task GetCollectionStream()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var items = await guidelineApi.GetCollectionStream();
+            Assert.True(items.GetType() == typeof(CollectionResult<Post>));
         }
     }
 }

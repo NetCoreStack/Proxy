@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NetCoreStack.Common;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using Newtonsoft.Json;
 using System;
@@ -53,8 +53,8 @@ namespace NetCoreStack.Proxy.ServerApp.Controllers
             {
                 Data = items,
                 Draw = 1,
-                TotalRecords = count,
-                TotalRecordsFiltered = count
+                RecordsTotal = count,
+                RecordsFiltered = count
             };
         }
 
@@ -73,8 +73,8 @@ namespace NetCoreStack.Proxy.ServerApp.Controllers
                 {
                     Data = items,
                     Draw = 1,
-                    TotalRecords = count,
-                    TotalRecordsFiltered = count
+                    RecordsTotal = count,
+                    RecordsFiltered = count
                 }
             };
         }

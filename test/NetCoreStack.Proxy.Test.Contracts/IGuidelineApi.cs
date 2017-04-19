@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NetCoreStack.Common;
+﻿using NetCoreStack.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,7 +22,7 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         Task GetWithReferenceType(SimpleModel model);
 
-        [HttpPost]
+        [HttpPostMarker]
         Task TaskActionPost(SimpleModel model);
     }
 }

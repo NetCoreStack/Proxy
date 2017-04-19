@@ -1,4 +1,4 @@
-﻿using NetCoreStack.Common;
+﻿using NetCoreStack.Contracts;
 using System;
 using System.Collections.Generic;
 

@@ -1,4 +1,4 @@
-﻿using NetCoreStack.Common;
+﻿using NetCoreStack.Contracts;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -35,11 +35,11 @@ namespace NetCoreStack.Proxy.Extensions
             return false;
         }
 
-        internal static bool IsDirectStreamTransport(this Type returnType)
+        internal static bool IsDirectStreamTransport<TType>(this Type returnType)
         {
             var result = false;
 
-            if (returnType.IsAssignableFrom(typeof(CollectionResult)))
+            if (returnType.IsAssignableFrom(typeof(CollectionResult<TType>)))
             {
                 result = true;
             }
