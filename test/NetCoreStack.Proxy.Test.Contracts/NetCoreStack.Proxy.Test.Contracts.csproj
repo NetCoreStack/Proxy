@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
-    <PackageReference Include="NetCoreStack.Contracts" Version="1.0.0-preview-173" />
+    <PackageReference Include="NetCoreStack.Contracts" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

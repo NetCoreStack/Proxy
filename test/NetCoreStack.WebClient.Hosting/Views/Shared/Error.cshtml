@@ -1,0 +1,48 @@
+﻿@model BasicExceptionContext
+
+@if (Context == null)
+{
+    <h1>Context Null</h1>
+}
+
+@{
+    var message = "";
+    var details = "";
+    var logGuid = "";
+    object obj = null;
+    if (Context.Items.TryGetValue(nameof(BasicExceptionContext), out obj))
+    {
+        var modelContext = obj as BasicExceptionContext;
+        if (modelContext != null)
+        {
+            logGuid = modelContext.LogGuid;
+            message = !string.IsNullOrEmpty(modelContext.Message) ? modelContext.Message : "An error occurred!";
+            details = !string.IsNullOrEmpty(modelContext.ExceptionDetail) ? modelContext.ExceptionDetail : "";
+        }
+    }
+}
+
+<div id="content">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="text-center error-box">
+                        <h1 class="error-text tada animated"><i class="fa fa-times-circle text-danger error-icon-shadow"></i> Error 500</h1>
+                        <h2 class="font-xl"><strong>@message</strong></h2>
+                        <br />
+                        <p class="lead semi-bold">
+                            <strong>An error occurred!</strong>
+                            <br />
+                            @details
+                            <br />
+                            Working on it!
+                            <br />
+                            Error Code: <strong>@logGuid</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

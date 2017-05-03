@@ -42,6 +42,7 @@ namespace NetCoreStack.Proxy
             services.TryAdd(ServiceDescriptor.Singleton<IHeaderProvider, DefaultHeaderProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyContentStreamProvider, DefaultProxyContentStreamProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyEndpointManager, DefaultProxyEndpointManager>());
+
             services.TryAddSingleton<RoundRobinManager>();
 
             var proxyBuilderOptions = new ProxyBuilderOptions();

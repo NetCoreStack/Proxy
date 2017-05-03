@@ -72,6 +72,10 @@ namespace NetCoreStack.Proxy.Internal
                     {
                         if (httpMethodAttribute is HttpPostMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Post;
+                        else if(httpMethodAttribute is HttpPutMarkerAttribute)
+                            proxyMethodDescriptor.HttpMethod = HttpMethod.Put;
+                        else if (httpMethodAttribute is HttpDeleteMarkerAttribute)
+                            proxyMethodDescriptor.HttpMethod = HttpMethod.Delete;
                     }
                     else
                     {
