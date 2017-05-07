@@ -85,5 +85,11 @@ namespace NetCoreStack.Proxy.WebClient.Controllers
 
             return Json(agentMembers);
         }
+
+        public async Task<IActionResult> CreateOrUpdateKey()
+        {
+            var flag = await _consuleApi.CreateOrUpdateKey("foo", "{foo: 'bar'}");
+            return Json(new { someFlag = flag });
+        }
     }
 }

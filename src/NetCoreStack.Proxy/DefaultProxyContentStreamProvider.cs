@@ -47,6 +47,26 @@ namespace NetCoreStack.Proxy
             return content;
         }
 
+        protected virtual void EnsureTemplate(ProxyMethodDescriptor descriptor, 
+            ProxyUriDefinition proxyUriDefinition,
+            RequestContext requestContext,
+            IDictionary<string, object> argsDic,
+            List<string> keys)
+        {
+            if (descriptor.Template.HasValue())
+            {
+                if (proxyUriDefinition.HasParameter)
+                {
+                    for (int i = 0; i < proxyUriDefinition.ParameterParts.Count; i++)
+                    {
+                        var key = keys[i];
+                        proxyUriDefinition.UriBuilder.Path += ($"/{WebUtility.UrlEncode(requestContext.Args[i]?.ToString())}");
+                        argsDic.Remove(key);
+                    }
+                }
+            }
+        }
+
         public async Task CreateRequestContentAsync(RequestContext requestContext, 
             HttpRequestMessage request, 
             ProxyMethodDescriptor descriptor,
@@ -69,6 +89,9 @@ namespace NetCoreStack.Proxy
             }
             else if(descriptor.HttpMethod == HttpMethod.Put)
             {
+                EnsureTemplate(descriptor, proxyUriDefinition, requestContext, argsDic, keys);
+                argsCount = argsDic.Count;
+                request.RequestUri = uriBuilder.Uri;
                 if (argsCount == 1)
                 {
                     request.Content = SerializeToString(argsDic.First().Value);
@@ -90,19 +113,7 @@ namespace NetCoreStack.Proxy
             }
             if (descriptor.HttpMethod == HttpMethod.Get || descriptor.HttpMethod == HttpMethod.Delete)
             {
-                if (descriptor.Template.HasValue())
-                {
-                    if (proxyUriDefinition.HasParameter)
-                    {
-                        for (int i = 0; i < proxyUriDefinition.ParameterParts.Count; i++)
-                        {
-                            var key = keys[i];
-                            uriBuilder.Path += ($"/{WebUtility.UrlEncode(requestContext.Args[i]?.ToString())}");
-                            argsDic.Remove(key);
-                        }
-                    }
-                }
-
+                EnsureTemplate(descriptor, proxyUriDefinition, requestContext, argsDic, keys);
                 request.RequestUri = QueryStringResolver.Parse(uriBuilder, argsDic);
             }
         }

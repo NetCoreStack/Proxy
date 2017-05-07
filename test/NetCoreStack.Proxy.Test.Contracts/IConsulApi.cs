@@ -19,5 +19,8 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         [HttpGetMarker(Template = "health/node/{id}")]
         Task<IEnumerable<AgentCheck>> CheckNode(string node);
+
+        [HttpPutMarker(Template = "kv/{key}")]
+        Task<bool> CreateOrUpdateKey(string key, string body);
     }
 }
