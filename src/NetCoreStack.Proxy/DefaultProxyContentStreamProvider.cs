@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.AspNetCore.WebUtilities;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using NetCoreStack.Proxy.Internal;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,10 +50,11 @@ namespace NetCoreStack.Proxy
         public async Task CreateRequestContentAsync(RequestContext requestContext, 
             HttpRequestMessage request, 
             ProxyMethodDescriptor descriptor,
-            UriBuilder uriBuilder)
+            ProxyUriDefinition proxyUriDefinition)
         {
             await Task.CompletedTask;
 
+            var uriBuilder = proxyUriDefinition.UriBuilder;
             var argsDic = descriptor.Resolve(requestContext.Args);
             var argsCount = argsDic.Count;
             var keys = new List<string>(argsDic.Keys);
@@ -87,6 +90,19 @@ namespace NetCoreStack.Proxy
             }
             if (descriptor.HttpMethod == HttpMethod.Get || descriptor.HttpMethod == HttpMethod.Delete)
             {
+                if (descriptor.Template.HasValue())
+                {
+                    if (proxyUriDefinition.HasParameter)
+                    {
+                        for (int i = 0; i < proxyUriDefinition.ParameterParts.Count; i++)
+                        {
+                            var key = keys[i];
+                            uriBuilder.Path += ($"/{WebUtility.UrlEncode(requestContext.Args[i]?.ToString())}");
+                            argsDic.Remove(key);
+                        }
+                    }
+                }
+
                 request.RequestUri = QueryStringResolver.Parse(uriBuilder, argsDic);
             }
         }

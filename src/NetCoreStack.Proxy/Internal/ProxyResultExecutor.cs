@@ -17,13 +17,21 @@ namespace NetCoreStack.Proxy.Internal
             if (response == null)
                 return context;
 
-            if ((int)response.StatusCode >= 500)
+            var statusCode = (int)response.StatusCode;
+
+            if (statusCode >= 500)
             {
                 throw new ProxyException("Proxy call result content is can not be null, " +
                                    "The exception may have occurred on the Server", null);
             }
 
             context.ResultContent = await response.Content.ReadAsStringAsync();
+
+            if (statusCode >= 400)
+            {
+                var message = $"Status Code: {statusCode}-{response.StatusCode.ToString()}, Message: {context.ResultContent}";
+                throw new ProxyException(message, null);
+            }
 
             if (methodDescriptor.IsVoidReturn)
                 return context;

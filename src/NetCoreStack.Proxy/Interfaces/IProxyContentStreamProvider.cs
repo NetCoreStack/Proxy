@@ -6,6 +6,9 @@ namespace NetCoreStack.Proxy
 {
     public interface IProxyContentStreamProvider
     {
-        Task CreateRequestContentAsync(RequestContext requestContext, HttpRequestMessage request, ProxyMethodDescriptor descriptor, UriBuilder uriBuilder);
+        Task CreateRequestContentAsync(RequestContext requestContext, 
+            HttpRequestMessage request, 
+            ProxyMethodDescriptor descriptor, 
+            ProxyUriDefinition proxyUriDefinition);
     }
 }

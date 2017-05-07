@@ -2,9 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Internal;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace NetCoreStack.Proxy
@@ -18,6 +21,8 @@ namespace NetCoreStack.Proxy
             IConfigurationRoot configuration,
             Action<ProxyBuilderOptions> setup)
         {
+            services.AddOptions();
+
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
@@ -54,6 +59,8 @@ namespace NetCoreStack.Proxy
                 genericRegistry.Invoke(null, new object[] { services });
             }
 
+            var headerValues = new HeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };
+            services.AddSingleton(Options.Create(headerValues));
             services.AddSingleton(proxyBuilderOptions);
         }
 

@@ -78,5 +78,27 @@ namespace NetCoreStack.Proxy.Tests
             var items = await guidelineApi.GetCollectionStream();
             Assert.True(items.GetType() == typeof(CollectionResult<Post>));
         }
+
+        [Fact]
+        public async Task TaskActionPut()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskActionPut(1, new SimpleModel
+            {
+                Date = DateTime.Now,
+                Name = "Sample model",
+                Value = "{foo: bar}"
+            });
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskActionDelete()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskActionDelete(1);
+            Assert.True(true);
+        }
     }
 }

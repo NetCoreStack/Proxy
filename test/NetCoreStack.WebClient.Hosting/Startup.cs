@@ -31,6 +31,7 @@ namespace NetCoreStack.WebClient.Hosting
             // Add NetCoreProxy Dependencies and Configuration
             services.AddNetCoreProxy(Configuration, options =>
             {
+                options.DefaultHeaders.Add("X-NetCoreStack-Header", "ProxyHeaderValue");
                 options.Register<IAlbumApi>();
                 options.Register<IAlbumMongoApi>();
             });

@@ -36,7 +36,7 @@ namespace NetCoreStack.Proxy.Internal
                 if (!pathAttr.RegionKey.HasValue())
                     throw new ArgumentOutOfRangeException($"Specify the \"{nameof(pathAttr.RegionKey)}\"!");
 
-                var route = proxyType.Name.GetApiRawName(pathAttr.RouteTemplate);
+                var route = proxyType.Name.GetApiRootPath(pathAttr.RouteTemplate);
 
                 ProxyDescriptor descriptor = new ProxyDescriptor(proxyType, pathAttr.RegionKey, route);
 
@@ -70,7 +70,12 @@ namespace NetCoreStack.Proxy.Internal
 
                     if (httpMethodAttribute != null)
                     {
-                        if (httpMethodAttribute is HttpPostMarkerAttribute)
+                        if (httpMethodAttribute.Template.HasValue())
+                            proxyMethodDescriptor.Template = httpMethodAttribute.Template;
+
+                        if (httpMethodAttribute is HttpGetMarkerAttribute)
+                            proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
+                        else if (httpMethodAttribute is HttpPostMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Post;
                         else if(httpMethodAttribute is HttpPutMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Put;

@@ -8,8 +8,11 @@ namespace NetCoreStack.Proxy
     {
         internal List<Type> ProxyList { get; }
 
+        public IDictionary<string, string> DefaultHeaders { get; }
+
         public ProxyBuilderOptions()
         {
+            DefaultHeaders = new Dictionary<string, string>();
             ProxyList = new List<Type>();
         }
 

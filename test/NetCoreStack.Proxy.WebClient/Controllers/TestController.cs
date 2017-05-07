@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NetCoreStack.Proxy.WebClient.Controllers
@@ -8,10 +9,12 @@ namespace NetCoreStack.Proxy.WebClient.Controllers
     public class TestController : Controller
     {
         private readonly IGuidelineApi _api;
+        private readonly IConsulApi _consuleApi;
 
-        public TestController(IGuidelineApi api)
+        public TestController(IGuidelineApi api, IConsulApi consuleApi)
         {
             _api = api;
+            _consuleApi = consuleApi;
         }
 
         public async Task<IActionResult> PrimitiveReturn()
@@ -62,6 +65,25 @@ namespace NetCoreStack.Proxy.WebClient.Controllers
 
             await _api.GetWithReferenceType(simpleModel);
             return Json(simpleModel);
+        }
+
+        public async Task<IActionResult> GetConsuleAgents()
+        {
+            var agentMembers = await _consuleApi.GetMembersAsync();
+            return Json(agentMembers);
+        }
+
+        public async Task<IActionResult> CheckAgent()
+        {
+            var agentMembers = await _consuleApi.GetMembersAsync();
+            AgentMember member = null;
+            if (agentMembers != null && agentMembers.Any())
+            {
+                member = agentMembers.FirstOrDefault();
+                var agentCheck = await _consuleApi.CheckNode(member.Name);
+            }
+
+            return Json(agentMembers);
         }
     }
 }

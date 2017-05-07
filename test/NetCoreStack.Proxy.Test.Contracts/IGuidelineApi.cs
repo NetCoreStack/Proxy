@@ -24,5 +24,11 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         [HttpPostMarker]
         Task TaskActionPost(SimpleModel model);
+
+        [HttpPutMarker]
+        Task TaskActionPut(long id, SimpleModel model);
+
+        [HttpDeleteMarker]
+        Task TaskActionDelete(long id);
     }
 }

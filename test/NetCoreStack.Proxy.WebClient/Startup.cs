@@ -41,7 +41,9 @@ namespace NetCoreStack.Proxy.WebClient
             // Add NetCoreProxy Dependencies and Configuration
             services.AddNetCoreProxy(Configuration, options =>
             {
+                options.DefaultHeaders.Add("X-NetCoreStack-Header", "ProxyHeaderValue");
                 options.Register<IGuidelineApi>();
+                options.Register<IConsulApi>();
             });
 
             // Add framework services.

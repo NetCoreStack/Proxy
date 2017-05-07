@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace NetCoreStack.Proxy
 {
@@ -6,9 +7,9 @@ namespace NetCoreStack.Proxy
     {
         public IDictionary<string, string> Headers { get; set; }
 
-        public DefaultHeaderProvider()
+        public DefaultHeaderProvider(IOptions<HeaderValues> options)
         {
-            Headers = new Dictionary<string, string>();
+            Headers = options.Value.Headers;
         }
     }
 }

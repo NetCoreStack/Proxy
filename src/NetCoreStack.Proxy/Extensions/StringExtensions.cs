@@ -3,25 +3,34 @@ using System.Text.RegularExpressions;
 
 namespace NetCoreStack.Proxy.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         const string rawControllerDefinition = "[Controller]";
         const string regexForApi = "^I(.*)Api$";
-        const string ApiRootPath = "api/";
+
+        private static string regexControllerDefinition => rawControllerDefinition.Replace("[", "\\[")
+            .Replace("]", "\\]");
 
         public static bool HasValue(this string value)
         {
             return !string.IsNullOrEmpty(value);
         }
 
-        public static string GetApiRawName(this string name, string path)
+        public static string GetApiRootPath(this string name, string template)
         {
-            var apiPath = Regex.Match(name, regexForApi);
-            if (!apiPath.Success)
-                throw new InvalidOperationException($"API - Proxy name format is invalid." +
-                    $"The valid format for API - Proxy Regex is: \"{regexForApi}\"!");
+            var defaultRootPath = $"api/{rawControllerDefinition}";
+            if (template.Equals(defaultRootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                var apiPath = Regex.Match(name, regexForApi);
+                if (!apiPath.Success)
+                    throw new InvalidOperationException($"API - Proxy name format is invalid." +
+                        $"The valid format for API - Proxy Regex is: \"{regexForApi}\"!");
 
-            return ApiRootPath + apiPath.Groups[1].Value;
+                var rootName = apiPath.Groups[1].Value;
+                return Regex.Replace(template, regexControllerDefinition, rootName, RegexOptions.IgnoreCase);
+            }
+
+            return template;
         }
 
         public static bool IsJson(this string input)

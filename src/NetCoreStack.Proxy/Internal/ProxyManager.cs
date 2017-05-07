@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using NetCoreStack.Proxy.Extensions;
 using NetCoreStack.Proxy.Internal;
 using System;
 using System.Collections.Generic;
@@ -114,12 +115,15 @@ namespace NetCoreStack.Proxy
                 throw new ArgumentOutOfRangeException("Method (Action) info could not be found!");
 
             request.Method = methodDescriptor.HttpMethod;
-            UriBuilder proxyUriBuilder = _endpointManager.CreateUriBuilder(proxyDescriptor, regionKey, context.TargetMethod.Name);
+            var methodPath = context.TargetMethod.Name;
+            if (methodDescriptor.Template.HasValue())
+                methodPath = methodDescriptor.Template;
 
+            ProxyUriDefinition proxyUriDefinition = _endpointManager.CreateUriDefinition(proxyDescriptor, regionKey, methodPath);
             TimeSpan? timeout = methodDescriptor.Timeout;
 
-            request.RequestUri = proxyUriBuilder.Uri;
-            await _streamProvider.CreateRequestContentAsync(context, request, methodDescriptor, proxyUriBuilder);
+            request.RequestUri = proxyUriDefinition.UriBuilder.Uri;
+            await _streamProvider.CreateRequestContentAsync(context, request, methodDescriptor, proxyUriDefinition);
 
             return new RequestDescriptor(request,
                 methodDescriptor,

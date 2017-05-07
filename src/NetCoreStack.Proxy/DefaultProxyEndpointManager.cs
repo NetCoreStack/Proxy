@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Routing.Template;
+using System;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
@@ -12,24 +13,31 @@ namespace NetCoreStack.Proxy
             RoundRobinManager = roundRobinManager;
         }
 
-        public UriBuilder CreateUriBuilder(ProxyDescriptor descriptor, string regionKey, string targetMethodName)
+        public ProxyUriDefinition CreateUriDefinition(ProxyDescriptor descriptor, string regionKey, string targetMethodName)
         {
             var uriBuilder = RoundRobinManager.RoundRobinUri(regionKey);
-
             if (uriBuilder == null)
             {
                 throw new ArgumentNullException(nameof(uriBuilder));
             }
 
+            var uriDefinition = new ProxyUriDefinition(uriBuilder);
+
             if (!string.IsNullOrEmpty(descriptor.Route))
             {
                 if (targetMethodName.ToLower() == HttpMethod.Get.Method.ToLower())
-                    uriBuilder.Path = $"{descriptor.Route}/";
+                    uriDefinition.UriBuilder.Path = $"{descriptor.Route}/";
                 else
-                    uriBuilder.Path = $"{descriptor.Route}/{targetMethodName}";
+                {
+                    if (targetMethodName.StartsWith("/"))
+                        targetMethodName = targetMethodName.Substring(1);
+
+                    var routeTemplate = TemplateParser.Parse(targetMethodName);
+                    uriDefinition.ResolveTemplate(routeTemplate, descriptor.Route, targetMethodName);
+                }
             }
 
-            return uriBuilder;
+            return uriDefinition;
         }
     }
 }

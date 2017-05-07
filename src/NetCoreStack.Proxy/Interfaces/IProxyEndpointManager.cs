@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace NetCoreStack.Proxy
+﻿namespace NetCoreStack.Proxy
 {
     public interface IProxyEndpointManager
     {
-        UriBuilder CreateUriBuilder(ProxyDescriptor descriptor, string regionKey, string targetMethodName);
+        ProxyUriDefinition CreateUriDefinition(ProxyDescriptor descriptor, string regionKey, string targetMethodName);
     }
 }

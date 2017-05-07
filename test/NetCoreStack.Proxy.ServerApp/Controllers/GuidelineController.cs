@@ -117,5 +117,23 @@ namespace NetCoreStack.Proxy.ServerApp.Controllers
             var str = "Hello World!";
             Logger.LogDebug($"{nameof(VoidOperation)}, {str}");
         }
+
+        [HttpDelete(nameof(DeleteAlbum))]
+        public async Task DeleteAlbum(long id)
+        {
+            await Task.CompletedTask;
+        }
+
+        [HttpPut(nameof(TaskActionPut))]
+        public async Task TaskActionPut(long id, [FromBody]SimpleModel model)
+        {
+            await Task.CompletedTask;
+        }
+
+        [HttpDelete(nameof(TaskActionDelete))]
+        public async Task TaskActionDelete(long id)
+        {
+            await Task.CompletedTask;
+        }
     }
 }
