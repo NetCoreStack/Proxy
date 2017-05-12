@@ -20,8 +20,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
-    <PackageReference Include="NetCoreStack.Data" Version="1.0.0-preview-211" />
-    <PackageReference Include="NetCoreStack.Mvc" Version="1.0.0-preview-211" />
+    <PackageReference Include="NetCoreStack.Data" Version="1.0.0-preview-245" />
+    <PackageReference Include="NetCoreStack.Mvc" Version="1.0.0-preview-245" />
     <PackageReference Include="Swashbuckle" Version="6.0.0-beta902" />
   </ItemGroup>
   <ItemGroup>

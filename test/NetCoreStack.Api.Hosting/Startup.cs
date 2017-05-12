@@ -48,7 +48,7 @@ namespace NetCoreStack.Api.Hosting
             services.AddNetCoreStackMvc();
 
             services.AddNetCoreStackSqlDb<MusicStoreContext>(Configuration);
-            services.AddNetCoreStackBsonDb<MongoDbContext>(Configuration);
+            services.AddNetCoreStackMongoDb<MongoDbContext>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
