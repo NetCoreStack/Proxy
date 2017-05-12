@@ -6,8 +6,6 @@ using Microsoft.Extensions.Options;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Internal;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace NetCoreStack.Proxy

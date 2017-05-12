@@ -6,7 +6,6 @@ using NetCoreStack.Domain.Contracts.ApiContracts;
 using NetCoreStack.Mvc.Extensions;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
 
 namespace NetCoreStack.WebClient.Hosting.Controllers
 {

@@ -1,9 +1,10 @@
 ﻿using NetCoreStack.Contracts;
+using NetCoreStack.Data.Contracts;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
 {
-    [BsonCollectionName("Genres")]
+    [CollectionName("Genres")]
     public class GenreBson : EntityIdentityBson
     {
         [Required]

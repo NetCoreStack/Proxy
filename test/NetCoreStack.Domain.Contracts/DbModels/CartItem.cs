@@ -1,10 +1,10 @@
-﻿using NetCoreStack.Contracts;
+﻿using NetCoreStack.Data.Contracts;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
 {
-    public class CartItem : EntityBaseSql
+    public class CartItem : EntityIdentitySql
     {
         [Required]
         public string CartId { get; set; }

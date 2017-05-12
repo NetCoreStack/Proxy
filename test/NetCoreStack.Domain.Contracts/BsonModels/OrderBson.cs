@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace NetCoreStack.Domain.Contracts.BsonModels
 {
-    [BsonCollectionName("Orders")]
+    [CollectionName("Orders")]
     public class Order
     {
         public DateTime PurchaseDate { get; set; }

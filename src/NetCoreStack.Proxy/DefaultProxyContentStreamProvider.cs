@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.AspNetCore.WebUtilities;
-using NetCoreStack.Contracts;
+﻿using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using NetCoreStack.Proxy.Internal;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

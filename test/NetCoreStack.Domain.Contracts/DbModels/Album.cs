@@ -1,10 +1,10 @@
-﻿using NetCoreStack.Contracts;
+﻿using NetCoreStack.Data.Contracts;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
 {
-    public class Album : EntityBaseSql
+    public class Album : EntityIdentitySql
     {
         public Album()
         {

@@ -1,8 +1,8 @@
-﻿using NetCoreStack.Contracts;
+﻿using NetCoreStack.Data.Contracts;
 
 namespace NetCoreStack.Domain.Contracts
 {
-    public class OrderDetail : EntityBaseSql
+    public class OrderDetail : EntityIdentitySql
     {
         public long OrderId { get; set; }
         public long AlbumId { get; set; }

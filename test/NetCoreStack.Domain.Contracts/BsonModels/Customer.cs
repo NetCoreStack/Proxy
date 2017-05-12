@@ -1,10 +1,11 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using NetCoreStack.Contracts;
+using NetCoreStack.Data.Contracts;
 using System.Collections.Generic;
 
 namespace NetCoreStack.Domain.Contracts.BsonModels
 {
-    [BsonCollectionName("Customers")]
+    [CollectionName("Customers")]
     public class Customer : EntityIdentityBson
     {
         [BsonElement("fname")]

@@ -1,11 +1,11 @@
-﻿using NetCoreStack.Contracts;
+﻿using NetCoreStack.Data.Contracts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
 {
-    public class Order : EntityBaseSql
+    public class Order : EntityIdentitySql
     {
         public Order()
         {
