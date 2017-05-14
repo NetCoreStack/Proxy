@@ -41,7 +41,7 @@ namespace NetCoreStack.Proxy.Internal
                 ProxyDescriptor descriptor = new ProxyDescriptor(proxyType, pathAttr.RegionKey, route);
 
                 var interfaces = proxyType.GetInterfaces()
-                    .Except(new List<Type> { typeof(IApiContract), typeof(IDependency) }).ToList();
+                    .Except(new List<Type> { typeof(IApiContract) }).ToList();
 
                 var interfaceMethods = new List<MethodInfo>();
                 if (interfaces.Any())
