@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
 {
-    public class AlbumViewModel : BaseViewModel
+    public class AlbumViewModel : CollectionModel
     {
         [PropertyDescriptor(EnableFilter = true, IsSelectable = true)]
         [Required]

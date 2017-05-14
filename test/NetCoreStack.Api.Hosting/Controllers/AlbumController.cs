@@ -80,7 +80,7 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             var objectState = ObjectState.Added;
             if (!model.IsNew)
             {
-                id = model.Id.Value;
+                id = model.Id;
                 objectState = ObjectState.Modified;
             }
 

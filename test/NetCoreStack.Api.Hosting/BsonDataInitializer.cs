@@ -18,7 +18,7 @@ namespace NetCoreStack.Api.Hosting
                 var albums = BsonSampleData.GetAlbums(imgUrl, BsonSampleData.Genres, BsonSampleData.Artists);
                 if (!albums.Any())
                 {
-                    db.MongoDatabase.DropCollection(BsonCollectionHelper.GetCollectionName<AlbumBson>());
+                    db.MongoDatabase.DropCollection(db.CollectionNameSelector.GetCollectionName<AlbumBson>());
                     db.Collection<AlbumBson>().InsertMany(albums);
                 }
             }
