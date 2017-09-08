@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.PlatformAbstractions;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 
@@ -21,7 +20,7 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public static string GetProjectPath(string solutionRelativePath, Assembly assembly)
         {
             var projectName = assembly.GetName().Name;
-            var applicationBasePath = PlatformServices.Default.Application.ApplicationBasePath;
+            var applicationBasePath = AppDomain.CurrentDomain.BaseDirectory;
 
             var directoryInfo = new DirectoryInfo(applicationBasePath);
             do

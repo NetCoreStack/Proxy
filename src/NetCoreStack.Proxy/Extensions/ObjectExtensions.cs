@@ -22,13 +22,7 @@ namespace NetCoreStack.Proxy.Extensions
             Dictionary<string, object> dictionary = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
             if (value != null)
             {
-#if NET46
                 PropertyInfo[] properties = value.GetType().GetProperties();
-#endif
-
-#if NETCOREAPP1_1 || NETSTANDARD1_6
-                PropertyInfo[] properties = TypeExtensions.GetProperties(value.GetType());
-#endif
 
                 for (int i = 0; i < properties.Length; i++)
                 {
