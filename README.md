@@ -81,7 +81,7 @@ public interface IGuidelineApi : IApiContract
 
     Task GetWithReferenceType(SimpleModel model);
 
-    [HttpPost]
+    [HttpPostMarker]
     Task TaskActionPost(SimpleModel model);
 }
 ```
@@ -155,6 +155,3 @@ public class GuidelineController : Controller, IGuidelineApi
 
 ### Prerequisites
 > [ASP.NET Core](https://github.com/aspnet/Home)
-
-### Installation
-> dotnet restore
