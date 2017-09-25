@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Mvc;
 using NetCoreStack.Contracts;
 using NetCoreStack.Data.Interfaces;
 using NetCoreStack.Domain.Contracts;
 using NetCoreStack.Domain.Contracts.ApiContracts;
 using NetCoreStack.Mvc.Extensions;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NetCoreStack.WebClient.Hosting.Controllers
@@ -75,6 +78,43 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
         public async Task<AlbumViewModel> SaveAlbum([FromBody]AlbumViewModel model)
         {
             await Task.CompletedTask;
+
+            long id = 0;
+            var objectState = ObjectState.Added;
+            if (!model.IsNew)
+            {
+                id = model.Id;
+                objectState = ObjectState.Modified;
+            }
+
+            var album = new Album
+            {
+                AlbumArtUrl = model.AlbumArtUrl,
+                ArtistId = model.ArtistId,
+                GenreId = model.GenreId,
+                Id = id,
+                ObjectState = objectState,
+                Price = model.Price,
+                Title = model.Title
+            };
+
+            _unitOfWork.Repository<Album>().SaveAllChanges(album);
+            return model;
+        }
+
+        [HttpPost(nameof(SaveAlbumSubmit))]
+        public async Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)
+        {
+            await Task.CompletedTask;
+            var req = HttpContext.Request;
+            req.EnableRewind();
+
+            // Arguments: Stream, Encoding, detect encoding, buffer size 
+            // AND, the most important: keep stream opened
+            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8, true, 1024, true))
+            {
+                var bodyStr = reader.ReadToEnd();
+            }
 
             long id = 0;
             var objectState = ObjectState.Added;

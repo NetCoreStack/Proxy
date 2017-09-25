@@ -48,6 +48,12 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             return View();
         }
 
+        public async Task<IActionResult> IndexSubmit()
+        {
+            await IndexInitializer();
+            return View();
+        }
+
         public async Task<IActionResult> IndexMongo()
         {
             await IndexInitializer();
@@ -77,6 +83,13 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
         public async Task<IActionResult> SaveAlbum([FromBody]AlbumViewModel model)
         {
             var albumCollection = await _albumApi.SaveAlbum(model);
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveAlbumSubmit(AlbumViewModelSubmit model)
+        {
+            var albumCollection = await _albumApi.SaveAlbumSubmit(model);
             return Ok();
         }
 

@@ -24,6 +24,13 @@ namespace NetCoreStack.Proxy
             return new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
         }
 
+        protected virtual MultipartFormDataContent GetMultipartFormDataContent()
+        {
+            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+
+            return multipartFormDataContent;
+        }
+
         protected virtual HttpContent CreateHttpContent(object value)
         {
             HttpContent content;

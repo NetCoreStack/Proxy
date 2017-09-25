@@ -13,6 +13,9 @@ namespace NetCoreStack.Domain.Contracts.ApiContracts
         [HttpPostMarker]
         Task<AlbumViewModel> SaveAlbum(AlbumViewModel model);
 
+        [HttpPostMarker]
+        Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model);        
+
         [HttpPutMarker]
         Task<AlbumViewModel> UpdateAlbum(long id, AlbumViewModel model);
 

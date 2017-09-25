@@ -1,4 +1,5 @@
-﻿using NetCoreStack.Contracts;
+﻿using Microsoft.AspNetCore.Http;
+using NetCoreStack.Contracts;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
@@ -47,5 +48,10 @@ namespace NetCoreStack.Domain.Contracts
 
         [PropertyDescriptor(EnableFilter = true)]
         public string AlbumArtUrl { get; set; }
+    }
+
+    public class AlbumViewModelSubmit : AlbumViewModel
+    {
+        public IFormFile Image { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Abstractions;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
@@ -88,13 +89,16 @@ namespace NetCoreStack.Proxy.Internal
                         proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
                     }
 
-                    proxyMethodDescriptor.Parameters = new List<ParameterDescriptor>();
+                    proxyMethodDescriptor.Parameters = new List<ProxyParameterDescriptor>();
                     foreach (var parameter in method.GetParameters())
                     {
-                        proxyMethodDescriptor.Parameters.Add(new ParameterDescriptor()
+                        var parameterType = parameter.ParameterType;
+                        var properties = parameterType.GetProperties().ToList();
+
+                        proxyMethodDescriptor.Parameters.Add(new ProxyParameterDescriptor(properties)
                         {
                             Name = parameter.Name,
-                            ParameterType = parameter.ParameterType,
+                            ParameterType = parameterType,
                             BindingInfo = BindingInfo.GetBindingInfo(parameter.GetCustomAttributes().OfType<object>())
                         });
                     }

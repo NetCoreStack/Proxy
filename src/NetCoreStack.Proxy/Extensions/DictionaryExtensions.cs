@@ -35,7 +35,7 @@ namespace NetCoreStack.Proxy.Extensions
             }
         }
 
-        public static void MergeArgs(this IDictionary<string, object> dictionary, object[] args, ParameterDescriptor[] parameters)
+        public static void MergeArgs(this IDictionary<string, object> dictionary, object[] args, ProxyParameterDescriptor[] parameters)
         {
             if (args.Length == 0)
                 return;

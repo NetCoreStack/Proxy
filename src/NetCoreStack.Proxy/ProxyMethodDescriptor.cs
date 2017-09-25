@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
@@ -23,7 +22,7 @@ namespace NetCoreStack.Proxy
 
         public TimeSpan? Timeout { get; set; }
 
-        public List<ParameterDescriptor> Parameters { get; set; }
+        public List<ProxyParameterDescriptor> Parameters { get; set; }
 
         public bool IsVoidReturn { get; }
         public bool IsTaskReturn { get; }
