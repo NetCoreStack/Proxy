@@ -82,21 +82,21 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveAlbum([FromBody]AlbumViewModel model)
         {
-            var albumCollection = await _albumApi.SaveAlbum(model);
+            var albumCollection = await _albumApi.SaveAlbumAsync(model);
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> SaveAlbumSubmit(AlbumViewModelSubmit model)
         {
-            var albumCollection = await _albumApi.SaveAlbumSubmit(model);
+            var albumCollection = await _albumApi.SaveAlbumSubmitAsync(model);
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateAlbum()
         {
-            var albumCollection = await _albumApi.UpdateAlbum(1, new AlbumViewModel { Id = 1, Title = "Test" });
+            var albumCollection = await _albumApi.UpdateAlbumAsync(1, new AlbumViewModel { Id = 1, Title = "Test" });
             return Ok();
         }
 

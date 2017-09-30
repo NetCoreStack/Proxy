@@ -74,8 +74,8 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             return query.ToCollectionResult(request);
         }
 
-        [HttpPost(nameof(SaveAlbum))]
-        public async Task<AlbumViewModel> SaveAlbum([FromBody]AlbumViewModel model)
+        [HttpPost(nameof(SaveAlbumAsync))]
+        public async Task<AlbumViewModel> SaveAlbumAsync([FromBody]AlbumViewModel model)
         {
             await Task.CompletedTask;
 
@@ -102,8 +102,8 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             return model;
         }
 
-        [HttpPost(nameof(SaveAlbumSubmit))]
-        public async Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)
+        [HttpPost(nameof(SaveAlbumSubmitAsync))]
+        public async Task<AlbumViewModel> SaveAlbumSubmitAsync(AlbumViewModelSubmit model)
         {
             await Task.CompletedTask;
 
@@ -142,8 +142,8 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             return model;
         }
 
-        [HttpPut(nameof(UpdateAlbum))]
-        public async Task<AlbumViewModel> UpdateAlbum(long id, [FromBody]AlbumViewModel model)
+        [HttpPut(nameof(UpdateAlbumAsync))]
+        public async Task<AlbumViewModel> UpdateAlbumAsync(long id, [FromBody]AlbumViewModel model)
         {
             await Task.CompletedTask;
             return model;

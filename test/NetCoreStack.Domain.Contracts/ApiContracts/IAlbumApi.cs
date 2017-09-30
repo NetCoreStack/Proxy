@@ -12,13 +12,13 @@ namespace NetCoreStack.Domain.Contracts.ApiContracts
         Task<InitRequestContext> GetInitialContext();
 
         [HttpPostMarker]
-        Task<AlbumViewModel> SaveAlbum(AlbumViewModel model);
+        Task<AlbumViewModel> SaveAlbumAsync(AlbumViewModel model);
 
         [HttpPostMarker]
-        Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model);        
+        Task<AlbumViewModel> SaveAlbumSubmitAsync(AlbumViewModelSubmit model);        
 
         [HttpPutMarker]
-        Task<AlbumViewModel> UpdateAlbum(long id, AlbumViewModel model);
+        Task<AlbumViewModel> UpdateAlbumAsync(long id, AlbumViewModel model);
 
         [HttpDeleteMarker]
         Task DeleteAlbum(long id);

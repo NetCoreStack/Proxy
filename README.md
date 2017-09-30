@@ -159,13 +159,13 @@ Proxy sends all POST methods as JSON but if the method parameter model contains 
 ```csharp
 // Interface
 [HttpPostMarker]
-Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)    
+Task<AlbumViewModel> SaveAlbumSubmitAsync(AlbumViewModelSubmit model)    
 ```
 
 ```csharp
 // API Controller
-[HttpPost(nameof(SaveAlbumSubmit))]
-public async Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)  
+[HttpPost(nameof(SaveAlbumSubmitAsync))]
+public async Task<AlbumViewModel> SaveAlbumSubmitAsync(AlbumViewModelSubmit model)  
 ```
 
 
