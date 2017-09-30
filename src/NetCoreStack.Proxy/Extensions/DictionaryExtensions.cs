@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 
 namespace NetCoreStack.Proxy.Extensions
 {
@@ -24,7 +24,7 @@ namespace NetCoreStack.Proxy.Extensions
             return selector.Value.ToString();
         }
 
-        public static void Merge(this IDictionary<string, object> instance, IDictionary<string, object> from, bool replaceExisting)
+        internal static void Merge(this IDictionary<string, object> instance, IDictionary<string, object> from, bool replaceExisting)
         {
             foreach (KeyValuePair<string, object> entry in from)
             {
@@ -35,18 +35,45 @@ namespace NetCoreStack.Proxy.Extensions
             }
         }
 
-        public static void MergeArgs(this IDictionary<string, object> dictionary, object[] args, ProxyParameterDescriptor[] parameters)
+        internal static void MergeArgs(this IDictionary<string, object> dictionary, 
+            object[] args, 
+            ProxyParameterDescriptor[] parameters,
+            bool isMultiPartFormData)
         {
             if (args.Length == 0)
                 return;
 
+            if (!isMultiPartFormData)
+            {
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    dictionary.Add(parameters[i].Name, args[i]);
+                }
+
+                return;
+            }
+
+            // Multipart form data context preparing
             for (int i = 0; i < parameters.Length; i++)
             {
-                dictionary.Add(parameters[i].Name, args[i]);
+                foreach (var prop in parameters[i].Properties)
+                {
+                    string name = prop.Key;
+                    PropertyContentTypeInfo contentTypeInfo = prop.Value;
+
+                    var parameterContext = new PropertyContext
+                    {
+                        Name = name,
+                        Value = contentTypeInfo.PropertyInfo.GetValue(args[i]),
+                        PropertyContentType = contentTypeInfo.PropertyContentType
+                    };
+
+                    dictionary.Add(name, parameterContext);
+                }
             }
         }
 
-        public static string ToQueryString(this Uri baseUrl, IDictionary<string, object> objectDics)
+        internal static string ToQueryString(this Uri baseUrl, IDictionary<string, object> objectDics)
         {
             if (objectDics == null)
                 return baseUrl.AbsoluteUri;

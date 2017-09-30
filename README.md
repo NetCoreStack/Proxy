@@ -17,7 +17,7 @@ Flying Proxy aims to:
 
 ### Usage for Client Side
 
-#### Startup ConfigureServices (ASP.NET Core method gets called by the runtime.)
+#### Startup ConfigureServices
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
@@ -33,7 +33,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-#### Example Dependency Injection
+#### Example dependency injection
 ```csharp
 public class TestController : Controller
 {
@@ -52,8 +52,8 @@ public class TestController : Controller
 }
 ```
 
-#### Add Configuration Section to the appsettings.json file (or your configuration file)
-##### Example for development environment:
+#### Add configuration section to the appsettings.json file (or your configuration file)
+##### Example:
 ```json
 "ProxySettings": {
     "RegionKeys": {
@@ -68,6 +68,7 @@ public class TestController : Controller
 
 #### API Contract Definition (Default HttpMethod is HttpGet)
 ```csharp
+// This APIs expose methods from localhost:5000 and localhost:5001 as configured on ProxySettings
 [ApiRoute("api/[controller]", regionKey: "Main")]
 public interface IGuidelineApi : IApiContract
 {
@@ -86,7 +87,7 @@ public interface IGuidelineApi : IApiContract
 }
 ```
 
-### Usage for Backend - Server Side
+### Backend - Server Side
 #### API Contract Implementation
 ```csharp
 [Route("api/[controller]")]
@@ -151,6 +152,24 @@ public class GuidelineController : Controller, IGuidelineApi
     }
 }
 ```
+
+#### Multipart form data:
+Proxy sends all POST methods as JSON but if the method parameter model contains IFormFile type property it converts the content-type to multipart/form-data. In this case, use any model to POST multipart/form-data to API without [FromBody] attribute on action parameter. For example:
+
+```csharp
+// Interface
+[HttpPostMarker]
+Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)    
+```
+
+```csharp
+// API Controller
+[HttpPost(nameof(SaveAlbumSubmit))]
+public async Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)  
+```
+
+
+
 
 
 ### Prerequisites

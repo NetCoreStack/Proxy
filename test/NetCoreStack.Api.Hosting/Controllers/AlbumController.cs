@@ -106,15 +106,6 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
         public async Task<AlbumViewModel> SaveAlbumSubmit(AlbumViewModelSubmit model)
         {
             await Task.CompletedTask;
-            var req = HttpContext.Request;
-            req.EnableRewind();
-
-            // Arguments: Stream, Encoding, detect encoding, buffer size 
-            // AND, the most important: keep stream opened
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8, true, 1024, true))
-            {
-                var bodyStr = reader.ReadToEnd();
-            }
 
             long id = 0;
             var objectState = ObjectState.Added;
@@ -136,6 +127,18 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             };
 
             _unitOfWork.Repository<Album>().SaveAllChanges(album);
+
+            if (model.Image != null && model.Image.Length > 0)
+            {
+                // full path to file in temp location
+                var filePath = Path.GetTempFileName();
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+            }
+
             return model;
         }
 

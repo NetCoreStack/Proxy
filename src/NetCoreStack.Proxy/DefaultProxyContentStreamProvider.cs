@@ -1,4 +1,5 @@
-﻿using NetCoreStack.Contracts;
+﻿using Microsoft.AspNetCore.Http;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using NetCoreStack.Proxy.Internal;
 using Newtonsoft.Json;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,9 +26,39 @@ namespace NetCoreStack.Proxy
             return new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
         }
 
-        protected virtual MultipartFormDataContent GetMultipartFormDataContent()
+        protected virtual MultipartFormDataContent GetMultipartFormDataContent(IDictionary<string,object> values)
         {
             MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+            foreach (KeyValuePair<string, object> entry in values)
+            {
+                var parameterContext = entry.Value as PropertyContext;
+                if (parameterContext != null)
+                {
+                    if (parameterContext.PropertyContentType == PropertyContentType.Multipart)
+                    {
+                        IFormFile formFile = parameterContext.Value as IFormFile;
+                        if (formFile != null)
+                        {
+                            using (var ms = new MemoryStream())
+                            {
+                                formFile.CopyTo(ms);
+                                var fileContent = new ByteArrayContent(ms.ToArray());
+                                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(formFile.ContentType);
+                                fileContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(formFile.ContentDisposition);
+                                multipartFormDataContent.Add(fileContent, entry.Key, formFile.FileName);
+                            }
+                        }                                             
+                    }
+                    else
+                    {
+                        var stringContent = parameterContext.Value?.ToString();
+                        if (!string.IsNullOrEmpty(stringContent))
+                        {
+                            multipartFormDataContent.Add(new StringContent(stringContent), entry.Key);
+                        }
+                    }
+                }                
+            }
 
             return multipartFormDataContent;
         }
@@ -84,6 +116,12 @@ namespace NetCoreStack.Proxy
             var keys = new List<string>(argsDic.Keys);
             if (descriptor.HttpMethod == HttpMethod.Post)
             {
+                if (descriptor.IsMultiPartFormData)
+                {
+                    request.Content = GetMultipartFormDataContent(argsDic);
+                    return;
+                }
+
                 if (argsCount == 1)
                     request.Content = SerializeToString(argsDic.First().Value);
                 else

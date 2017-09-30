@@ -22,6 +22,8 @@ namespace NetCoreStack.Proxy
 
         public TimeSpan? Timeout { get; set; }
 
+        public bool IsMultiPartFormData { get; set; }
+
         public List<ProxyParameterDescriptor> Parameters { get; set; }
 
         public bool IsVoidReturn { get; }
@@ -44,9 +46,10 @@ namespace NetCoreStack.Proxy
             }
         }
 
+        // per request resolver
         public IDictionary<string, object> Resolve(object[] args)
         {
-            var values = new Dictionary<string, object>();
+            var values = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             if (HttpMethod == HttpMethod.Get)
             {
                 // Ref type parameter resolver
@@ -63,7 +66,7 @@ namespace NetCoreStack.Proxy
                 }
             }
 
-            values.MergeArgs(args, Parameters.ToArray());
+            values.MergeArgs(args, Parameters.ToArray(), IsMultiPartFormData);
             return values;
         }
     }

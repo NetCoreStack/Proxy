@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
@@ -32,10 +30,10 @@ namespace NetCoreStack.Proxy.Internal
             {
                 var pathAttr = proxyType.GetTypeInfo().GetCustomAttribute<ApiRouteAttribute>();
                 if (pathAttr == null)
-                    throw new ArgumentNullException($"{nameof(ApiRouteAttribute)} required for Proxy - Api interface.");
+                    throw new ProxyException($"{nameof(ApiRouteAttribute)} required for Proxy - Api interface.");
 
                 if (!pathAttr.RegionKey.HasValue())
-                    throw new ArgumentOutOfRangeException($"Specify the \"{nameof(pathAttr.RegionKey)}\"!");
+                    throw new ProxyException($"Specify the \"{nameof(pathAttr.RegionKey)}\"!");
 
                 var route = proxyType.Name.GetApiRootPath(pathAttr.RouteTemplate);
 
@@ -78,7 +76,7 @@ namespace NetCoreStack.Proxy.Internal
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
                         else if (httpMethodAttribute is HttpPostMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Post;
-                        else if(httpMethodAttribute is HttpPutMarkerAttribute)
+                        else if (httpMethodAttribute is HttpPutMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Put;
                         else if (httpMethodAttribute is HttpDeleteMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Delete;
@@ -95,6 +93,18 @@ namespace NetCoreStack.Proxy.Internal
                         var parameterType = parameter.ParameterType;
                         var properties = parameterType.GetProperties().ToList();
 
+                        var proxyParameterDescriptor = new ProxyParameterDescriptor(properties);
+                        if (proxyParameterDescriptor.HasFormFile)
+                        {
+                            if (parameter.CustomAttributes
+                                .Any(a => a.AttributeType.Name == "FromBodyAttribute"))
+                            {
+                                throw new ProxyException($"Parameter: \"{parameter.ParameterType.Name} as {parameter.Name}\" " +
+                                    "contains IFormFile type property. " +
+                                    "Remove FromBody attribute to proper model binding.");
+                            }
+                        }
+
                         proxyMethodDescriptor.Parameters.Add(new ProxyParameterDescriptor(properties)
                         {
                             Name = parameter.Name,
@@ -102,7 +112,11 @@ namespace NetCoreStack.Proxy.Internal
                             BindingInfo = BindingInfo.GetBindingInfo(parameter.GetCustomAttributes().OfType<object>())
                         });
                     }
+                    
+                    var isMultipartFormData = proxyMethodDescriptor.Parameters.SelectMany(p => p.Properties)
+                        .Any(c => c.Value.PropertyContentType == PropertyContentType.Multipart);
 
+                    proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
                     descriptor.Methods.Add(method, proxyMethodDescriptor);
                 }
                 #endregion // method resolver
