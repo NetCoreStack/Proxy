@@ -68,7 +68,7 @@ public class TestController : Controller
 
 #### API Contract Definition (Default HttpMethod is HttpGet)
 ```csharp
-// This APIs expose methods from localhost:5000 and localhost:5001 as configured on ProxySettings
+// This API expose methods from localhost:5000 and localhost:5001 as configured on ProxySettings
 [ApiRoute("api/[controller]", regionKey: "Main")]
 public interface IGuidelineApi : IApiContract
 {
