@@ -1,18 +1,17 @@
-﻿using NetCoreStack.Proxy.Internal;
-using System;
+﻿using System;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
 {
     public class ResponseContext
     {
-        public RequestDescriptor RequestDescriptor { get; }
+        public RequestContext RequestDescriptor { get; }
         public string ResultContent { get; set; }
         public HttpResponseMessage Response { get; set; }
         public object Value { get; set; }
 
         public ResponseContext(HttpResponseMessage response,
-            RequestDescriptor requestDescriptor,
+            RequestContext requestDescriptor,
             Type genericReturnType = null)
         {
             Response = response ?? throw new ArgumentNullException(nameof(response));

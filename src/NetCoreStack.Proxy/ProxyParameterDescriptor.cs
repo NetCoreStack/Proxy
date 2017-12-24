@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace NetCoreStack.Proxy
 {
-    public class ProxyParameterDescriptor : ParameterDescriptor
+    public class ProxyParameterDescriptor
     {
+        public string Name { get; set; }
+        public Type ParameterType { get; set; }
+
         public IDictionary<string, PropertyContentTypeInfo> Properties { get; }
         
         public bool HasFormFile { get; }
@@ -20,6 +22,11 @@ namespace NetCoreStack.Proxy
             {
                 PropertyContentType contentType = PropertyContentType.String;
                 if (typeof(IFormFile).IsAssignableFrom(prop.PropertyType))
+                {
+                    HasFormFile = true;
+                    contentType = PropertyContentType.Multipart;
+                }
+                else if (typeof(IEnumerable<IFormFile>).IsAssignableFrom(prop.PropertyType))
                 {
                     HasFormFile = true;
                     contentType = PropertyContentType.Multipart;

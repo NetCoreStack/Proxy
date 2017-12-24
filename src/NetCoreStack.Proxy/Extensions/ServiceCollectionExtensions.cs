@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -39,10 +38,11 @@ namespace NetCoreStack.Proxy
             services.Configure<ProxyOptions>(configuration.GetSection(Constants.ProxySettings));
             services.AddSingleton<IProxyTypeManager, DefaultProxyTypeManager>();
 
-            services.TryAdd(ServiceDescriptor.Singleton<IHttpContextAccessor, HttpContextAccessor>());
+            services.TryAdd(ServiceDescriptor.Scoped<IProxyContextAccessor, DefaultProxyContextAccessor>());
+
             services.TryAdd(ServiceDescriptor.Singleton<IHttpClientAccessor, DefaultHttpClientAccessor>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyManager, ProxyManager>());
-            services.TryAdd(ServiceDescriptor.Singleton<IHeaderProvider, DefaultHeaderProvider>());
+            services.TryAdd(ServiceDescriptor.Singleton<IDefaultHeaderProvider, DefaultHeaderProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyContentStreamProvider, DefaultProxyContentStreamProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyEndpointManager, DefaultProxyEndpointManager>());
 
@@ -57,7 +57,7 @@ namespace NetCoreStack.Proxy
                 genericRegistry.Invoke(null, new object[] { services });
             }
 
-            var headerValues = new HeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };
+            var headerValues = new DefaultHeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };
             services.AddSingleton(Options.Create(headerValues));
             services.AddSingleton(proxyBuilderOptions);
         }

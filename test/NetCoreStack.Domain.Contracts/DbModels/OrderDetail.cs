@@ -1,6 +1,4 @@
-﻿using NetCoreStack.Data.Contracts;
-
-namespace NetCoreStack.Domain.Contracts
+﻿namespace NetCoreStack.Domain.Contracts
 {
     public class OrderDetail : EntityIdentitySql
     {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace NetCoreStack.Proxy
 {
-    public class DefaultHeaderProvider : IHeaderProvider
+    public class DefaultHeaderProvider : IDefaultHeaderProvider
     {
         public IDictionary<string, string> Headers { get; set; }
 
-        public DefaultHeaderProvider(IOptions<HeaderValues> options)
+        public DefaultHeaderProvider(IOptions<DefaultHeaderValues> options)
         {
             Headers = options.Value.Headers;
         }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NetCoreStack.Contracts;
+﻿using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,6 @@ namespace NetCoreStack.Proxy
         public bool IsVoidReturn { get; }
         public bool IsTaskReturn { get; }
         public bool IsGenericTaskReturn { get; }
-        public bool IsActionResult { get; }
 
         public ProxyMethodDescriptor(MethodInfo methodInfo)
         {
@@ -38,7 +36,6 @@ namespace NetCoreStack.Proxy
             IsVoidReturn = ReturnType == typeof(void);
             IsTaskReturn = ReturnType.IsAssignableFrom(typeof(Task)) ? true : false;
             IsGenericTaskReturn = ReturnType.IsGenericTask() ? true : false;
-            IsActionResult = ReturnType.IsAssignableFrom(typeof(IActionResult));
 
             if (IsGenericTaskReturn)
             {

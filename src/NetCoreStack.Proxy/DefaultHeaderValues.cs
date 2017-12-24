@@ -2,11 +2,11 @@
 
 namespace NetCoreStack.Proxy
 {
-    public class HeaderValues
+    public class DefaultHeaderValues
     {
         public IDictionary<string, string> Headers { get; set; }
 
-        public HeaderValues()
+        public DefaultHeaderValues()
         {
             Headers = new Dictionary<string, string>();
         }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NetCoreStack.Data.Helpers;
 using NetCoreStack.Data.Interfaces;
 using NetCoreStack.Domain.Contracts;
 using System;

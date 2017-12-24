@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NetCoreStack.Contracts;
+﻿using NetCoreStack.Contracts;
 using System.Threading.Tasks;
 
 namespace NetCoreStack.Domain.Contracts.ApiContracts

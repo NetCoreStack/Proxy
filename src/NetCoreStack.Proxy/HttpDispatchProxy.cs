@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using NetCoreStack.Proxy.Internal;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -18,16 +18,16 @@ namespace NetCoreStack.Proxy
         {
         }
 
-        private object CreateContextProperties(RequestDescriptor descriptor, MethodInfo targetMethod)
+        private object CreateContextProperties(RequestContext context, MethodInfo targetMethod)
         {
             var properties = new
             {
                 EnvironmentName = Environment.MachineName,
                 Message = $"Proxy call from Sandbox: {Environment.MachineName} to API method: {targetMethod?.Name}",
-                Method = descriptor?.Request?.Method,
-                Authority = descriptor?.Request?.RequestUri?.Authority,
-                LocalPath = descriptor?.Request?.RequestUri?.LocalPath,
-                RequestRegion = descriptor?.RegionKey
+                Method = context?.Request?.Method,
+                Authority = context?.Request?.RequestUri?.Authority,
+                LocalPath = context?.Request?.RequestUri?.LocalPath,
+                RequestRegion = context?.RegionKey
             };
 
             return properties;
@@ -50,36 +50,41 @@ namespace NetCoreStack.Proxy
 
         private async Task<ResponseContext> InternalInvokeAsync(MethodInfo targetMethod, object[] args, Type genericReturnType = null)
         {
-            var requestContext = new RequestContext(targetMethod,
+            var descriptor = new RequestDescriptor(targetMethod,
                 _proxyContext.ProxyType,
                 _proxyContext.ClientIp,
                 _proxyContext.UserAgent,
-                _proxyContext.TokenCookie,
-                _proxyContext.QueryString,
+                _proxyContext.Query,
                 args);
 
-            RequestDescriptor descriptor = await _proxyManager.CreateDescriptorAsync(requestContext);
+            RequestContext requestContext = await _proxyManager.CreateRequestAsync(descriptor);
             ResponseContext responseContext = null;
             try
             {
                 HttpResponseMessage response = null;
                 var httpClient = _proxyManager.HttpClient;
                 string metadata = string.Empty;
-                response = await httpClient.SendAsync(descriptor.Request);
+
+                if (_proxyManager.HasFilter)
+                {
+                    await Task.WhenAll(_proxyManager.RequestFilters.Select(t => t.InvokeAsync(requestContext)));
+                }
+                
+                response = await httpClient.SendAsync(requestContext.Request);
                 responseContext = await ProxyResultExecutor.ExecuteAsync(response,
-                    descriptor,
+                    requestContext,
                     genericReturnType);
             }
             catch (Exception ex)
             {
-                var properties = CreateContextProperties(descriptor, targetMethod);
+                var properties = CreateContextProperties(requestContext, targetMethod);
                 var result = properties.GetConfigurationContextDetail(properties);
                 throw new ProxyException(result, ex);
             }
 
             if ((int)responseContext.Response.StatusCode == StatusCodes.Status404NotFound)
             {
-                var properties = CreateContextProperties(descriptor, targetMethod);
+                var properties = CreateContextProperties(requestContext, targetMethod);
                 var result = properties.GetConfigurationContextDetail(properties);
                 throw new ProxyException(result, new HttpRequestException());
             }
@@ -91,7 +96,7 @@ namespace NetCoreStack.Proxy
         {
             if (method.Name == "get_ControllerContext")
             {
-                throw new NotSupportedException($"\"{nameof(ActionContext)}\" is not supported for proxy instance");
+                throw new NotSupportedException($"\"ActionContext\" is not supported for proxy instance");
             }
 
             await InternalInvokeAsync(method, args);
@@ -101,7 +106,7 @@ namespace NetCoreStack.Proxy
         {
             if (method.Name == "get_ControllerContext")
             {
-                throw new NotSupportedException($"\"{nameof(ActionContext)}\" is not supported for proxy instance");
+                throw new NotSupportedException($"\"ActionContext\" is not supported for proxy instance");
             }
 
             var responseContext = await InternalInvokeAsync(method, args, typeof(T));
@@ -113,7 +118,7 @@ namespace NetCoreStack.Proxy
         {
             if (method.Name == "get_ControllerContext")
             {
-                throw new NotSupportedException($"\"{nameof(ActionContext)}\" is not supported for proxy instance");
+                throw new NotSupportedException($"\"ActionContext\" is not supported for proxy instance");
             }
 
             ResponseContext context = Task.Run(async () => await InternalInvokeAsync(method, args).ConfigureAwait(false)).Result;

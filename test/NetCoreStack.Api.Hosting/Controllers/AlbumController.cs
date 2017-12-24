@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NetCoreStack.Contracts;
 using NetCoreStack.Data.Interfaces;
 using NetCoreStack.Domain.Contracts;
@@ -7,7 +6,6 @@ using NetCoreStack.Domain.Contracts.ApiContracts;
 using NetCoreStack.Mvc.Extensions;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NetCoreStack.WebClient.Hosting.Controllers

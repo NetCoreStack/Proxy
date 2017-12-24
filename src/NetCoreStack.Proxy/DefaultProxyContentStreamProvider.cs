@@ -85,7 +85,7 @@ namespace NetCoreStack.Proxy
 
         protected virtual void EnsureTemplate(ProxyMethodDescriptor descriptor, 
             ProxyUriDefinition proxyUriDefinition,
-            RequestContext requestContext,
+            RequestDescriptor requestContext,
             IDictionary<string, object> argsDic,
             List<string> keys)
         {
@@ -103,7 +103,7 @@ namespace NetCoreStack.Proxy
             }
         }
 
-        public async Task CreateRequestContentAsync(RequestContext requestContext, 
+        public async Task CreateRequestContentAsync(RequestDescriptor requestContext, 
             HttpRequestMessage request, 
             ProxyMethodDescriptor descriptor,
             ProxyUriDefinition proxyUriDefinition)

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using NetCoreStack.Contracts;
+﻿using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -108,8 +107,7 @@ namespace NetCoreStack.Proxy.Internal
                         proxyMethodDescriptor.Parameters.Add(new ProxyParameterDescriptor(properties)
                         {
                             Name = parameter.Name,
-                            ParameterType = parameterType,
-                            BindingInfo = BindingInfo.GetBindingInfo(parameter.GetCustomAttributes().OfType<object>())
+                            ParameterType = parameterType
                         });
                     }
                     
