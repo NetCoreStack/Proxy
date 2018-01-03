@@ -112,7 +112,9 @@ namespace NetCoreStack.Proxy.Internal
                     }
                     
                     var isMultipartFormData = proxyMethodDescriptor.Parameters.SelectMany(p => p.Properties)
-                        .Any(c => c.Value.PropertyContentType == PropertyContentType.Multipart);
+                        .Any(c => c.Value.PropertyContentType == PropertyContentType.FormFile ||
+                        c.Value.PropertyContentType == PropertyContentType.FormFileCollection ||
+                        c.Value.PropertyContentType == PropertyContentType.ByteArray);
 
                     proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
                     descriptor.Methods.Add(method, proxyMethodDescriptor);

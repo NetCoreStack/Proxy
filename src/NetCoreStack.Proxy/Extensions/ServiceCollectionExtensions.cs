@@ -57,6 +57,11 @@ namespace NetCoreStack.Proxy
                 genericRegistry.Invoke(null, new object[] { services });
             }
 
+            if (proxyBuilderOptions.ProxyContextAccessor != null)
+            {
+                services.TryAdd(ServiceDescriptor.Scoped(typeof(IProxyContextAccessor), proxyBuilderOptions.ProxyContextAccessor));
+            }
+
             var headerValues = new DefaultHeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };
             services.AddSingleton(Options.Create(headerValues));
             services.AddSingleton(proxyBuilderOptions);

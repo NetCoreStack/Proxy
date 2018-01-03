@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\NetCoreStack.Proxy\NetCoreStack.Proxy.csproj" />
-    <ProjectReference Include="..\NetCoreStack.Proxy.ServerApp\NetCoreStack.Proxy.ServerApp.csproj" />
     <ProjectReference Include="..\NetCoreStack.Proxy.Test.Contracts\NetCoreStack.Proxy.Test.Contracts.csproj" />
   </ItemGroup>
 

@@ -14,18 +14,15 @@ namespace NetCoreStack.Proxy.Tests
     {
         protected IServiceProvider Resolver { get; }
         protected IConfigurationRoot Configuration { get; }
-        protected TestHostingServer<ServerApp.Startup> TestServer { get; }
 
         private void RegisterServices(IServiceCollection services)
         {
             var httpClientAccessor = new Mock<IHttpClientAccessor>();
-            httpClientAccessor.Setup(x => x.HttpClient).Returns(TestServer.Client);
-            services.AddSingleton<IHttpClientAccessor>(httpClientAccessor.Object);
+            services.AddSingleton(httpClientAccessor.Object);
         }
 
         public ProxyCreationTests()
         {
-            TestServer = new TestHostingServer<ServerApp.Startup>();
             Resolver = TestHelper.GetServiceProvider(RegisterServices);
             Configuration = TestHelper.Configuration;
         }

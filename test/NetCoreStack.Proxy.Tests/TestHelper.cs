@@ -1,17 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ObjectPool;
-using System;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.Extensions.Configuration;
-using System.IO;
-using NetCoreStack.Proxy.Test.Contracts;
+﻿using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
-using Moq;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using NetCoreStack.Proxy.Test.Contracts;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace NetCoreStack.Proxy.Tests
 {
@@ -48,21 +44,10 @@ namespace NetCoreStack.Proxy.Tests
         public static IServiceProvider GetServiceProvider(Action<IServiceCollection> setup = null)
         {
             var services = new ServiceCollection();
-            services.AddSingleton(new ApplicationPartManager());
-            services.AddSingleton<DiagnosticSource>(new DiagnosticListener("Microsoft.AspNetCore.Mvc"));
-
-            services.AddMvc();
-
-            services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
-            services.AddTransient<ILoggerFactory, LoggerFactory>();
-
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(resolver =>
+            var env = new HostingEnvironment
             {
-                return new HttpContextAccessor { HttpContext = HttpContext };
-            });
-
-            var env = new HostingEnvironment();
-            env.ContentRootPath = Directory.GetCurrentDirectory();
+                ContentRootPath = Directory.GetCurrentDirectory()
+            };
 
             services.AddSingleton(env);
 
@@ -78,7 +63,9 @@ namespace NetCoreStack.Proxy.Tests
 
             services.AddNetCoreProxy(Configuration, options =>
             {
+                options.DefaultHeaders.Add("X-NetCoreStack-Header", "ProxyHeaderValue");
                 options.Register<IGuidelineApi>();
+                options.Register<IConsulApi>();
             });
 
             var serviceProvider = services.BuildServiceProvider();

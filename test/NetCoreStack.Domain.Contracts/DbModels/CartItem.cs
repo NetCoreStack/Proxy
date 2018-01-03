@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetCoreStack.Data.Contracts;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts

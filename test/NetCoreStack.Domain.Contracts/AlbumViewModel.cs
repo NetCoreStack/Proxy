@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using NetCoreStack.Contracts;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NetCoreStack.Domain.Contracts
@@ -52,6 +53,6 @@ namespace NetCoreStack.Domain.Contracts
 
     public class AlbumViewModelSubmit : AlbumViewModel
     {
-        public IFormFile Image { get; set; }
+        public IEnumerable<IFormFile> Files { get; set; }
     }
 }

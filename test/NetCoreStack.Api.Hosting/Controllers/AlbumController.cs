@@ -125,18 +125,6 @@ namespace NetCoreStack.WebClient.Hosting.Controllers
             };
 
             _unitOfWork.Repository<Album>().SaveAllChanges(album);
-
-            if (model.Image != null && model.Image.Length > 0)
-            {
-                // full path to file in temp location
-                var filePath = Path.GetTempFileName();
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.Image.CopyToAsync(stream);
-                }
-            }
-
             return model;
         }
 
