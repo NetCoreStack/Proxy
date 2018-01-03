@@ -21,4 +21,10 @@
     <ProjectReference Include="..\NetCoreStack.Proxy.Test.Contracts\NetCoreStack.Proxy.Test.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

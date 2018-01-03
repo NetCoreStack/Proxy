@@ -14,19 +14,19 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         Task TaskOperation();
 
-        Task<IEnumerable<Post>> GetPostsAsync();
+        Task<IEnumerable<SampleModel>> GetEnumerableModels();
 
-        Task<CollectionResult<Post>> GetCollectionStream();
+        Task<CollectionResult<SampleModel>> GetCollectionStreamTask();
 
-        IEnumerable<CollectionResult<Post>> GetCollectionStreams();
+        IEnumerable<CollectionResult<SampleModel>> GetCollection();
 
-        Task GetWithReferenceType(SimpleModel model);
+        Task GetWithReferenceType(SampleModel model);
 
         [HttpPostMarker]
-        Task TaskActionPost(SimpleModel model);
+        Task TaskActionPost(SampleModel model);
 
         [HttpPutMarker]
-        Task TaskActionPut(long id, SimpleModel model);
+        Task TaskActionPut(long id, SampleModel model);
 
         [HttpDeleteMarker]
         Task TaskActionDelete(long id);

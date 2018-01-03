@@ -38,7 +38,7 @@ namespace NetCoreStack.Proxy
             services.Configure<ProxyOptions>(configuration.GetSection(Constants.ProxySettings));
             services.AddSingleton<IProxyTypeManager, DefaultProxyTypeManager>();
 
-            services.TryAdd(ServiceDescriptor.Scoped<IProxyContextAccessor, DefaultProxyContextAccessor>());
+            services.TryAdd(ServiceDescriptor.Scoped<IProxyContextFilter, DefaultProxyContextFilter>());
 
             services.TryAdd(ServiceDescriptor.Singleton<IHttpClientAccessor, DefaultHttpClientAccessor>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyManager, ProxyManager>());
@@ -57,9 +57,9 @@ namespace NetCoreStack.Proxy
                 genericRegistry.Invoke(null, new object[] { services });
             }
 
-            if (proxyBuilderOptions.ProxyContextAccessor != null)
+            if (proxyBuilderOptions.ProxyContextFilter != null)
             {
-                services.TryAdd(ServiceDescriptor.Scoped(typeof(IProxyContextAccessor), proxyBuilderOptions.ProxyContextAccessor));
+                services.TryAdd(ServiceDescriptor.Scoped(typeof(IProxyContextFilter), proxyBuilderOptions.ProxyContextFilter));
             }
 
             var headerValues = new DefaultHeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };

@@ -8,7 +8,7 @@ namespace NetCoreStack.Proxy
     {
         internal List<Type> ProxyList { get; }
 
-        internal Type ProxyContextAccessor { get; set; }
+        internal Type ProxyContextFilter { get; set; }
 
         public IDictionary<string, string> DefaultHeaders { get; }
 
@@ -24,16 +24,16 @@ namespace NetCoreStack.Proxy
         /// <typeparam name="TProxy"></typeparam>
         public void Register<TProxy>() where TProxy : IApiContract
         {
-            ProxyList.Add(typeof(TProxy));   
+            ProxyList.Add(typeof(TProxy));
         }
 
         /// <summary>
-        /// Use the TAccessor as <see cref="IProxyContextAccessor"/> instead default accessors values <see cref="DefaultProxyContextAccessorValues"/>
+        /// Use the TAccessor as <see cref="IProxyContextFilter"/> instead default accessors values <see cref="DefaultProxyContextFilter"/>
         /// </summary>
-        /// <typeparam name="TAccessor"></typeparam>
-        public void RegisterAccessor<TAccessor>() where TAccessor : IProxyContextAccessor
+        /// <typeparam name="TFilter"></typeparam>
+        public void RegisterFilter<TFilter>() where TFilter : IProxyContextFilter
         {
-            ProxyContextAccessor = typeof(TAccessor);
+            ProxyContextFilter = typeof(TFilter);
         }
     }
 }

@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
@@ -17,23 +20,25 @@ namespace NetCoreStack.Proxy.Tests
 
         public static IConfigurationRoot Configuration { get; set; }
 
-        public static void CreateHttpContext(IServiceProvider resolver)
+        private static void CreateHttpContext(IServiceProvider serviceProvider)
         {
-            var contentType = "application/json";
+            var contentType = "application/json; charset=utf-8";
             var request = new Mock<HttpRequest>();
             var response = new Mock<HttpResponse>();
             var items = new Dictionary<object, object>();
             var cookies = new Dictionary<string, string>();
-            var headers = new Mock<IHeaderDictionary>();
             var responseHeaders = new HeaderDictionary();
 
+            var headers = new HeaderDictionary();
+            headers.Add(ContextBaseExtensions.ClientUserAgentHeader, new StringValues("Chrome/63.0.3239.84 Safari/537.36"));
+
             request.SetupGet(x => x.Cookies).Returns(new RequestCookieCollection(cookies));
-            request.SetupGet(r => r.Headers).Returns(headers.Object);
+            request.SetupGet(r => r.Headers).Returns(headers);
             request.SetupGet(f => f.ContentType).Returns(contentType);
             response.SetupGet(r => r.Headers).Returns(responseHeaders);
 
             var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.RequestServices).Returns(resolver);
+            httpContext.Setup(c => c.RequestServices).Returns(serviceProvider);
             httpContext.SetupGet(c => c.Request).Returns(request.Object);
             httpContext.SetupGet(c => c.Items).Returns(items);
             httpContext.Setup(c => c.Response).Returns(response.Object);
@@ -41,9 +46,15 @@ namespace NetCoreStack.Proxy.Tests
             HttpContext = httpContext.Object;
         }
 
-        public static IServiceProvider GetServiceProvider(Action<IServiceCollection> setup = null)
+        static TestHelper()
         {
             var services = new ServiceCollection();
+            services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+            services.AddSingleton<IHttpContextAccessor>(resolver => new HttpContextAccessor
+            {
+                HttpContext = HttpContext
+            });
+            
             var env = new HostingEnvironment
             {
                 ContentRootPath = Directory.GetCurrentDirectory()
@@ -59,18 +70,15 @@ namespace NetCoreStack.Proxy.Tests
 
             Configuration = builder.Build();
 
-            setup?.Invoke(services);
-
             services.AddNetCoreProxy(Configuration, options =>
             {
                 options.DefaultHeaders.Add("X-NetCoreStack-Header", "ProxyHeaderValue");
+                options.RegisterFilter<CustomProxyContextFilter>();
                 options.Register<IGuidelineApi>();
                 options.Register<IConsulApi>();
             });
 
-            var serviceProvider = services.BuildServiceProvider();
-            CreateHttpContext(serviceProvider);
-            return serviceProvider;
+            CreateHttpContext(services.BuildServiceProvider());
         }
     }
 }

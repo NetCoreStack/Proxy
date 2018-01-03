@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
@@ -15,15 +14,9 @@ namespace NetCoreStack.Proxy.Tests
         protected IServiceProvider Resolver { get; }
         protected IConfigurationRoot Configuration { get; }
 
-        private void RegisterServices(IServiceCollection services)
-        {
-            var httpClientAccessor = new Mock<IHttpClientAccessor>();
-            services.AddSingleton(httpClientAccessor.Object);
-        }
-
         public ProxyCreationTests()
         {
-            Resolver = TestHelper.GetServiceProvider(RegisterServices);
+            Resolver = TestHelper.HttpContext.RequestServices;
             Configuration = TestHelper.Configuration;
         }
 
@@ -38,7 +31,7 @@ namespace NetCoreStack.Proxy.Tests
         public async Task TaskCallHttpPostWithReferenceTypeParameter()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SimpleModel
+            var simpleModel = new SampleModel
             {
                 Name = nameof(TaskCallHttpPostWithReferenceTypeParameter),
                 Date = DateTime.Now,
@@ -51,7 +44,7 @@ namespace NetCoreStack.Proxy.Tests
         public async Task TaskCallHttpGetWithReferenceTypeParameter()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SimpleModel
+            var simpleModel = new SampleModel
             {
                 Name = nameof(TaskCallHttpGetWithReferenceTypeParameter),
                 Date = DateTime.Now,
@@ -64,23 +57,23 @@ namespace NetCoreStack.Proxy.Tests
         public async Task GenericTaskResultCall()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetPostsAsync();
-            Assert.True(items.GetType() == typeof(List<Post>));
+            var items = await guidelineApi.GetEnumerableModels();
+            Assert.True(items.GetType() == typeof(List<SampleModel>));
         }
 
         [Fact]
         public async Task GetCollectionStream()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetCollectionStream();
-            Assert.True(items.GetType() == typeof(CollectionResult<Post>));
+            var items = await guidelineApi.GetCollectionStreamTask();
+            Assert.True(items.GetType() == typeof(CollectionResult<SampleModel>));
         }
 
         [Fact]
         public async Task TaskActionPut()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            await guidelineApi.TaskActionPut(1, new SimpleModel
+            await guidelineApi.TaskActionPut(1, new SampleModel
             {
                 Date = DateTime.Now,
                 Name = "Sample model",

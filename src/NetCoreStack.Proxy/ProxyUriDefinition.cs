@@ -23,6 +23,7 @@ namespace NetCoreStack.Proxy
 
         public void ResolveTemplate(RouteTemplate routeTemplate, string route, string template)
         {
+            var path = UriBuilder.Path ?? string.Empty;
             if (routeTemplate != null)
             {
                 if (routeTemplate.Parameters.Count > 0)
@@ -32,7 +33,8 @@ namespace NetCoreStack.Proxy
                     var key = route + "/" + template;
                     if (TemplateCache.TryGetValue(key, out string tmpl))
                     {
-                        UriBuilder.Path = $"{route}/{tmpl}";
+                        path += $"{route}/{tmpl}";
+                        UriBuilder.Path = path;
                         return;
                     }
 
@@ -42,12 +44,15 @@ namespace NetCoreStack.Proxy
 
                     tmpl = string.Join("/", segments);
                     TemplateCache.Add(key, tmpl);
-                    UriBuilder.Path = $"{route}/{tmpl}";
+
+                    path += $"{route}/{tmpl}";
+                    UriBuilder.Path = path;
                     return;
                 }
             }
 
-            UriBuilder.Path = $"{route}/{template}";
+            path += $"{route}/{template}";
+            UriBuilder.Path = path;
         }
     }
 }
