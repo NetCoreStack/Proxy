@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -58,15 +57,17 @@ namespace NetCoreStack.Proxy.Tests
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var items = await guidelineApi.GetEnumerableModels();
-            Assert.True(items.GetType() == typeof(List<SampleModel>));
+            Assert.True(items != null);
+            Assert.True(items.Count() == 4);
         }
 
         [Fact]
         public async Task GetCollectionStream()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetCollectionStreamTask();
-            Assert.True(items.GetType() == typeof(CollectionResult<SampleModel>));
+            var collection = await guidelineApi.GetCollectionStreamTask();
+            Assert.True(collection != null);
+            Assert.True(collection.Data.Count() == 4);
         }
 
         [Fact]
