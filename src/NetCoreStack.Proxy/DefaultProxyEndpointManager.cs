@@ -26,7 +26,11 @@ namespace NetCoreStack.Proxy
             if (!string.IsNullOrEmpty(descriptor.Route))
             {
                 if (targetMethodName.ToLower() == HttpMethod.Get.Method.ToLower())
-                    uriDefinition.UriBuilder.Path = $"{descriptor.Route}/";
+                {
+                    var path = uriDefinition.UriBuilder.Path ?? string.Empty;
+                    path += $"{descriptor.Route}/";
+                    uriDefinition.UriBuilder.Path = path;
+                }
                 else
                 {
                     if (targetMethodName.StartsWith("/"))
