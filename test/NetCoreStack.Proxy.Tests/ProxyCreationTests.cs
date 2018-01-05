@@ -67,7 +67,7 @@ namespace NetCoreStack.Proxy.Tests
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var collection = await guidelineApi.GetCollectionStreamTask();
             Assert.True(collection != null);
-            Assert.True(collection.Data.Count() == 4);
+            Assert.True(collection.Data.Count() == 5);
         }
 
         [Fact]
