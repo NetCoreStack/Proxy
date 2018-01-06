@@ -168,8 +168,10 @@ Task<AlbumViewModel> SaveAlbumSubmitAsync(AlbumViewModelSubmit model)
 public async Task<AlbumViewModel> SaveAlbumSubmitAsync(AlbumViewModelSubmit model)  
 ```
 
+#### Unit Testing
+Use [HttpLive](https://github.com/gencebay/httplive)
 
-
+	httplive -p 5003,5004 -d test/NetCoreStack.Proxy.Tests/httplive.db
 
 
 ### Prerequisites

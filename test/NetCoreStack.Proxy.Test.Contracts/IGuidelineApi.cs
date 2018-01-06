@@ -8,17 +8,13 @@ namespace NetCoreStack.Proxy.Test.Contracts
     [ApiRoute("api/[controller]", regionKey: "Main")]
     public interface IGuidelineApi : IApiContract
     {
-        Task VoidOperation();
+        Task TaskOperation();
 
         Task<int> PrimitiveReturn(int i, string s, long l, DateTime dt);
-
-        Task TaskOperation();
 
         Task<IEnumerable<SampleModel>> GetEnumerableModels();
 
         Task<CollectionResult<SampleModel>> GetCollectionStreamTask();
-
-        IEnumerable<CollectionResult<SampleModel>> GetCollection();
 
         Task GetWithReferenceType(SampleModel model);
 

@@ -1,10 +1,11 @@
 ﻿using NetCoreStack.Proxy.Extensions;
 using System;
+using System.Diagnostics;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
 {
-    public class RequestContext
+    public class RequestContext : IDisposable
     {
         public ProxyMethodDescriptor MethodDescriptor { get; }
         public HttpRequestMessage Request { get; }
@@ -35,6 +36,12 @@ namespace NetCoreStack.Proxy
             MethodDescriptor = methodDescriptor;
             RegionKey = regionKey;
             Timeout = timeout;
+        }
+
+        public void Dispose()
+        {
+            Debug.WriteLine("===Request Context disposing");
+            Request.Dispose();
         }
     }
 }

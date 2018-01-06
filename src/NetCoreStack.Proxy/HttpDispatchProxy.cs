@@ -43,11 +43,6 @@ namespace NetCoreStack.Proxy
             _proxyManager = proxyManager;
         }
 
-        protected object GetProxy()
-        {
-            return this;
-        }
-
         private async Task<ResponseContext> InternalInvokeAsync(MethodInfo targetMethod, object[] args, Type genericReturnType = null)
         {
             var descriptor = new RequestDescriptor(targetMethod,
@@ -99,7 +94,7 @@ namespace NetCoreStack.Proxy
                 throw new NotSupportedException($"\"ActionContext\" is not supported for proxy instance");
             }
 
-            await InternalInvokeAsync(method, args);
+            using (ResponseContext responseContext = await InternalInvokeAsync(method, args)) { }  
         }
 
         public override async Task<T> InvokeAsyncT<T>(MethodInfo method, object[] args)
@@ -109,9 +104,10 @@ namespace NetCoreStack.Proxy
                 throw new NotSupportedException($"\"ActionContext\" is not supported for proxy instance");
             }
 
-            var responseContext = await InternalInvokeAsync(method, args, typeof(T));
-            var methodDescriptor = responseContext.RequestDescriptor.MethodDescriptor;
-            return (T)responseContext.Value;
+            using (ResponseContext responseContext = await InternalInvokeAsync(method, args, typeof(T)))
+            {
+                return (T)responseContext.Value;
+            }
         }
 
         public override object Invoke(MethodInfo method, object[] args)

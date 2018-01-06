@@ -20,10 +20,11 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
-        public void VoidCall()
+        public async Task TaskOperation()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            guidelineApi.VoidOperation();
+            var task = guidelineApi.TaskOperation();
+            await task;
         }
 
         [Fact]
@@ -32,9 +33,8 @@ namespace NetCoreStack.Proxy.Tests
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var simpleModel = new SampleModel
             {
-                Name = nameof(TaskCallHttpPostWithReferenceTypeParameter),
-                Date = DateTime.Now,
-                Value = "<<string>>"
+                String = nameof(TaskCallHttpPostWithReferenceTypeParameter),
+                Date = DateTime.Now
             };
             await guidelineApi.TaskActionPost(simpleModel);
         }
@@ -45,9 +45,8 @@ namespace NetCoreStack.Proxy.Tests
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var simpleModel = new SampleModel
             {
-                Name = nameof(TaskCallHttpGetWithReferenceTypeParameter),
-                Date = DateTime.Now,
-                Value = "<<string>>"
+                String = nameof(TaskCallHttpGetWithReferenceTypeParameter),
+                Date = DateTime.Now
             };
             await guidelineApi.GetWithReferenceType(simpleModel);
         }
@@ -77,8 +76,7 @@ namespace NetCoreStack.Proxy.Tests
             await guidelineApi.TaskActionPut(1, new SampleModel
             {
                 Date = DateTime.Now,
-                Name = "Sample model",
-                Value = "{foo: bar}"
+                String = "Sample model"
             });
 
             Assert.True(true);
