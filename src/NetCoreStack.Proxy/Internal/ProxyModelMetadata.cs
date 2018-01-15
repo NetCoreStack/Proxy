@@ -24,6 +24,8 @@ namespace NetCoreStack.Proxy.Internal
 
         public string PropertyName => Identity.Name;
 
+        public bool IsSimpleType { get; private set; }
+
         public bool IsComplexType { get; private set; }
 
         public bool IsNullableValueType { get; private set; }
@@ -33,20 +35,34 @@ namespace NetCoreStack.Proxy.Internal
         public bool IsEnumerableType { get; private set; }
         
         public bool IsReferenceOrNullableType { get; private set; }
-        
+
+        public IEnumerable<ProxyModelMetadata> Properties { get; private set; }
+
         public ProxyModelMetadata(ProxyModelMetadataIdentity identity)
         {
             Identity = identity;
-
+            Properties = new List<ProxyModelMetadata>();
             InitializeTypeInformation();
         }
 
         private void InitializeTypeInformation()
         {
+            var typeInfo = ModelType.GetTypeInfo();
+
             IsComplexType = !TypeDescriptor.GetConverter(ModelType).CanConvertFrom(typeof(string));
             IsNullableValueType = Nullable.GetUnderlyingType(ModelType) != null;
-            IsReferenceOrNullableType = !ModelType.GetTypeInfo().IsValueType || IsNullableValueType;
+            IsReferenceOrNullableType = !typeInfo.IsValueType || IsNullableValueType;
             UnderlyingOrModelType = Nullable.GetUnderlyingType(ModelType) ?? ModelType;
+
+            IsSimpleType = typeInfo.IsPrimitive ||
+                typeInfo.IsEnum ||
+                ModelType.Equals(typeof(decimal)) ||
+                ModelType.Equals(typeof(string)) ||
+                ModelType.Equals(typeof(DateTime)) ||
+                ModelType.Equals(typeof(Guid)) ||
+                ModelType.Equals(typeof(DateTimeOffset)) ||
+                ModelType.Equals(typeof(TimeSpan)) ||
+                ModelType.Equals(typeof(Uri));
 
             var collectionType = ClosedGenericMatcher.ExtractGenericInterface(ModelType, typeof(ICollection<>));
             IsCollectionType = collectionType != null;
@@ -72,6 +88,20 @@ namespace NetCoreStack.Proxy.Internal
                     // ModelType implements IEnumerable but not IEnumerable<T>.
                     ElementType = typeof(object);
                 }
+            }
+
+            if (IsComplexType && IsReferenceOrNullableType && 
+                (!IsEnumerableType && !IsCollectionType) &&
+                ModelType.Name != typeof(object).Name)
+            {
+                PropertyInfo[] properties = ModelType.GetProperties();
+                List<ProxyModelMetadata> metadataList = new List<ProxyModelMetadata>();
+                foreach (var prop in properties)
+                {
+                    metadataList.Add(new ProxyModelMetadata(ProxyModelMetadataIdentity.ForProperty(prop.PropertyType, prop.Name, ModelType)));
+                }
+
+                Properties = metadataList;
             }
         }
 

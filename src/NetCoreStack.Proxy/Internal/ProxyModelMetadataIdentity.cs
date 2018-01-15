@@ -88,7 +88,6 @@ namespace NetCoreStack.Proxy.Internal
 
         public ParameterInfo ParameterInfo { get; private set; }
 
-        /// <inheritdoc />
         public bool Equals(ProxyModelMetadataIdentity other)
         {
             return
@@ -97,15 +96,13 @@ namespace NetCoreStack.Proxy.Internal
                 Name == other.Name &&
                 ParameterInfo == other.ParameterInfo;
         }
-
-        /// <inheritdoc />
+        
         public override bool Equals(object obj)
         {
             var other = obj as ProxyModelMetadataIdentity?;
             return other.HasValue && Equals(other.Value);
         }
-
-        /// <inheritdoc />
+        
         public override int GetHashCode()
         {
             var hash = new HashCodeCombiner();
