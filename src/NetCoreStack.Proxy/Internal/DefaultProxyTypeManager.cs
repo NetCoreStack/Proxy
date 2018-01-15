@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using NetCoreStack.Contracts;
+﻿using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -108,13 +107,14 @@ namespace NetCoreStack.Proxy.Internal
                         proxyMethodDescriptor.Parameters.Add(new ProxyParameterDescriptor(properties)
                         {
                             Name = parameter.Name,
-                            ParameterType = parameterType,
-                            BindingInfo = BindingInfo.GetBindingInfo(parameter.GetCustomAttributes().OfType<object>())
+                            ParameterType = parameterType
                         });
                     }
                     
                     var isMultipartFormData = proxyMethodDescriptor.Parameters.SelectMany(p => p.Properties)
-                        .Any(c => c.Value.PropertyContentType == PropertyContentType.Multipart);
+                        .Any(c => c.Value.PropertyContentType == PropertyContentType.FormFile ||
+                        c.Value.PropertyContentType == PropertyContentType.FormFileCollection ||
+                        c.Value.PropertyContentType == PropertyContentType.ByteArray);
 
                     proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
                     descriptor.Methods.Add(method, proxyMethodDescriptor);

@@ -8,11 +8,11 @@ namespace NetCoreStack.Proxy.Internal
     public static class ProxyResultExecutor
     {
         public static async Task<ResponseContext> ExecuteAsync(HttpResponseMessage response,
-            RequestDescriptor descriptor,
+            RequestContext requestContext,
             Type genericReturnType = null)
         {
-            var context = new ResponseContext(response, descriptor);
-            var methodDescriptor = descriptor.MethodDescriptor;
+            var context = new ResponseContext(response, requestContext);
+            var methodDescriptor = requestContext.MethodDescriptor;
 
             if (response == null)
                 return context;

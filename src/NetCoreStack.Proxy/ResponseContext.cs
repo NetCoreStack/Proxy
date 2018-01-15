@@ -1,22 +1,29 @@
-﻿using NetCoreStack.Proxy.Internal;
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
 {
-    public class ResponseContext
+    public class ResponseContext: IDisposable
     {
-        public RequestDescriptor RequestDescriptor { get; }
+        public RequestContext RequestContext { get; }
         public string ResultContent { get; set; }
         public HttpResponseMessage Response { get; set; }
         public object Value { get; set; }
 
         public ResponseContext(HttpResponseMessage response,
-            RequestDescriptor requestDescriptor,
+            RequestContext requestContext,
             Type genericReturnType = null)
         {
             Response = response ?? throw new ArgumentNullException(nameof(response));
-            RequestDescriptor = requestDescriptor ?? throw new ArgumentNullException(nameof(requestDescriptor));
+            RequestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
+        }
+
+        public void Dispose()
+        {
+            Debug.WriteLine("===Response Context disposing");
+            RequestContext.Dispose();
+            Response.Dispose();
         }
     }
 }

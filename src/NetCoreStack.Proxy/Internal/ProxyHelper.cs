@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NetCoreStack.Contracts;
-using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Reflection;
 
@@ -12,24 +10,11 @@ namespace NetCoreStack.Proxy.Internal
         public static TProxy CreateProxy<TProxy>(IServiceProvider container) where TProxy : IApiContract
         {
             dynamic proxy = DispatchProxyAsync.Create<TProxy, HttpDispatchProxy>();
-            var contextAcessor = container.GetService<IHttpContextAccessor>();
-
-            if (contextAcessor?.HttpContext == null)
-                return default(TProxy);
-
-            var context = new ProxyContext(typeof(TProxy));
-            if (contextAcessor?.HttpContext.Request != null)
-            {
-                context.ClientIp = contextAcessor.HttpContext.GetIp();
-                context.UserAgent = contextAcessor.HttpContext.Request.GetUserAgent();
-                if (contextAcessor.HttpContext.Request.QueryString.HasValue)
-                {
-                    context.QueryString = contextAcessor.HttpContext.Request.QueryString.Value;
-                }
-            }
-
-            proxy.Initialize(context, container.GetService<IProxyManager>());
-            return proxy;
+            var proxyContextFilter = container.GetService<IProxyContextFilter>();
+            var proxyContext = new ProxyContext(typeof(TProxy));
+            proxyContextFilter.Invoke(proxyContext);
+            proxy.Initialize(proxyContext, container.GetService<IProxyManager>());
+            return proxy;            
         }
     }
 }

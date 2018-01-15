@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using NetCoreStack.Proxy.Extensions;
-using NetCoreStack.Proxy.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,20 +11,19 @@ namespace NetCoreStack.Proxy
     internal class ProxyManager : IProxyManager
     {
         private readonly IProxyTypeManager _typeManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientAccessor _httpClientAccessor;
         private readonly IOptions<ProxyOptions> _options;
-        private readonly IHeaderProvider _headerProvider;
+        private readonly IDefaultHeaderProvider _headerProvider;
         private readonly IProxyEndpointManager _endpointManager;
         private readonly IProxyContentStreamProvider _streamProvider;
 
         public ProxyManager(IProxyTypeManager typeManager,
-            IHeaderProvider headerProvider,
-            IHttpContextAccessor httpContextAccessor,
+            IDefaultHeaderProvider headerProvider,
             IHttpClientAccessor httpClientAccessor,
             IProxyEndpointManager endpointManager,
             IProxyContentStreamProvider streamProvider,
-            IOptions<ProxyOptions> options)
+            IOptions<ProxyOptions> options,
+            IEnumerable<IProxyRequestFilter> requestFilters)
         {
             if (typeManager == null)
             {
@@ -36,11 +33,6 @@ namespace NetCoreStack.Proxy
             if (headerProvider == null)
             {
                 throw new ArgumentNullException(nameof(headerProvider));
-            }
-
-            if (httpContextAccessor == null)
-            {
-                throw new ArgumentNullException(nameof(httpContextAccessor));
             }
 
             if (httpClientAccessor == null)
@@ -65,18 +57,16 @@ namespace NetCoreStack.Proxy
 
             _typeManager = typeManager;
             _headerProvider = headerProvider;
-            _httpContextAccessor = httpContextAccessor;
             _httpClientAccessor = httpClientAccessor;
             _endpointManager = endpointManager;
             _streamProvider = streamProvider;
             _options = options;
-        }
 
-        public HttpContext HttpContext
-        {
-            get
+            RequestFilters = new List<IProxyRequestFilter>();
+            if (requestFilters != null && requestFilters.Any())
             {
-                return _httpContextAccessor.HttpContext;
+                HasFilter = true;
+                RequestFilters = requestFilters.ToList();
             }
         }
 
@@ -88,7 +78,10 @@ namespace NetCoreStack.Proxy
             }
         }
 
-        private HttpRequestMessage CreateHttpRequest(RequestContext context)
+        public bool HasFilter { get; }
+        public List<IProxyRequestFilter> RequestFilters { get; }
+
+        private HttpRequestMessage CreateHttpRequest(RequestDescriptor context)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
 
@@ -100,7 +93,7 @@ namespace NetCoreStack.Proxy
             return requestMessage;
         }
 
-        public async Task<RequestDescriptor> CreateDescriptorAsync(RequestContext context)
+        public async Task<RequestContext> CreateRequestAsync(RequestDescriptor context)
         {
             HttpRequestMessage request = CreateHttpRequest(context);
             var proxyDescriptor = _typeManager.ProxyDescriptors.FirstOrDefault(x => x.ProxyType == context.ProxyType);
@@ -125,7 +118,7 @@ namespace NetCoreStack.Proxy
             request.RequestUri = proxyUriDefinition.UriBuilder.Uri;
             await _streamProvider.CreateRequestContentAsync(context, request, methodDescriptor, proxyUriDefinition);
 
-            return new RequestDescriptor(request,
+            return new RequestContext(request,
                 methodDescriptor,
                 proxyDescriptor.RegionKey,
                 timeout);

@@ -11,7 +11,7 @@ namespace NetCoreStack.Proxy.Test.Contracts
     public interface IConsulApi : IApiContract
     {
         /// <summary>
-        /// Sample remote API interface method definiton. Not implemented (Remote)
+        /// Sample remote API interface method definiton.
         /// </summary>
         /// <returns></returns>
         [HttpGetMarker(Template = "agent/members")]

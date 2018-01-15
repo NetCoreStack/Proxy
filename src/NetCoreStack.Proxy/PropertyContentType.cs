@@ -5,7 +5,9 @@ namespace NetCoreStack.Proxy
     public enum PropertyContentType
     {
         String = 0,
-        Multipart = 1
+        FormFile = 1,
+        FormFileCollection = 2,
+        ByteArray = 3
     }
 
     public class PropertyContentTypeInfo

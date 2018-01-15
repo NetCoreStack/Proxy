@@ -16,6 +16,18 @@ namespace NetCoreStack.Proxy
 {
     public class DefaultProxyContentStreamProvider : IProxyContentStreamProvider
     {
+        private void AddFile(string key, MultipartFormDataContent multipartFormDataContent, IFormFile formFile)
+        {
+            using (var ms = new MemoryStream())
+            {
+                formFile.CopyTo(ms);
+                var fileContent = new ByteArrayContent(ms.ToArray());
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(formFile.ContentType);
+                fileContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(formFile.ContentDisposition);
+                multipartFormDataContent.Add(fileContent, key, formFile.FileName);
+            }
+        }
+
         protected virtual byte[] Serialize(object value)
         {
             return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
@@ -34,20 +46,17 @@ namespace NetCoreStack.Proxy
                 var parameterContext = entry.Value as PropertyContext;
                 if (parameterContext != null)
                 {
-                    if (parameterContext.PropertyContentType == PropertyContentType.Multipart)
+                    if (parameterContext.PropertyContentType == PropertyContentType.FormFile)
                     {
                         IFormFile formFile = parameterContext.Value as IFormFile;
                         if (formFile != null)
                         {
-                            using (var ms = new MemoryStream())
-                            {
-                                formFile.CopyTo(ms);
-                                var fileContent = new ByteArrayContent(ms.ToArray());
-                                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(formFile.ContentType);
-                                fileContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(formFile.ContentDisposition);
-                                multipartFormDataContent.Add(fileContent, entry.Key, formFile.FileName);
-                            }
+                            AddFile(entry.Key, multipartFormDataContent, formFile);
                         }                                             
+                    }
+                    else if(parameterContext.PropertyContentType == PropertyContentType.FormFileCollection)
+                    {
+                        IEnumerable<IFormFile> files = parameterContext.Value as IEnumerable<IFormFile>;
                     }
                     else
                     {
@@ -85,7 +94,7 @@ namespace NetCoreStack.Proxy
 
         protected virtual void EnsureTemplate(ProxyMethodDescriptor descriptor, 
             ProxyUriDefinition proxyUriDefinition,
-            RequestContext requestContext,
+            RequestDescriptor requestContext,
             IDictionary<string, object> argsDic,
             List<string> keys)
         {
@@ -103,7 +112,7 @@ namespace NetCoreStack.Proxy
             }
         }
 
-        public async Task CreateRequestContentAsync(RequestContext requestContext, 
+        public async Task CreateRequestContentAsync(RequestDescriptor requestContext, 
             HttpRequestMessage request, 
             ProxyMethodDescriptor descriptor,
             ProxyUriDefinition proxyUriDefinition)

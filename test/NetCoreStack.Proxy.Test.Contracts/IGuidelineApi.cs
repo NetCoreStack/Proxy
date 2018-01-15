@@ -8,25 +8,21 @@ namespace NetCoreStack.Proxy.Test.Contracts
     [ApiRoute("api/[controller]", regionKey: "Main")]
     public interface IGuidelineApi : IApiContract
     {
-        Task VoidOperation();
+        Task TaskOperation();
 
         Task<int> PrimitiveReturn(int i, string s, long l, DateTime dt);
 
-        Task TaskOperation();
+        Task<IEnumerable<SampleModel>> GetEnumerableModels();
 
-        Task<IEnumerable<Post>> GetPostsAsync();
+        Task<CollectionResult<SampleModel>> GetCollectionStreamTask();
 
-        Task<CollectionResult<Post>> GetCollectionStream();
-
-        IEnumerable<CollectionResult<Post>> GetCollectionStreams();
-
-        Task GetWithReferenceType(SimpleModel model);
+        Task GetWithReferenceType(SampleModel model);
 
         [HttpPostMarker]
-        Task TaskActionPost(SimpleModel model);
+        Task TaskActionPost(SampleModel model);
 
         [HttpPutMarker]
-        Task TaskActionPut(long id, SimpleModel model);
+        Task TaskActionPut(long id, SampleModel model);
 
         [HttpDeleteMarker]
         Task TaskActionDelete(long id);

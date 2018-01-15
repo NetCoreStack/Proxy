@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using NetCoreStack.Proxy.Internal;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -7,8 +6,9 @@ namespace NetCoreStack.Proxy
 {
     public interface IProxyManager
     {
-        HttpContext HttpContext { get; }
+        bool HasFilter { get; }
         HttpClient HttpClient { get; }
-        Task<RequestDescriptor> CreateDescriptorAsync(RequestContext context);
+        List<IProxyRequestFilter> RequestFilters { get; }
+        Task<RequestContext> CreateRequestAsync(RequestDescriptor context);
     }
 }

@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,38 +12,29 @@ namespace NetCoreStack.Proxy.Tests
     {
         protected IServiceProvider Resolver { get; }
         protected IConfigurationRoot Configuration { get; }
-        protected TestHostingServer<ServerApp.Startup> TestServer { get; }
-
-        private void RegisterServices(IServiceCollection services)
-        {
-            var httpClientAccessor = new Mock<IHttpClientAccessor>();
-            httpClientAccessor.Setup(x => x.HttpClient).Returns(TestServer.Client);
-            services.AddSingleton<IHttpClientAccessor>(httpClientAccessor.Object);
-        }
 
         public ProxyCreationTests()
         {
-            TestServer = new TestHostingServer<ServerApp.Startup>();
-            Resolver = TestHelper.GetServiceProvider(RegisterServices);
+            Resolver = TestHelper.HttpContext.RequestServices;
             Configuration = TestHelper.Configuration;
         }
 
         [Fact]
-        public void VoidCall()
+        public async Task TaskOperation()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            guidelineApi.VoidOperation();
+            var task = guidelineApi.TaskOperation();
+            await task;
         }
 
         [Fact]
         public async Task TaskCallHttpPostWithReferenceTypeParameter()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SimpleModel
+            var simpleModel = new SampleModel
             {
-                Name = nameof(TaskCallHttpPostWithReferenceTypeParameter),
-                Date = DateTime.Now,
-                Value = "<<string>>"
+                String = nameof(TaskCallHttpPostWithReferenceTypeParameter),
+                Date = DateTime.Now
             };
             await guidelineApi.TaskActionPost(simpleModel);
         }
@@ -54,11 +43,10 @@ namespace NetCoreStack.Proxy.Tests
         public async Task TaskCallHttpGetWithReferenceTypeParameter()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SimpleModel
+            var simpleModel = new SampleModel
             {
-                Name = nameof(TaskCallHttpGetWithReferenceTypeParameter),
-                Date = DateTime.Now,
-                Value = "<<string>>"
+                String = nameof(TaskCallHttpGetWithReferenceTypeParameter),
+                Date = DateTime.Now
             };
             await guidelineApi.GetWithReferenceType(simpleModel);
         }
@@ -67,27 +55,28 @@ namespace NetCoreStack.Proxy.Tests
         public async Task GenericTaskResultCall()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetPostsAsync();
-            Assert.True(items.GetType() == typeof(List<Post>));
+            var items = await guidelineApi.GetEnumerableModels();
+            Assert.True(items != null);
+            Assert.True(items.Count() == 4);
         }
 
         [Fact]
         public async Task GetCollectionStream()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetCollectionStream();
-            Assert.True(items.GetType() == typeof(CollectionResult<Post>));
+            var collection = await guidelineApi.GetCollectionStreamTask();
+            Assert.True(collection != null);
+            Assert.True(collection.Data.Count() == 5);
         }
 
         [Fact]
         public async Task TaskActionPut()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            await guidelineApi.TaskActionPut(1, new SimpleModel
+            await guidelineApi.TaskActionPut(1, new SampleModel
             {
                 Date = DateTime.Now,
-                Name = "Sample model",
-                Value = "{foo: bar}"
+                String = "Sample model"
             });
 
             Assert.True(true);
