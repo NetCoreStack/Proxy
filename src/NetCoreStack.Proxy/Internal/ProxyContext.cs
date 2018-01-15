@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetCoreStack.Proxy
+namespace NetCoreStack.Proxy.Internal
 {
     public class ProxyContext
     {

@@ -57,6 +57,13 @@ namespace NetCoreStack.Proxy
                     else if(parameterContext.PropertyContentType == PropertyContentType.FormFileCollection)
                     {
                         IEnumerable<IFormFile> files = parameterContext.Value as IEnumerable<IFormFile>;
+                        if (files != null)
+                        {
+                            foreach (var file in files)
+                            {
+                                AddFile(entry.Key, multipartFormDataContent, file);
+                            }
+                        }
                     }
                     else
                     {

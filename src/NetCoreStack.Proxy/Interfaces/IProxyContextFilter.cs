@@ -1,4 +1,6 @@
-﻿namespace NetCoreStack.Proxy
+﻿using NetCoreStack.Proxy.Internal;
+
+namespace NetCoreStack.Proxy
 {
     public interface IProxyContextFilter
     {

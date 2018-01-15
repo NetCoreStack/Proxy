@@ -7,7 +7,7 @@ namespace NetCoreStack.Proxy.Internal
 {
     internal static class ProxyHelper
     {
-        public static TProxy CreateProxy<TProxy>(IServiceProvider container) where TProxy : IApiContract
+        internal static TProxy CreateProxy<TProxy>(IServiceProvider container) where TProxy : IApiContract
         {
             dynamic proxy = DispatchProxyAsync.Create<TProxy, HttpDispatchProxy>();
             var proxyContextFilter = container.GetService<IProxyContextFilter>();

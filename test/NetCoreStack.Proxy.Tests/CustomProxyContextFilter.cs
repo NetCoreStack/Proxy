@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using NetCoreStack.Proxy.Internal;
 using NetCoreStack.Proxy.Test.Contracts;
 
 namespace NetCoreStack.Proxy.Tests

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NetCoreStack.Proxy.Test.Contracts
 {
@@ -8,6 +9,7 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public int Number { get; set; }
         public bool Boolean { get; set; }
         public int[] Array { get; set; }
+        public IEnumerable<int> Enumerable { get; set; }
         public DateTime Date { get; set; }
     }
 }

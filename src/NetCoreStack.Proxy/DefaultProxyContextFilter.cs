@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
-namespace NetCoreStack.Proxy
+namespace NetCoreStack.Proxy.Internal
 {
     public class DefaultProxyContextFilter : IProxyContextFilter
     {
