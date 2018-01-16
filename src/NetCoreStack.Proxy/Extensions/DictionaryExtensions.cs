@@ -1,6 +1,8 @@
-﻿using System;
+﻿using NetCoreStack.Proxy.Internal;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 
@@ -83,6 +85,29 @@ namespace NetCoreStack.Proxy.Extensions
             return AddQueryString(uri, (IEnumerable<KeyValuePair<string, string>>)queryString);
         }
 
+        private static void AddToDictionary(IDictionary<string, string> source, ProxyModelMetadata metadata, object instance)
+        {
+            do
+            {
+                foreach (var modelMetadata in metadata.Properties)
+                {
+                    var prefix = modelMetadata.ContainerType?.Name;
+                    var propertyName = modelMetadata.PropertyName;
+                    var key = !string.IsNullOrEmpty(prefix) ? $"{prefix}.{propertyName}" : propertyName;
+
+                    if (modelMetadata.IsSimpleType)
+                    {
+                        var value = Convert.ToString(instance, CultureInfo.InvariantCulture);
+                        if (!string.IsNullOrEmpty(value))
+                        {
+                            source.Add(key, value);
+                        }
+                    }
+                }
+            }
+            while (metadata.Properties.Any());
+        }
+
         internal static void Merge(this IDictionary<string, object> instance, IDictionary<string, object> from, bool replaceExisting)
         {
             foreach (KeyValuePair<string, object> entry in from)
@@ -94,9 +119,20 @@ namespace NetCoreStack.Proxy.Extensions
             }
         }
 
-        internal static void MergeArgs(this IDictionary<string, object> dictionary, 
-            object[] args, 
-            ProxyParameterDescriptor[] parameters,
+        internal static void Merge(this IDictionary<string, PropertyContext> instance, IDictionary<string, PropertyContext> from, bool replaceExisting)
+        {
+            foreach (KeyValuePair<string, PropertyContext> entry in from)
+            {
+                if (replaceExisting || !instance.ContainsKey(entry.Key))
+                {
+                    instance[entry.Key] = entry.Value;
+                }
+            }
+        }
+
+        internal static void MergeArgs(this IDictionary<string, PropertyContext> dictionary,
+            object[] args,
+            List<ProxyModelMetadata> parameters,
             bool isMultiPartFormData)
         {
             if (args.Length == 0)
@@ -104,30 +140,29 @@ namespace NetCoreStack.Proxy.Extensions
 
             if (!isMultiPartFormData)
             {
-                for (int i = 0; i < parameters.Length; i++)
+                for (int i = 0; i < parameters.Count; i++)
                 {
-                    dictionary.Add(parameters[i].Name, args[i]);
+                    var modelMetadata = parameters[i];
+                    dictionary.Add(modelMetadata.PropertyName, new PropertyContext { ModelMetadata = modelMetadata, Value = args[i] });
                 }
 
                 return;
             }
 
-            // Multipart form data context preparing
-            for (int i = 0; i < parameters.Length; i++)
+            // Multipart form data context
+            for (int i = 0; i < parameters.Count; i++)
             {
+                var modelMetadata = parameters[i];
                 foreach (var prop in parameters[i].Properties)
                 {
-                    string name = prop.Key;
-                    PropertyContentTypeInfo contentTypeInfo = prop.Value;
-
                     var parameterContext = new PropertyContext
                     {
-                        Name = name,
-                        Value = contentTypeInfo.PropertyInfo.GetValue(args[i]),
-                        PropertyContentType = contentTypeInfo.PropertyContentType
+                        ModelMetadata = prop,
+                        // TODO Gencebay
+                        // Value = contentTypeInfo.PropertyInfo.GetValue(args[i]),
                     };
-
-                    dictionary.Add(name, parameterContext);
+                    // TODO Gencebay
+                    // dictionary.Add(name, parameterContext);
                 }
             }
         }

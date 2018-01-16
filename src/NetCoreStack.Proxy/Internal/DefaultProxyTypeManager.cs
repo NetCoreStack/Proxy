@@ -13,9 +13,11 @@ namespace NetCoreStack.Proxy.Internal
         private readonly ProxyBuilderOptions _options;
 
         public IList<ProxyDescriptor> ProxyDescriptors { get; set; }
+        public ProxyMetadataProvider MetadataProvider { get; }
 
-        public DefaultProxyTypeManager(ProxyBuilderOptions options)
+        public DefaultProxyTypeManager(ProxyMetadataProvider metadataProvider, ProxyBuilderOptions options)
         {
+            MetadataProvider = metadataProvider;
             _options = options;
             ProxyDescriptors = GetProxyDescriptors();
         }
@@ -53,8 +55,7 @@ namespace NetCoreStack.Proxy.Internal
                 var methods = proxyType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static).ToList();
                 interfaceMethods.AddRange(baseMethods);
                 methods.AddRange(interfaceMethods);
-
-                #region method resolver
+                
                 foreach (var method in methods)
                 {
                     var proxyMethodDescriptor = new ProxyMethodDescriptor(method);
@@ -86,15 +87,14 @@ namespace NetCoreStack.Proxy.Internal
                         proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
                     }
 
-                    proxyMethodDescriptor.Parameters = new List<ProxyParameterDescriptor>();
+                    bool isMultipartFormData = false;
+                    proxyMethodDescriptor.Parameters = new List<ProxyModelMetadata>();
                     foreach (var parameter in method.GetParameters())
                     {
-                        var parameterType = parameter.ParameterType;
-                        var properties = parameterType.GetProperties().ToList();
-
-                        var proxyParameterDescriptor = new ProxyParameterDescriptor(properties);
-                        if (proxyParameterDescriptor.HasFormFile)
+                        var modelMetadata = MetadataProvider.GetMetadataForParameter(parameter);
+                        if (modelMetadata.IsFormFile)
                         {
+                            isMultipartFormData = true;
                             if (parameter.CustomAttributes
                                 .Any(a => a.AttributeType.Name == "FromBodyAttribute"))
                             {
@@ -104,22 +104,12 @@ namespace NetCoreStack.Proxy.Internal
                             }
                         }
 
-                        proxyMethodDescriptor.Parameters.Add(new ProxyParameterDescriptor(properties)
-                        {
-                            Name = parameter.Name,
-                            ParameterType = parameterType
-                        });
+                        proxyMethodDescriptor.Parameters.Add(modelMetadata);
                     }
                     
-                    var isMultipartFormData = proxyMethodDescriptor.Parameters.SelectMany(p => p.Properties)
-                        .Any(c => c.Value.PropertyContentType == PropertyContentType.FormFile ||
-                        c.Value.PropertyContentType == PropertyContentType.FormFileCollection ||
-                        c.Value.PropertyContentType == PropertyContentType.ByteArray);
-
                     proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
                     descriptor.Methods.Add(method, proxyMethodDescriptor);
                 }
-                #endregion // method resolver
 
                 descriptors.Add(descriptor);
             }

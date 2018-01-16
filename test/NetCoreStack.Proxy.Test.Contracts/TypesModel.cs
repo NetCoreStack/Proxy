@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -35,6 +36,11 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public DateTimeOffset DateTimeOffset { get; set; }
         public Foo Foo { get; set; }
         public Bar Bar { get; set; }
+    }
+
+    public class ComplextTypeModelWithFiles : ComplexTypeModel
+    {
+        public IEnumerable<IFormFile> Files { get; set; }
     }
 
     public class Foo

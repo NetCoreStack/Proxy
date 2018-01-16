@@ -1,4 +1,4 @@
-﻿namespace NetCoreStack.Proxy.Internal
+﻿namespace NetCoreStack.Proxy
 {
     public enum ProxyModelMetadataKind
     {

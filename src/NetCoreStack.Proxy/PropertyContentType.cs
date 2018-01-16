@@ -2,23 +2,23 @@
 
 namespace NetCoreStack.Proxy
 {
-    public enum PropertyContentType
-    {
-        String = 0,
-        FormFile = 1,
-        FormFileCollection = 2,
-        ByteArray = 3
-    }
+    //public enum PropertyContentType
+    //{
+    //    String = 0,
+    //    FormFile = 1,
+    //    FormFileCollection = 2,
+    //    ByteArray = 3
+    //}
 
-    public class PropertyContentTypeInfo
-    {
-        public PropertyInfo PropertyInfo { get; }
-        public PropertyContentType PropertyContentType { get; }
+    //public class PropertyContentTypeInfo
+    //{
+    //    public PropertyInfo PropertyInfo { get; }
+    //    public PropertyContentType PropertyContentType { get; }
 
-        public PropertyContentTypeInfo(PropertyInfo propertyInfo, PropertyContentType contentType)
-        {
-            PropertyInfo = propertyInfo;
-            PropertyContentType = contentType;
-        }
-    }
+    //    public PropertyContentTypeInfo(PropertyInfo propertyInfo, PropertyContentType contentType)
+    //    {
+    //        PropertyInfo = propertyInfo;
+    //        PropertyContentType = contentType;
+    //    }
+    //}
 }

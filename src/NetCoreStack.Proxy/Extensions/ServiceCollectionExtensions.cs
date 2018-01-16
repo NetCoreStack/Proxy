@@ -36,10 +36,12 @@ namespace NetCoreStack.Proxy
             }
 
             services.Configure<ProxyOptions>(configuration.GetSection(Constants.ProxySettings));
+            services.AddSingleton<ProxyMetadataProvider>();
             services.AddSingleton<IProxyTypeManager, DefaultProxyTypeManager>();
 
             services.TryAdd(ServiceDescriptor.Scoped<IProxyContextFilter, DefaultProxyContextFilter>());
 
+            services.TryAdd(ServiceDescriptor.Singleton<IModelContentResolver, DefaultModelContentResolver>());
             services.TryAdd(ServiceDescriptor.Singleton<IHttpClientAccessor, DefaultHttpClientAccessor>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyManager, ProxyManager>());
             services.TryAdd(ServiceDescriptor.Singleton<IDefaultHeaderProvider, DefaultHeaderProvider>());

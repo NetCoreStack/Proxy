@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9754E8AD-F544-4C44-939D-95164DC29671}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreStack.Proxy.Tests", "test\NetCoreStack.Proxy.Tests\NetCoreStack.Proxy.Tests.csproj", "{00CEA1AF-05CC-4D39-9118-267683DEDCD1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreStack.Proxy.Test.Contracts", "test\NetCoreStack.Proxy.Test.Contracts\NetCoreStack.Proxy.Test.Contracts.csproj", "{65CF1A10-0E97-479E-9D8A-2C7741BF608C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreStack.Proxy.Mvc.Hosting", "test\NetCoreStack.Proxy.Mvc.Hosting\NetCoreStack.Proxy.Mvc.Hosting.csproj", "{76748B9C-AC8D-49C2-BE89-F427EC4BD20A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{65CF1A10-0E97-479E-9D8A-2C7741BF608C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65CF1A10-0E97-479E-9D8A-2C7741BF608C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65CF1A10-0E97-479E-9D8A-2C7741BF608C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76748B9C-AC8D-49C2-BE89-F427EC4BD20A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76748B9C-AC8D-49C2-BE89-F427EC4BD20A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76748B9C-AC8D-49C2-BE89-F427EC4BD20A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76748B9C-AC8D-49C2-BE89-F427EC4BD20A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +51,7 @@ Global
 		{80583F01-4793-4A33-9945-09397C1FCBA8} = {9754E8AD-F544-4C44-939D-95164DC29671}
 		{00CEA1AF-05CC-4D39-9118-267683DEDCD1} = {E65756E9-13C3-4F24-8818-A6CD2E5E99D8}
 		{65CF1A10-0E97-479E-9D8A-2C7741BF608C} = {E65756E9-13C3-4F24-8818-A6CD2E5E99D8}
+		{76748B9C-AC8D-49C2-BE89-F427EC4BD20A} = {E65756E9-13C3-4F24-8818-A6CD2E5E99D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1E0B4A17-1DEE-4EDF-979F-4C1B12D95CC8}

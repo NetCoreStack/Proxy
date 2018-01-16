@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
-using NetCoreStack.Proxy.Internal;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +15,15 @@ namespace NetCoreStack.Proxy
 {
     public class DefaultProxyContentStreamProvider : IProxyContentStreamProvider
     {
+        public ProxyMetadataProvider MetadataProvider { get; }
+        public IModelContentResolver ContentResolver { get; }
+
+        public DefaultProxyContentStreamProvider(ProxyMetadataProvider metadataProvider, IModelContentResolver contentResolver)
+        {
+            MetadataProvider = metadataProvider;
+            ContentResolver = contentResolver;
+        }
+
         private void AddFile(string key, MultipartFormDataContent multipartFormDataContent, IFormFile formFile)
         {
             using (var ms = new MemoryStream())
@@ -38,42 +46,20 @@ namespace NetCoreStack.Proxy
             return new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
         }
 
-        protected virtual MultipartFormDataContent GetMultipartFormDataContent(IDictionary<string,object> values)
+        protected virtual MultipartFormDataContent GetMultipartFormDataContent(ResolvedContentResult contentResult)
         {
             MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
-            foreach (KeyValuePair<string, object> entry in values)
+            foreach (KeyValuePair<string, string> entry in contentResult.Dictionary)
             {
-                var parameterContext = entry.Value as PropertyContext;
-                if (parameterContext != null)
+                multipartFormDataContent.Add(new StringContent(entry.Value), entry.Key);    
+            }
+
+            if (contentResult.Files != null)
+            {
+                foreach (KeyValuePair<string, IFormFile> entry in contentResult.Files)
                 {
-                    if (parameterContext.PropertyContentType == PropertyContentType.FormFile)
-                    {
-                        IFormFile formFile = parameterContext.Value as IFormFile;
-                        if (formFile != null)
-                        {
-                            AddFile(entry.Key, multipartFormDataContent, formFile);
-                        }                                             
-                    }
-                    else if(parameterContext.PropertyContentType == PropertyContentType.FormFileCollection)
-                    {
-                        IEnumerable<IFormFile> files = parameterContext.Value as IEnumerable<IFormFile>;
-                        if (files != null)
-                        {
-                            foreach (var file in files)
-                            {
-                                AddFile(entry.Key, multipartFormDataContent, file);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var stringContent = parameterContext.Value?.ToString();
-                        if (!string.IsNullOrEmpty(stringContent))
-                        {
-                            multipartFormDataContent.Add(new StringContent(stringContent), entry.Key);
-                        }
-                    }
-                }                
+                    AddFile(entry.Key, multipartFormDataContent, entry.Value);
+                }
             }
 
             return multipartFormDataContent;
@@ -102,7 +88,7 @@ namespace NetCoreStack.Proxy
         protected virtual void EnsureTemplate(ProxyMethodDescriptor descriptor, 
             ProxyUriDefinition proxyUriDefinition,
             RequestDescriptor requestContext,
-            IDictionary<string, object> argsDic,
+            IDictionary<string, string> argsDic,
             List<string> keys)
         {
             if (descriptor.Template.HasValue())
@@ -126,15 +112,18 @@ namespace NetCoreStack.Proxy
         {
             await Task.CompletedTask;
 
+            var httpMethod = descriptor.HttpMethod;
+            var isMultiPartFormData = descriptor.IsMultiPartFormData;
             var uriBuilder = proxyUriDefinition.UriBuilder;
-            var argsDic = descriptor.Resolve(requestContext.Args);
+            ResolvedContentResult result = ContentResolver.Resolve(descriptor.Parameters, httpMethod, isMultiPartFormData, requestContext.Args);
+            var argsDic = result.Dictionary;
             var argsCount = argsDic.Count;
             var keys = new List<string>(argsDic.Keys);
-            if (descriptor.HttpMethod == HttpMethod.Post)
+            if (httpMethod == HttpMethod.Post)
             {
-                if (descriptor.IsMultiPartFormData)
+                if (isMultiPartFormData)
                 {
-                    request.Content = GetMultipartFormDataContent(argsDic);
+                    request.Content = GetMultipartFormDataContent(result);
                     return;
                 }
 
@@ -145,8 +134,9 @@ namespace NetCoreStack.Proxy
 
                 return;
             }
-            else if(descriptor.HttpMethod == HttpMethod.Put)
+            else if(httpMethod == HttpMethod.Put)
             {
+                // TODO Gencebay
                 EnsureTemplate(descriptor, proxyUriDefinition, requestContext, argsDic, keys);
                 argsCount = argsDic.Count;
                 request.RequestUri = uriBuilder.Uri;
@@ -169,10 +159,11 @@ namespace NetCoreStack.Proxy
                     request.Content = SerializeToString(secondParameter);
                 }
             }
-            if (descriptor.HttpMethod == HttpMethod.Get || descriptor.HttpMethod == HttpMethod.Delete)
+            if (httpMethod == HttpMethod.Get || httpMethod == HttpMethod.Delete)
             {
                 EnsureTemplate(descriptor, proxyUriDefinition, requestContext, argsDic, keys);
-                request.RequestUri = QueryStringResolver.Parse(uriBuilder, argsDic);
+                // TODO Gencebay
+                // request.RequestUri = QueryStringResolver.Parse(uriBuilder, argsDic);
             }
         }
     }

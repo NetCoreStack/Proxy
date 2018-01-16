@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using NetCoreStack.Proxy.Internal;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace NetCoreStack.Proxy.Internal
+namespace NetCoreStack.Proxy
 {
     public class ProxyModelMetadata: IEquatable<ProxyModelMetadata>
     {
@@ -24,6 +26,8 @@ namespace NetCoreStack.Proxy.Internal
 
         public string PropertyName => Identity.Name;
 
+        public bool IsFormFile { get; private set; }
+
         public bool IsSimpleType { get; private set; }
 
         public bool IsComplexType { get; private set; }
@@ -33,10 +37,12 @@ namespace NetCoreStack.Proxy.Internal
         public bool IsCollectionType { get; private set; }
 
         public bool IsEnumerableType { get; private set; }
-        
+
+        public bool IsReferenceType { get; private set; }
+
         public bool IsReferenceOrNullableType { get; private set; }
 
-        public IEnumerable<ProxyModelMetadata> Properties { get; private set; }
+        public List<ProxyModelMetadata> Properties { get; private set; }
 
         public ProxyModelMetadata(ProxyModelMetadataIdentity identity)
         {
@@ -51,8 +57,10 @@ namespace NetCoreStack.Proxy.Internal
 
             IsComplexType = !TypeDescriptor.GetConverter(ModelType).CanConvertFrom(typeof(string));
             IsNullableValueType = Nullable.GetUnderlyingType(ModelType) != null;
+            IsReferenceType = !typeInfo.IsValueType;
             IsReferenceOrNullableType = !typeInfo.IsValueType || IsNullableValueType;
             UnderlyingOrModelType = Nullable.GetUnderlyingType(ModelType) ?? ModelType;
+            IsFormFile = typeof(IFormFile).IsAssignableFrom(ModelType);
 
             IsSimpleType = typeInfo.IsPrimitive ||
                 typeInfo.IsEnum ||
@@ -75,6 +83,7 @@ namespace NetCoreStack.Proxy.Internal
             {
                 IsEnumerableType = true;
                 ElementType = ModelType.GetElementType();
+                IsFormFile = typeof(IFormFile).IsAssignableFrom(ElementType);
             }
             else
             {
@@ -82,6 +91,11 @@ namespace NetCoreStack.Proxy.Internal
 
                 var enumerableType = ClosedGenericMatcher.ExtractGenericInterface(ModelType, typeof(IEnumerable<>));
                 ElementType = enumerableType?.GenericTypeArguments[0];
+
+                if (ElementType != null)
+                {
+                    IsFormFile = typeof(IFormFile).IsAssignableFrom(ElementType);
+                }
 
                 if (ElementType == null)
                 {

@@ -57,7 +57,6 @@ namespace NetCoreStack.Proxy
             try
             {
                 HttpResponseMessage response = null;
-                var httpClient = _proxyManager.HttpClient;
                 string metadata = string.Empty;
 
                 if (_proxyManager.HasFilter)
@@ -65,7 +64,7 @@ namespace NetCoreStack.Proxy
                     await Task.WhenAll(_proxyManager.RequestFilters.Select(t => t.InvokeAsync(requestContext)));
                 }
                 
-                response = await httpClient.SendAsync(requestContext.Request);
+                response = await _proxyManager.HttpClient.SendAsync(requestContext.Request);
                 responseContext = await ProxyResultExecutor.ExecuteAsync(response,
                     requestContext,
                     genericReturnType);

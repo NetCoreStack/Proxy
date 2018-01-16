@@ -1,7 +1,8 @@
-﻿using System;
+﻿using NetCoreStack.Proxy.Internal;
+using System;
 using System.Reflection;
 
-namespace NetCoreStack.Proxy.Internal
+namespace NetCoreStack.Proxy
 {
     public struct ProxyModelMetadataIdentity : IEquatable<ProxyModelMetadataIdentity>
     {

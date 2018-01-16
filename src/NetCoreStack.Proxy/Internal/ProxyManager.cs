@@ -81,7 +81,7 @@ namespace NetCoreStack.Proxy
         public bool HasFilter { get; }
         public List<IProxyRequestFilter> RequestFilters { get; }
 
-        private HttpRequestMessage CreateHttpRequest(RequestDescriptor context)
+        private HttpRequestMessage CreateHttpRequest()
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
 
@@ -93,10 +93,10 @@ namespace NetCoreStack.Proxy
             return requestMessage;
         }
 
-        public async Task<RequestContext> CreateRequestAsync(RequestDescriptor context)
+        public async Task<RequestContext> CreateRequestAsync(RequestDescriptor descriptor)
         {
-            HttpRequestMessage request = CreateHttpRequest(context);
-            var proxyDescriptor = _typeManager.ProxyDescriptors.FirstOrDefault(x => x.ProxyType == context.ProxyType);
+            HttpRequestMessage request = CreateHttpRequest();
+            var proxyDescriptor = _typeManager.ProxyDescriptors.FirstOrDefault(x => x.ProxyType == descriptor.ProxyType);
 
             if (proxyDescriptor == null)
                 throw new ArgumentOutOfRangeException("Proxy type could not be found!");
@@ -104,11 +104,11 @@ namespace NetCoreStack.Proxy
             var regionKey = proxyDescriptor.RegionKey;
 
             ProxyMethodDescriptor methodDescriptor;
-            if (!proxyDescriptor.Methods.TryGetValue(context.TargetMethod, out methodDescriptor))
+            if (!proxyDescriptor.Methods.TryGetValue(descriptor.TargetMethod, out methodDescriptor))
                 throw new ArgumentOutOfRangeException("Method (Action) info could not be found!");
 
             request.Method = methodDescriptor.HttpMethod;
-            var methodPath = context.TargetMethod.Name;
+            var methodPath = descriptor.TargetMethod.Name;
             if (methodDescriptor.Template.HasValue())
                 methodPath = methodDescriptor.Template;
 
@@ -116,7 +116,7 @@ namespace NetCoreStack.Proxy
             TimeSpan? timeout = methodDescriptor.Timeout;
 
             request.RequestUri = proxyUriDefinition.UriBuilder.Uri;
-            await _streamProvider.CreateRequestContentAsync(context, request, methodDescriptor, proxyUriDefinition);
+            await _streamProvider.CreateRequestContentAsync(descriptor, request, methodDescriptor, proxyUriDefinition);
 
             return new RequestContext(request,
                 methodDescriptor,

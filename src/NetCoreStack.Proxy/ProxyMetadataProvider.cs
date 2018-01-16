@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Reflection;
 
-namespace NetCoreStack.Proxy.Internal
+namespace NetCoreStack.Proxy
 {
     public class ProxyMetadataProvider
     {
@@ -54,35 +53,6 @@ namespace NetCoreStack.Proxy.Internal
                 ProxyModelMetadataIdentity.ForParameter(parameter),
                 _cacheEntryFactory);
         }
-
-        //public IEnumerable<ProxyModelMetadata> GetMetadataForProperties(Type modelType)
-        //{
-        //    if (modelType == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(modelType));
-        //    }
-
-        //    var cacheEntry = GetCacheEntry(modelType);
-
-        //    // We're relying on a safe race-condition for Properties - take care only
-        //    // to set the value onces the properties are fully-initialized.
-        //    if (cacheEntry.Metadata.Properties == null)
-        //    {
-        //        var key = ProxyModelMetadataIdentity.ForType(modelType);
-        //        var propertyDetails = CreatePropertyDetails(key);
-
-        //        var properties = new ProxyModelMetadata[propertyDetails.Length];
-        //        for (var i = 0; i < properties.Length; i++)
-        //        {
-        //            propertyDetails[i].ContainerMetadata = cacheEntry.Metadata;
-        //            properties[i] = CreateModelMetadata(propertyDetails[i]);
-        //        }
-
-        //        cacheEntry.Details.Properties = properties;
-        //    }
-
-        //    return cacheEntry.Details.Properties;
-        //}
 
         public ProxyModelMetadata GetMetadataForParameter(ParameterInfo parameter)
         {
