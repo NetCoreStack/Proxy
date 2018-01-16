@@ -29,12 +29,20 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public int[] IntArray { get; set; }
         public decimal? DecimalNullable { get; set; }
         public IEnumerable IEnumerable { get; set; }
+        public ICollection ICollection { get; set; }
         public Guid Guid { get; set; }
         public Uri Uri { get; set; }
         public TimeSpan TimeSpan { get; set; }
         public DateTime DateTime { get; set; }
         public DateTimeOffset DateTimeOffset { get; set; }
         public Foo Foo { get; set; }
+        public Bar Bar { get; set; }
+    }
+
+    public class ComplexTypeModel2
+    {
+        //public string String { get; set; }
+        //public Foo Foo { get; set; }
         public Bar Bar { get; set; }
     }
 

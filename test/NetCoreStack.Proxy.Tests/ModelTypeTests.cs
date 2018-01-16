@@ -11,23 +11,24 @@ namespace NetCoreStack.Proxy.Tests
     {
         private readonly ComplexTypeModel _complexTypeModel = new ComplexTypeModel
         {
-            Bar = new Bar { Foo = new Foo { IEnumerableInt = new[] { 2, 3 }, String = "Foo inner str value" }, String = "Bar string value" },
+            Bar = new Bar { String = "Bar string value", Foo = new Foo { IEnumerableInt = new[] { 2, 3 }, String = "Foo inner str value" } },
             Bool = true,
             Foo = new Foo { IEnumerableInt = new[] { 4, 5 }, String = "Foo string value" },
-            Byte = 6,
+            Byte = (byte)'A', // 65
             Char = 'c',
             DateTime = DateTime.Now,
             DateTimeOffset = new DateTimeOffset(DateTime.UtcNow),
             Decimal = 300.5m,
             DecimalNullable = null,
-            Double = 1.7E+3,
+            Double = 1.7E+3, // 1700
             Float = 4.5f,
             Guid = Guid.NewGuid(),
-            IEnumerable = new[] {"value1", "value2", "value3"},
+            IEnumerable = new[] { "value1", "value2", "value3" },
+            ICollection = new[] { 2, 4, 6, 8 },
             Int = int.MaxValue,
             IntArray = new int[] { int.MaxValue, int.MinValue },
-            Long = 0x100000000,
-            Object = new { a = 1, b= true, c = "str" },
+            Long = 0x100000000, // 4294967296
+            Object = new { a = 1, b = true, c = "str" },
             SByte = -102,
             Short = 0x040A, // 1034
             String = "string value!",
@@ -38,12 +39,20 @@ namespace NetCoreStack.Proxy.Tests
             UShort = 0xFE0A // 65034
         };
 
+        private readonly ComplexTypeModel2 _complexTypeModel2 = new ComplexTypeModel2
+        {
+            // String = "string value!",
+            Bar = new Bar { String = "Bar string value", Foo = new Foo { IEnumerableInt = new[] { 2, 3 }, String = "Foo inner str value" } },
+            // Foo = new Foo { IEnumerableInt = new[] { 4, 5 }, String = "Foo string value" }
+        };
+
         [Fact]
         public void PropertyInfoTests()
         {            
             var metadataProvider = new ProxyMetadataProvider();
-            var modelMetadata = metadataProvider.GetMetadataForType(typeof(ComplexTypeModel));
-            object[] args = new object[] { _complexTypeModel };
+            var modelMetadata = metadataProvider.GetMetadataForType(typeof(ComplexTypeModel2));
+            object[] args = new object[] { _complexTypeModel2 };
+            
             DefaultModelContentResolver contentResolver = new DefaultModelContentResolver(metadataProvider);
             ResolvedContentResult contentResult = contentResolver.Resolve(new List<ProxyModelMetadata> { modelMetadata }, HttpMethod.Get, false, args);
 

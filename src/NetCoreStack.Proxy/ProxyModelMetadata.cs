@@ -11,7 +11,8 @@ namespace NetCoreStack.Proxy
     public class ProxyModelMetadata: IEquatable<ProxyModelMetadata>
     {
         private int? _hashCode;
-        
+        protected ProxyModelMetadataIdentity Identity { get; }
+
         public Type ModelType => Identity.ModelType;
 
         public Type ContainerType => Identity.ContainerType;
@@ -20,7 +21,7 @@ namespace NetCoreStack.Proxy
 
         public Type UnderlyingOrModelType { get; private set; }
 
-        protected ProxyModelMetadataIdentity Identity { get; }        
+        public PropertyInfo PropertyInfo { get; private set; }
 
         public ProxyModelMetadataKind MetadataKind => Identity.MetadataKind;
 
@@ -42,6 +43,8 @@ namespace NetCoreStack.Proxy
 
         public bool IsReferenceOrNullableType { get; private set; }
 
+        public bool IsElementTypeSimple { get; private set; }
+
         public List<ProxyModelMetadata> Properties { get; private set; }
 
         public ProxyModelMetadata(ProxyModelMetadataIdentity identity)
@@ -49,6 +52,27 @@ namespace NetCoreStack.Proxy
             Identity = identity;
             Properties = new List<ProxyModelMetadata>();
             InitializeTypeInformation();
+        }
+
+        public ProxyModelMetadata(PropertyInfo propertyInfo, ProxyModelMetadataIdentity identity)
+            :this(identity)
+        {
+            PropertyInfo = propertyInfo;
+        }
+
+        private bool IsSimple(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+
+            return typeInfo.IsPrimitive ||
+                typeInfo.IsEnum ||
+                type.Equals(typeof(decimal)) ||
+                type.Equals(typeof(string)) ||
+                type.Equals(typeof(DateTime)) ||
+                type.Equals(typeof(Guid)) ||
+                type.Equals(typeof(DateTimeOffset)) ||
+                type.Equals(typeof(TimeSpan)) ||
+                type.Equals(typeof(Uri));
         }
 
         private void InitializeTypeInformation()
@@ -61,16 +85,7 @@ namespace NetCoreStack.Proxy
             IsReferenceOrNullableType = !typeInfo.IsValueType || IsNullableValueType;
             UnderlyingOrModelType = Nullable.GetUnderlyingType(ModelType) ?? ModelType;
             IsFormFile = typeof(IFormFile).IsAssignableFrom(ModelType);
-
-            IsSimpleType = typeInfo.IsPrimitive ||
-                typeInfo.IsEnum ||
-                ModelType.Equals(typeof(decimal)) ||
-                ModelType.Equals(typeof(string)) ||
-                ModelType.Equals(typeof(DateTime)) ||
-                ModelType.Equals(typeof(Guid)) ||
-                ModelType.Equals(typeof(DateTimeOffset)) ||
-                ModelType.Equals(typeof(TimeSpan)) ||
-                ModelType.Equals(typeof(Uri));
+            IsSimpleType = IsSimple(ModelType);
 
             var collectionType = ClosedGenericMatcher.ExtractGenericInterface(ModelType, typeof(ICollection<>));
             IsCollectionType = collectionType != null;
@@ -83,6 +98,7 @@ namespace NetCoreStack.Proxy
             {
                 IsEnumerableType = true;
                 ElementType = ModelType.GetElementType();
+                IsElementTypeSimple = IsSimple(ElementType);
                 IsFormFile = typeof(IFormFile).IsAssignableFrom(ElementType);
             }
             else
@@ -102,6 +118,8 @@ namespace NetCoreStack.Proxy
                     // ModelType implements IEnumerable but not IEnumerable<T>.
                     ElementType = typeof(object);
                 }
+
+                IsElementTypeSimple = IsSimple(ElementType);
             }
 
             if (IsComplexType && IsReferenceOrNullableType && 
@@ -112,7 +130,7 @@ namespace NetCoreStack.Proxy
                 List<ProxyModelMetadata> metadataList = new List<ProxyModelMetadata>();
                 foreach (var prop in properties)
                 {
-                    metadataList.Add(new ProxyModelMetadata(ProxyModelMetadataIdentity.ForProperty(prop.PropertyType, prop.Name, ModelType)));
+                    metadataList.Add(new ProxyModelMetadata(prop, ProxyModelMetadataIdentity.ForProperty(prop.PropertyType, prop.Name, ModelType)));
                 }
 
                 Properties = metadataList;
