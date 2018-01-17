@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace NetCoreStack.Proxy
+﻿namespace NetCoreStack.Proxy
 {
     //public enum PropertyContentType
     //{

@@ -109,8 +109,8 @@ namespace NetCoreStack.Proxy
 
             request.Method = methodDescriptor.HttpMethod;
             var methodPath = descriptor.TargetMethod.Name;
-            if (methodDescriptor.Template.HasValue())
-                methodPath = methodDescriptor.Template;
+            if (methodDescriptor.MethodMarkerTemplate.HasValue())
+                methodPath = methodDescriptor.MethodMarkerTemplate;
 
             ProxyUriDefinition proxyUriDefinition = _endpointManager.CreateUriDefinition(proxyDescriptor, regionKey, methodPath);
             TimeSpan? timeout = methodDescriptor.Timeout;

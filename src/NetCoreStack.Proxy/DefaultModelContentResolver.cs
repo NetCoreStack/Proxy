@@ -39,24 +39,36 @@ namespace NetCoreStack.Proxy
 
             if (modelMetadata.IsSimpleType)
             {
-                if (modelMetadata.PropertyInfo != null)
-                {
-                    dictionary.Add(key, Convert.ToString(value));
-                    return;
-                }
+                dictionary.Add(key, Convert.ToString(value));
+                return;
             }
 
             if (modelMetadata.IsEnumerableType)
             {
-                if (modelMetadata.IsElementTypeSimple)
+                if (modelMetadata.ElementType.IsSimpleType)
                 {
                     SetSimpleEnumerable(key, dictionary, value);
                 }
                 else
                 {
-                    if (TypeDescriptor.GetConverter(value.GetType()).CanConvertTo(typeof(string)))
+                    var count = modelMetadata.ElementType.Properties.Count;
+                    var elementProperties = modelMetadata.ElementType.Properties;
+                    for (int i = 0; i < count; i++)
                     {
-                        SetSimpleEnumerable(key, dictionary, value);
+                        var elementModelMetadata = elementProperties[i];
+                        var propertyInfo = elementModelMetadata.PropertyInfo;
+                        var values = value as IEnumerable;
+                        if (values != null)
+                        {
+                            var index = 0;
+                            foreach (var v in values)
+                            {
+                                var propKey = $"{key}[{index}]";
+                                var propValue = propertyInfo?.GetValue(v);
+                                ResolveInternal(elementModelMetadata, dictionary, propValue, propKey);
+                                index++;
+                            }
+                        }
                     }
                 }
             }
@@ -89,10 +101,13 @@ namespace NetCoreStack.Proxy
                         }
                     }
 
-                    var v = metadata.PropertyInfo.GetValue(value);
-                    if (v != null)
+                    if (value != null)
                     {
-                        ResolveInternal(metadata, dictionary, v, parent);
+                        var v = metadata.PropertyInfo.GetValue(value);
+                        if (v != null)
+                        {
+                            ResolveInternal(metadata, dictionary, v, parent);
+                        }
                     }
                 }
                 else
@@ -103,8 +118,8 @@ namespace NetCoreStack.Proxy
         }
 
         // Per request parameter context resolver
-        public ResolvedContentResult Resolve(List<ProxyModelMetadata> parameters,
-            HttpMethod httpMethod,
+        public ResolvedContentResult Resolve(HttpMethod httpMethod,
+            List<ProxyModelMetadata> parameters,
             bool isMultiPartFormData,
             object[] args)
         {
@@ -116,30 +131,6 @@ namespace NetCoreStack.Proxy
                 var modelMetadata = parameters[i];
                 ResolveInternal(modelMetadata, dictionary, args[i]);
             }
-
-            if (httpMethod == HttpMethod.Get)
-            {
-                // Ref type parameter resolver
-                if (parameters.Count == 1 && parameters[0].IsReferenceType)
-                {
-                    var modelMetadata = MetadataProvider.GetMetadataForType(args[0].GetType());
-
-                    var obj = args[0].ToDictionary();
-
-                    // TODO Gencebay
-                    // values.Merge(obj, true);
-                    // return values;
-                }
-
-                if (parameters.Count > 1 && parameters.Any(x => x.IsReferenceType))
-                {
-                    throw new ArgumentOutOfRangeException($"Methods marked with HTTP GET can take only one reference type parameter at the same time.");
-                }
-            }
-
-            // TODO Gencebay
-            // values.MergeArgs(args, parameters, isMultiPartFormData);
-            // return values;
 
             return new ResolvedContentResult(dictionary);
         }

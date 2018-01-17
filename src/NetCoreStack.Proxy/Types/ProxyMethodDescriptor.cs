@@ -9,7 +9,7 @@ namespace NetCoreStack.Proxy
 {
     public class ProxyMethodDescriptor
     {
-        public string Template { get; set; }
+        public string MethodMarkerTemplate { get; set; }
 
         public MethodInfo MethodInfo { get; }
 

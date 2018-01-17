@@ -12,6 +12,8 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         Task<int> PrimitiveReturn(int i, string s, long l, DateTime dt);
 
+        Task GetWithComplexReferenceType(CollectionRequest request);
+
         Task<IEnumerable<SampleModel>> GetEnumerableModels();
 
         Task<CollectionResult<SampleModel>> GetCollectionStreamTask();

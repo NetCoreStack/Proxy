@@ -70,7 +70,7 @@ namespace NetCoreStack.Proxy.Internal
                     if (httpMethodAttribute != null)
                     {
                         if (httpMethodAttribute.Template.HasValue())
-                            proxyMethodDescriptor.Template = httpMethodAttribute.Template;
+                            proxyMethodDescriptor.MethodMarkerTemplate = httpMethodAttribute.Template;
 
                         if (httpMethodAttribute is HttpGetMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Get;

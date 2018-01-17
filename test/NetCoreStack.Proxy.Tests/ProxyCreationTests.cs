@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -20,7 +22,7 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
-        public async Task TaskOperation()
+        public async Task TaskOperationTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var task = guidelineApi.TaskOperation();
@@ -28,31 +30,81 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
-        public async Task TaskCallHttpPostWithReferenceTypeParameter()
+        public async Task PrimitiveReturnTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var task = guidelineApi.PrimitiveReturn(int.MaxValue, "some string", long.MaxValue, DateTime.Now);
+            await task;
+        }
+
+        [Fact]
+        public async Task GetWithComplexReferenceTypeTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var task = guidelineApi.GetWithComplexReferenceType(new CollectionRequest {
+                Draw = 1,
+                Filters = "",
+                Length = 10,
+                Metadata = typeof(ComplexTypeModel).FullName,
+                Start = 0,
+                Search = null,
+                Text = "",
+                Columns = new List<Column>
+                {
+                    new Column
+                    {
+                        Composer = "",
+                        Data = nameof(ComplexTypeModel.Int),
+                        Meta = typeof(int).Name,
+                        Search = null,
+                        Searchable = true,
+                        Orderable = true
+                    },
+                    new Column
+                    {
+                        Composer = "",
+                        Data = nameof(ComplexTypeModel.String),
+                        Meta = typeof(String).Name,
+                        Search = null,
+                        Searchable = false,
+                        Orderable = false
+                    }
+                },
+                Order = new List<OrderDescriptor>
+                {
+                    new OrderDescriptor(0, ListSortDirection.Ascending)
+                }
+            });
+
+            await task;
+        }
+
+        [Fact]
+        public async Task TaskCallHttpPostWithReferenceTypeParameterTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var simpleModel = new SampleModel
             {
-                String = nameof(TaskCallHttpPostWithReferenceTypeParameter),
+                String = nameof(TaskCallHttpPostWithReferenceTypeParameterTest),
                 Date = DateTime.Now
             };
             await guidelineApi.TaskActionPost(simpleModel);
         }
 
         [Fact]
-        public async Task TaskCallHttpGetWithReferenceTypeParameter()
+        public async Task TaskCallHttpGetWithReferenceTypeParameterTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var simpleModel = new SampleModel
             {
-                String = nameof(TaskCallHttpGetWithReferenceTypeParameter),
+                String = nameof(TaskCallHttpGetWithReferenceTypeParameterTest),
                 Date = DateTime.Now
             };
             await guidelineApi.GetWithReferenceType(simpleModel);
         }
 
         [Fact]
-        public async Task GenericTaskResultCall()
+        public async Task GenericTaskResultCallTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var items = await guidelineApi.GetEnumerableModels();
@@ -61,7 +113,7 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
-        public async Task GetCollectionStream()
+        public async Task GetCollectionStreamTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             var collection = await guidelineApi.GetCollectionStreamTask();
@@ -70,7 +122,7 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
-        public async Task TaskActionPut()
+        public async Task TaskActionPutTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskActionPut(1, new SampleModel
@@ -83,7 +135,7 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
-        public async Task TaskActionDelete()
+        public async Task TaskActionDeleteTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskActionDelete(1);

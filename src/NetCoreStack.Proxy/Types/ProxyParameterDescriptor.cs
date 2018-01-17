@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-
-namespace NetCoreStack.Proxy
+﻿namespace NetCoreStack.Proxy
 {
     //public class ProxyParameterDescriptor
     //{

@@ -17,7 +17,7 @@ namespace NetCoreStack.Proxy
 
         public Type ContainerType => Identity.ContainerType;
 
-        public Type ElementType { get; private set; }
+        public ProxyModelMetadata ElementType { get; private set; }
 
         public Type UnderlyingOrModelType { get; private set; }
 
@@ -42,8 +42,6 @@ namespace NetCoreStack.Proxy
         public bool IsReferenceType { get; private set; }
 
         public bool IsReferenceOrNullableType { get; private set; }
-
-        public bool IsElementTypeSimple { get; private set; }
 
         public List<ProxyModelMetadata> Properties { get; private set; }
 
@@ -97,29 +95,39 @@ namespace NetCoreStack.Proxy
             else if (ModelType.IsArray)
             {
                 IsEnumerableType = true;
-                ElementType = ModelType.GetElementType();
-                IsElementTypeSimple = IsSimple(ElementType);
-                IsFormFile = typeof(IFormFile).IsAssignableFrom(ElementType);
+                var elementType = ModelType.GetElementType();
+
+                PropertyInfo propertyInfo = ContainerType?.GetProperty(PropertyName);
+                if (propertyInfo != null)
+                {
+                    ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType));
+                }
+
+                IsFormFile = typeof(IFormFile).IsAssignableFrom(elementType);
             }
             else
             {
                 IsEnumerableType = true;
 
                 var enumerableType = ClosedGenericMatcher.ExtractGenericInterface(ModelType, typeof(IEnumerable<>));
-                ElementType = enumerableType?.GenericTypeArguments[0];
+                var elementType = enumerableType?.GenericTypeArguments[0];
 
-                if (ElementType != null)
+                if (elementType != null)
                 {
-                    IsFormFile = typeof(IFormFile).IsAssignableFrom(ElementType);
+                    IsFormFile = typeof(IFormFile).IsAssignableFrom(elementType);
                 }
 
-                if (ElementType == null)
+                if (elementType == null)
                 {
                     // ModelType implements IEnumerable but not IEnumerable<T>.
-                    ElementType = typeof(object);
+                    elementType = typeof(object);
                 }
 
-                IsElementTypeSimple = IsSimple(ElementType);
+                PropertyInfo propertyInfo = ContainerType?.GetProperty(PropertyName);
+                if (propertyInfo != null)
+                {
+                    ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType));
+                }
             }
 
             if (IsComplexType && IsReferenceOrNullableType && 
@@ -167,6 +175,17 @@ namespace NetCoreStack.Proxy
             }
 
             return _hashCode.Value;
+        }
+
+        public override string ToString()
+        {
+            var name = PropertyName;
+            if (ContainerType != null)
+            {
+                name = ContainerType.Name + " - " + name;
+            }
+
+            return name;
         }
     }
 }

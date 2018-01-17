@@ -41,8 +41,13 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
     public class ComplexTypeModel2
     {
-        //public string String { get; set; }
-        //public Foo Foo { get; set; }
+        public Bar Bar { get; set; }
+    }
+
+    public class ComplexTypeModel3
+    {
+        public string String { get; set; }
+        public Foo Foo { get; set; }
         public Bar Bar { get; set; }
     }
 

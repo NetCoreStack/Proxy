@@ -5,8 +5,8 @@ namespace NetCoreStack.Proxy
 {
     public interface IModelContentResolver
     {
-        ResolvedContentResult Resolve(List<ProxyModelMetadata> parameters,
-            HttpMethod httpMethod,
+        ResolvedContentResult Resolve(HttpMethod httpMethod, 
+            List<ProxyModelMetadata> parameters,
             bool isMultiPartFormData,
             object[] args);
     }
