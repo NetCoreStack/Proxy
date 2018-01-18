@@ -7,22 +7,6 @@ namespace NetCoreStack.Proxy.Extensions
 {
     internal static class DictionaryExtensions
     {
-        //private static string TypeParser(KeyValuePair<string, object> selector)
-        //{
-        //    if (selector.Value == null)
-        //        return null;
-
-        //    if (selector.Value != null)
-        //    {
-        //        if (selector.Value is DateTime)
-        //        {
-        //            return ((DateTime)selector.Value).ToString(CultureInfo.InvariantCulture);
-        //        }
-        //    }
-
-        //    return selector.Value.ToString();
-        //}
-
         // Copyright (c) .NET Foundation. All rights reserved.
         // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
         private static string AddQueryString(string uri, IEnumerable<KeyValuePair<string, string>> queryString)
@@ -81,88 +65,6 @@ namespace NetCoreStack.Proxy.Extensions
 
             return AddQueryString(uri, (IEnumerable<KeyValuePair<string, string>>)queryString);
         }
-
-        //private static void AddToDictionary(IDictionary<string, string> source, ProxyModelMetadata metadata, object instance)
-        //{
-        //    do
-        //    {
-        //        foreach (var modelMetadata in metadata.Properties)
-        //        {
-        //            var prefix = modelMetadata.ContainerType?.Name;
-        //            var propertyName = modelMetadata.PropertyName;
-        //            var key = !string.IsNullOrEmpty(prefix) ? $"{prefix}.{propertyName}" : propertyName;
-
-        //            if (modelMetadata.IsSimpleType)
-        //            {
-        //                var value = Convert.ToString(instance, CultureInfo.InvariantCulture);
-        //                if (!string.IsNullOrEmpty(value))
-        //                {
-        //                    source.Add(key, value);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    while (metadata.Properties.Any());
-        //}
-
-        //internal static void Merge(this IDictionary<string, object> instance, IDictionary<string, object> from, bool replaceExisting)
-        //{
-        //    foreach (KeyValuePair<string, object> entry in from)
-        //    {
-        //        if (replaceExisting || !instance.ContainsKey(entry.Key))
-        //        {
-        //            instance[entry.Key] = entry.Value;
-        //        }
-        //    }
-        //}
-
-        //internal static void Merge(this IDictionary<string, PropertyContext> instance, IDictionary<string, PropertyContext> from, bool replaceExisting)
-        //{
-        //    foreach (KeyValuePair<string, PropertyContext> entry in from)
-        //    {
-        //        if (replaceExisting || !instance.ContainsKey(entry.Key))
-        //        {
-        //            instance[entry.Key] = entry.Value;
-        //        }
-        //    }
-        //}
-
-        //internal static void MergeArgs(this IDictionary<string, PropertyContext> dictionary,
-        //    object[] args,
-        //    List<ProxyModelMetadata> parameters,
-        //    bool isMultiPartFormData)
-        //{
-        //    if (args.Length == 0)
-        //        return;
-
-        //    if (!isMultiPartFormData)
-        //    {
-        //        for (int i = 0; i < parameters.Count; i++)
-        //        {
-        //            var modelMetadata = parameters[i];
-        //            dictionary.Add(modelMetadata.PropertyName, new PropertyContext { ModelMetadata = modelMetadata, Value = args[i] });
-        //        }
-
-        //        return;
-        //    }
-
-        //    // Multipart form data context
-        //    for (int i = 0; i < parameters.Count; i++)
-        //    {
-        //        var modelMetadata = parameters[i];
-        //        foreach (var prop in parameters[i].Properties)
-        //        {
-        //            var parameterContext = new PropertyContext
-        //            {
-        //                ModelMetadata = prop,
-        //                // TODO Gencebay
-        //                // Value = contentTypeInfo.PropertyInfo.GetValue(args[i]),
-        //            };
-        //            // TODO Gencebay
-        //            // dictionary.Add(name, parameterContext);
-        //        }
-        //    }
-        //}
 
         internal static string ToQueryString(this Uri baseUrl, IDictionary<string, string> dictionary)
         {

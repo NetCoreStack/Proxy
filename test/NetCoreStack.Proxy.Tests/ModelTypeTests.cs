@@ -1,63 +1,28 @@
 ﻿using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.Net.Http;
+using System.Linq;
 using Xunit;
 
 namespace NetCoreStack.Proxy.Tests
 {
     public class ModelTypeTests
     {
-        private ResolvedContentResult GetResolvedContentResult(object model, bool isMultipartFormData)
+        private ResolvedContentResult GetResolvedContentResult(object model)
         {
             var metadataProvider = new ProxyMetadataProvider();
             var modelMetadata = metadataProvider.GetMetadataForType(model.GetType());
             object[] args = new object[] { model };
 
             DefaultModelContentResolver contentResolver = new DefaultModelContentResolver(metadataProvider);
-            return contentResolver.Resolve(HttpMethod.Get, new List<ProxyModelMetadata> { modelMetadata }, isMultipartFormData, args);
+            return contentResolver.Resolve(new List<ProxyModelMetadata> { modelMetadata }, args);
         }
 
         [Fact]
         public void ProxyModelMetadataInfoComplexTypeModelTests()
         {
-            var dateTime = DateTime.Parse("1/1/2018 9:00:00 AM", CultureInfo.InvariantCulture);
-            var dateTimeOffset = new DateTimeOffset(dateTime);
-            var guid = Guid.Parse("5cb98c19-7c0c-4661-bd9a-a2042b3bcb0d");
-            ComplexTypeModel model = new ComplexTypeModel
-            {
-                Bar = new Bar { String = "Bar string value!", SomeEnum = SomeEnum.Value0, someint = 6,
-                    Foo = new Foo { IEnumerableInt = new[] { 2, 3 }, String = "Foo inner str value!" } },
-                Bool = true,
-                Foo = new Foo { IEnumerableInt = new[] { 4, 5 }, String = "Foo string value!" },
-                Byte = (byte)'A', // 65
-                Char = 'c',
-                DateTime = dateTime,
-                DateTimeOffset = dateTimeOffset,
-                Decimal = 300.5m, // 300.5
-                DecimalNullable = 100.5m,
-                Double = 1.7E+3, // 1700
-                Float = 4.5f, // 4.5
-                Guid = guid,
-                IEnumerable = new[] { "value1", "value2", "value3" },
-                ICollection = new[] { 2, 4, 6, 8 },
-                Int = int.MaxValue,
-                IntArray = new int[] { int.MaxValue, int.MinValue },
-                Long = 0x100000000, // 4294967296
-                // Object = new { a = 1, b = true, c = "str" },
-                SByte = -102,
-                Short = 0x040A, // 1034
-                String = "string value!",
-                TimeSpan = new TimeSpan(4, 15, 30),
-                UInt = 0xB2D05E00, // 3000000000
-                ULong = 0x0001D8e864DD, // 7934076125
-                Uri = new Uri("http://localhost:5003"),
-                UShort = 0xFE0A // 65034
-            };
-
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(TypesModelHelper.GetComplexTypeModel());
 
             var expect = new Dictionary<string, string>()
             {
@@ -91,32 +56,23 @@ namespace NetCoreStack.Proxy.Tests
                 ["IntArray[0]"] = "2147483647",
                 ["IntArray[1]"] = "-2147483648",
                 ["Long"] = "4294967296",
-                // ["Object"] = "",
+                ["Object.a"] = "1",
+                ["Object.b"] = "True",
+                ["Object.c"] = "str",
                 ["SByte"] = "-102",
                 ["Short"] = "1034",
                 ["String"] = "string value!",
                 ["TimeSpan"] = "04:15:30",
                 ["UInt"] = "3000000000",
                 ["ULong"] = "7934076125",
-                ["Uri"] = "http://localhost:5003",
+                ["Uri"] = "http://localhost:5003/",
                 ["UShort"] = "65034"
             };
 
             var actual = contentResult.Dictionary;
-            foreach (KeyValuePair<string, string> entry in expect)
-            {
-                if (actual.TryGetValue(entry.Key, out string value))
-                {
-                    // noop
-                }
-                else
-                {
-                    Debug.WriteLine($"Missing Key: {entry.Key}");
-                }
-            }
-
+            var str = string.Join(Environment.NewLine, actual.OrderBy(x => x.Key).Select(x => $"[\"{x.Key}\"] = \"{x.Value}\",").ToArray());
             Assert.Equal(expect, actual);
-            Assert.Equal(37, actual.Count);
+            Assert.Equal(41, actual.Count);
         }
 
         [Fact]
@@ -127,7 +83,7 @@ namespace NetCoreStack.Proxy.Tests
                 Bar = new Bar { String = "Bar string value", SomeEnum = SomeEnum.Value1, someint = 6, Foo = new Foo { IEnumerableInt = new[] { 2, 3 }, String = "Foo inner str value" } },
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -153,7 +109,7 @@ namespace NetCoreStack.Proxy.Tests
                 Foo = new Foo { IEnumerableInt = new[] { 4, 5 }, String = "Foo string value" }
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -182,7 +138,7 @@ namespace NetCoreStack.Proxy.Tests
                 IEnumerableInt = new[] { 1, 3, 5, 7, 9 }
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -209,7 +165,7 @@ namespace NetCoreStack.Proxy.Tests
                 Foo = new Foo { IEnumerableInt = new[] { 1, 3, 5, 7, 9 }, String = "Foo string value!" }
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -236,7 +192,7 @@ namespace NetCoreStack.Proxy.Tests
                 IEnumerableString = new[] { "One", "Two", "Three", "Four", "Five" }
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -259,7 +215,7 @@ namespace NetCoreStack.Proxy.Tests
                 IEnumerableUri = new[] { new Uri("http://localhost:5003"), new Uri("http://localhost:5004"), new Uri("http://localhost:5005") }
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -272,26 +228,49 @@ namespace NetCoreStack.Proxy.Tests
             Assert.Equal(3, contentResult.Dictionary.Count);
         }
 
-        //[Fact]
-        //public void ProxyModelMetadataInfoForObjectModel()
-        //{
-        //    ObjectModel model = new ObjectModel
-        //    {
-        //        Object = new[] { new Uri("http://localhost:5003"), new Uri("http://localhost:5004"), new Uri("http://localhost:5005") }
-        //    };
+        [Fact]
+        public void ProxyModelMetadataInfoForObjectModel()
+        {
+            ObjectModel model = new ObjectModel
+            {
+                Object = new[] { new Uri("http://localhost:5003"), new Uri("http://localhost:5004"), new Uri("http://localhost:5005") }
+            };
 
-        //    var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
-        //    var expect = new Dictionary<string, string>()
-        //    {
-        //        ["Object[0]"] = "http://localhost:5003/",
-        //        ["Object[1]"] = "http://localhost:5004/",
-        //        ["Object[2]"] = "http://localhost:5005/",
-        //    };
+            var expect = new Dictionary<string, string>()
+            {
+                ["Object[0]"] = "http://localhost:5003/",
+                ["Object[1]"] = "http://localhost:5004/",
+                ["Object[2]"] = "http://localhost:5005/",
+            };
 
-        //    Assert.Equal(expect, contentResult.Dictionary);
-        //    Assert.Equal(3, expect.Count);
-        //}
+            var actual = contentResult.Dictionary;
+            Assert.Equal(expect, actual);
+            Assert.Equal(3, actual.Count);
+        }
+
+        [Fact]
+        public void ProxyModelMetadataInfoForAnonymousObjectModel()
+        {
+            ObjectModel model = new ObjectModel
+            {
+                Object = new { a = 1, b = true, c = "str" },
+            };
+
+            var contentResult = GetResolvedContentResult(model);
+
+            var expect = new Dictionary<string, string>()
+            {
+                ["Object.a"] = "1",
+                ["Object.b"] = "True",
+                ["Object.c"] = "str",
+            };
+
+            var actual = contentResult.Dictionary;
+            Assert.Equal(expect, actual);
+            Assert.Equal(3, actual.Count);
+        }
 
         [Fact]
         public void ProxyModelMetadataInfoForNullableObjectModel()
@@ -304,7 +283,7 @@ namespace NetCoreStack.Proxy.Tests
                 IntNullable = 1
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -326,7 +305,7 @@ namespace NetCoreStack.Proxy.Tests
                 IEnumerable = new[] { "value1", "value2", "value3" }
             };
 
-            var contentResult = GetResolvedContentResult(model, false);
+            var contentResult = GetResolvedContentResult(model);
 
             var expect = new Dictionary<string, string>()
             {
@@ -337,6 +316,28 @@ namespace NetCoreStack.Proxy.Tests
 
             Assert.Equal(expect, contentResult.Dictionary);
             Assert.Equal(3, contentResult.Dictionary.Count);
+        }
+
+        [Fact]
+        public void ProxyModelMetadataInfoForAnonymousObject()
+        {
+            var model = new { a = 1, b = true, c = "str", d = new { e = 2, f = new[] { 1, 2, 3 } } };
+            var contentResult = GetResolvedContentResult(model);
+
+            var expect = new Dictionary<string, string>()
+            {
+                ["a"] = "1",
+                ["b"] = "True",
+                ["c"] = "str",
+                ["d.e"] = "2",
+                ["d.f[0]"] = "1",
+                ["d.f[1]"] = "2",
+                ["d.f[2]"] = "3",
+            };
+
+            var actual = contentResult.Dictionary;
+            Assert.Equal(expect, contentResult.Dictionary);
+            Assert.Equal(7, actual.Count);
         }
     }
 }

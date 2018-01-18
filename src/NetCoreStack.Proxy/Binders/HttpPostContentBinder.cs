@@ -12,7 +12,7 @@ namespace NetCoreStack.Proxy
             var isMultiPartFormData = bindingContext.IsMultiPartFormData;
             if (isMultiPartFormData)
             {
-                ResolvedContentResult result = bindingContext.GetResolvedContentResult(HttpMethod);
+                ResolvedContentResult result = bindingContext.GetResolvedContentResult();
                 var content = GetMultipartFormDataContent(result);
                 bindingContext.ContentResult = ContentModelBindingResult.Success(content);
                 return;
@@ -22,11 +22,9 @@ namespace NetCoreStack.Proxy
             {
                 bindingContext.ContentResult = ContentModelBindingResult.Success(SerializeToString(bindingContext.Args[0]));
                 return;
-                // request.Content = SerializeToString(argsDic.First().Value);
             }
 
             bindingContext.ContentResult = ContentModelBindingResult.Success(SerializeToString(bindingContext.Args));
-            // request.Content = SerializeToString(argsDic);
         }
     }
 }

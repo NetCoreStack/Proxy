@@ -10,6 +10,8 @@ namespace NetCoreStack.Proxy.Test.Contracts
     {
         Task TaskOperation();
 
+        Task GetComplexType(ComplexTypeModel model);
+
         Task<int> PrimitiveReturn(int i, string s, long l, DateTime dt);
 
         Task GetWithComplexReferenceType(CollectionRequest request);
@@ -18,10 +20,8 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         Task<CollectionResult<SampleModel>> GetCollectionStreamTask();
 
-        Task GetWithReferenceType(SampleModel model);
-
         [HttpPostMarker]
-        Task TaskActionPost(SampleModel model);
+        Task TaskActionPost(ComplexTypeModel model);
 
         [HttpPutMarker]
         Task TaskActionPut(long id, SampleModel model);

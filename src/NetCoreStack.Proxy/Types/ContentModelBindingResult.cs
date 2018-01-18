@@ -26,7 +26,6 @@ namespace NetCoreStack.Proxy
 
         public bool IsContentSet { get; }
 
-        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             var other = obj as ContentModelBindingResult?;

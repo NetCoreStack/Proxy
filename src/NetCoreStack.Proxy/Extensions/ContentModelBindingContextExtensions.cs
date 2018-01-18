@@ -6,9 +6,9 @@ namespace NetCoreStack.Proxy.Extensions
 {
     public static class ContentModelBindingContextExtensions
     {
-        public static ResolvedContentResult GetResolvedContentResult(this ContentModelBindingContext bindingContext, HttpMethod httpMethod)
+        public static ResolvedContentResult GetResolvedContentResult(this ContentModelBindingContext bindingContext)
         {
-            return bindingContext.ModelContentResolver.Resolve(httpMethod, bindingContext.Parameters, bindingContext.IsMultiPartFormData, bindingContext.Args);
+            return bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
         }
 
         public static void TrySetContent(this ContentModelBindingContext bindingContext, HttpRequestMessage httpRequest)

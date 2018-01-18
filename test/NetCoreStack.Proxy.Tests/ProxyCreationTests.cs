@@ -30,6 +30,14 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        public async Task GetComplexTypeTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var task = guidelineApi.GetComplexType(TypesModelHelper.GetComplexTypeModel());
+            await task;
+        }
+
+        [Fact]
         public async Task PrimitiveReturnTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
@@ -72,7 +80,11 @@ namespace NetCoreStack.Proxy.Tests
                 },
                 Order = new List<OrderDescriptor>
                 {
-                    new OrderDescriptor(0, ListSortDirection.Ascending)
+                    new OrderDescriptor
+                    {
+                        ColumnIndex = 0,
+                        Direction = ListSortDirection.Ascending
+                    }
                 }
             });
 
@@ -83,24 +95,7 @@ namespace NetCoreStack.Proxy.Tests
         public async Task TaskCallHttpPostWithReferenceTypeParameterTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SampleModel
-            {
-                String = nameof(TaskCallHttpPostWithReferenceTypeParameterTest),
-                Date = DateTime.Now
-            };
-            await guidelineApi.TaskActionPost(simpleModel);
-        }
-
-        [Fact]
-        public async Task TaskCallHttpGetWithReferenceTypeParameterTest()
-        {
-            var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SampleModel
-            {
-                String = nameof(TaskCallHttpGetWithReferenceTypeParameterTest),
-                Date = DateTime.Now
-            };
-            await guidelineApi.GetWithReferenceType(simpleModel);
+            await guidelineApi.TaskActionPost(TypesModelHelper.GetComplexTypeModel());
         }
 
         [Fact]

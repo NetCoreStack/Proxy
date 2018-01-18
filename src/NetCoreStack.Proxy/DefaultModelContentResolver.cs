@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Reflection;
 
 namespace NetCoreStack.Proxy
 {
@@ -28,14 +28,46 @@ namespace NetCoreStack.Proxy
             }
         }
 
-        private void TrySetSystemObjectValue()
+        private void TrySetSystemObjectValue(string key, 
+            PropertyInfo propertyInfo, 
+            string propertyName, 
+            Type containerType, 
+            Dictionary<string, string> dictionary, 
+            object value)
         {
+            var objModelMetadata = new ProxyModelMetadata(propertyInfo,
+                    ProxyModelMetadataIdentity.ForProperty(value.GetType(),
+                    propertyName,
+                    containerType));
 
+
+            if (objModelMetadata.IsSimpleType)
+            {
+                dictionary.Add(key, Convert.ToString(value));
+                return;
+            }
+
+            if (objModelMetadata.IsEnumerableType)
+            {
+                if (objModelMetadata.ElementType.IsSimpleType)
+                {
+                    SetSimpleEnumerable(key, dictionary, value);
+                }
+                else
+                {
+                    TrySetValueInner(key, objModelMetadata, dictionary, value);
+                }
+
+                return;
+            }
+
+            // Anonymous object resolver
+            ResolveInternal(objModelMetadata, dictionary, value, key);
         }
 
         private void TrySetValueInner(string key, ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value)
         {
-            var count = modelMetadata.ElementType.Properties.Count;
+            var count = modelMetadata.ElementType.PropertiesCount;
             var elementProperties = modelMetadata.ElementType.Properties;
             for (int i = 0; i < count; i++)
             {
@@ -63,6 +95,7 @@ namespace NetCoreStack.Proxy
 
             if (modelMetadata.IsNullableValueType)
             {
+                // recall with prefix
                 TrySetValue(prefix, modelMetadata.ElementType, dictionary, value);
                 return;
             }
@@ -73,6 +106,11 @@ namespace NetCoreStack.Proxy
                 return;
             }
 
+            if (modelMetadata.IsFormFile)
+            {
+                // TODO Gencebay
+            }
+
             if (modelMetadata.IsEnumerableType)
             {
                 if (modelMetadata.ElementType.IsSimpleType)
@@ -81,7 +119,11 @@ namespace NetCoreStack.Proxy
                 }
                 else if(modelMetadata.ElementType.IsSystemObject)
                 {
-
+                    TrySetSystemObjectValue(key, 
+                        modelMetadata.ElementType.PropertyInfo,
+                        modelMetadata.ElementType.PropertyName, 
+                        modelMetadata.ContainerType, 
+                        dictionary, value);
                 }
                 else
                 {
@@ -94,44 +136,20 @@ namespace NetCoreStack.Proxy
             // If typeof(object)
             if (modelMetadata.IsSystemObject)
             {
-                // TODO
-                // TrySetSystemObjectValue
-
-                var objModelMetadata = new ProxyModelMetadata(modelMetadata.PropertyInfo,
-                    ProxyModelMetadataIdentity.ForProperty(value.GetType(),
-                    modelMetadata.PropertyName,
-                    modelMetadata.ContainerType));
-
-                if (objModelMetadata.IsSimpleType)
-                {
-                    dictionary.Add(key, Convert.ToString(value));
-                    return;
-                }
-
-                if (objModelMetadata.IsEnumerableType)
-                {
-                    if (objModelMetadata.ElementType.IsSimpleType)
-                    {
-                        SetSimpleEnumerable(key, dictionary, value);
-                    }
-                    else
-                    {
-                        TrySetValueInner(key, objModelMetadata, dictionary, value);
-                    }
-                }
+                TrySetSystemObjectValue(key, modelMetadata.PropertyInfo, modelMetadata.PropertyName, modelMetadata.ContainerType, dictionary, value);
             }
         }
 
         private void ResolveInternal(ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value, string prefix = "")
         {
-            var count = modelMetadata.Properties.Count;
+            var count = modelMetadata.PropertiesCount;
             if (count == 0)
             {
                 TrySetValue(prefix, modelMetadata, dictionary, value);
                 return;
             }
 
-            for (int i = 0; i < modelMetadata.Properties.Count; i++)
+            for (int i = 0; i < modelMetadata.PropertiesCount; i++)
             {
                 var metadata = modelMetadata.Properties[i];
                 if (metadata.ContainerType != null)
@@ -139,7 +157,8 @@ namespace NetCoreStack.Proxy
                     var parent = prefix;
                     if (!metadata.IsSimpleType && 
                         !metadata.IsEnumerableType &&
-                        !metadata.IsNullableValueType)
+                        !metadata.IsNullableValueType &&
+                        !metadata.IsSystemObject)
                     {
                         parent = !string.IsNullOrEmpty(prefix) ? $"{prefix}.{metadata.PropertyName}" : metadata.PropertyName;
                     }
@@ -161,10 +180,7 @@ namespace NetCoreStack.Proxy
         }
 
         // Per request parameter context resolver
-        public ResolvedContentResult Resolve(HttpMethod httpMethod,
-            List<ProxyModelMetadata> parameters,
-            bool isMultiPartFormData,
-            object[] args)
+        public ResolvedContentResult Resolve(List<ProxyModelMetadata> parameters, object[] args)
         {
             var dictionary = new Dictionary<string, string>(StringComparer.Ordinal);
             var count = parameters.Count;
