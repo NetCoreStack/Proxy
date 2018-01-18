@@ -31,6 +31,8 @@ namespace NetCoreStack.Proxy
 
         public bool IsSimpleType { get; private set; }
 
+        public bool IsSystemObject { get; private set; }
+
         public bool IsComplexType { get; private set; }
 
         public bool IsNullableValueType { get; private set; }
@@ -84,6 +86,7 @@ namespace NetCoreStack.Proxy
             UnderlyingOrModelType = Nullable.GetUnderlyingType(ModelType) ?? ModelType;
             IsFormFile = typeof(IFormFile).IsAssignableFrom(ModelType);
             IsSimpleType = IsSimple(ModelType);
+            IsSystemObject = ModelType == typeof(object);
 
             var collectionType = ClosedGenericMatcher.ExtractGenericInterface(ModelType, typeof(ICollection<>));
             IsCollectionType = collectionType != null;
@@ -127,6 +130,16 @@ namespace NetCoreStack.Proxy
                 if (propertyInfo != null)
                 {
                     ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType));
+                }
+            }
+
+            if (IsNullableValueType)
+            {
+                var elementType = Nullable.GetUnderlyingType(ModelType);
+                PropertyInfo pInfo = ContainerType?.GetProperty(PropertyName);
+                if (pInfo != null)
+                {
+                    ElementType = new ProxyModelMetadata(pInfo, ProxyModelMetadataIdentity.ForProperty(elementType, pInfo.Name, ModelType));
                 }
             }
 

@@ -1,9 +1,6 @@
-﻿using NetCoreStack.Proxy.Extensions;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
@@ -31,11 +28,44 @@ namespace NetCoreStack.Proxy
             }
         }
 
+        private void TrySetSystemObjectValue()
+        {
+
+        }
+
+        private void TrySetValueInner(string key, ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value)
+        {
+            var count = modelMetadata.ElementType.Properties.Count;
+            var elementProperties = modelMetadata.ElementType.Properties;
+            for (int i = 0; i < count; i++)
+            {
+                var elementModelMetadata = elementProperties[i];
+                var propertyInfo = elementModelMetadata.PropertyInfo;
+                if (value is IEnumerable values)
+                {
+                    var index = 0;
+                    foreach (var v in values)
+                    {
+                        var propKey = $"{key}[{index}]";
+                        var propValue = propertyInfo?.GetValue(v);
+                        ResolveInternal(elementModelMetadata, dictionary, propValue, propKey);
+                        index++;
+                    }
+                }
+            }
+        }
+
         private void TrySetValue(string prefix, ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value)
         {
             var key = modelMetadata.PropertyName;
             if (!string.IsNullOrEmpty(prefix))
                 key = $"{prefix}.{key}";
+
+            if (modelMetadata.IsNullableValueType)
+            {
+                TrySetValue(prefix, modelMetadata.ElementType, dictionary, value);
+                return;
+            }
 
             if (modelMetadata.IsSimpleType)
             {
@@ -49,26 +79,44 @@ namespace NetCoreStack.Proxy
                 {
                     SetSimpleEnumerable(key, dictionary, value);
                 }
+                else if(modelMetadata.ElementType.IsSystemObject)
+                {
+
+                }
                 else
                 {
-                    var count = modelMetadata.ElementType.Properties.Count;
-                    var elementProperties = modelMetadata.ElementType.Properties;
-                    for (int i = 0; i < count; i++)
+                    TrySetValueInner(key, modelMetadata, dictionary, value);
+                }
+
+                return;
+            }
+
+            // If typeof(object)
+            if (modelMetadata.IsSystemObject)
+            {
+                // TODO
+                // TrySetSystemObjectValue
+
+                var objModelMetadata = new ProxyModelMetadata(modelMetadata.PropertyInfo,
+                    ProxyModelMetadataIdentity.ForProperty(value.GetType(),
+                    modelMetadata.PropertyName,
+                    modelMetadata.ContainerType));
+
+                if (objModelMetadata.IsSimpleType)
+                {
+                    dictionary.Add(key, Convert.ToString(value));
+                    return;
+                }
+
+                if (objModelMetadata.IsEnumerableType)
+                {
+                    if (objModelMetadata.ElementType.IsSimpleType)
                     {
-                        var elementModelMetadata = elementProperties[i];
-                        var propertyInfo = elementModelMetadata.PropertyInfo;
-                        var values = value as IEnumerable;
-                        if (values != null)
-                        {
-                            var index = 0;
-                            foreach (var v in values)
-                            {
-                                var propKey = $"{key}[{index}]";
-                                var propValue = propertyInfo?.GetValue(v);
-                                ResolveInternal(elementModelMetadata, dictionary, propValue, propKey);
-                                index++;
-                            }
-                        }
+                        SetSimpleEnumerable(key, dictionary, value);
+                    }
+                    else
+                    {
+                        TrySetValueInner(key, objModelMetadata, dictionary, value);
                     }
                 }
             }
@@ -89,16 +137,11 @@ namespace NetCoreStack.Proxy
                 if (metadata.ContainerType != null)
                 {
                     var parent = prefix;
-                    if (!metadata.IsSimpleType && !metadata.IsEnumerableType)
+                    if (!metadata.IsSimpleType && 
+                        !metadata.IsEnumerableType &&
+                        !metadata.IsNullableValueType)
                     {
-                        if (!string.IsNullOrEmpty(prefix))
-                        {
-                            parent = $"{prefix}.{metadata.PropertyName}";
-                        }
-                        else
-                        {
-                            parent = metadata.PropertyName;
-                        }
+                        parent = !string.IsNullOrEmpty(prefix) ? $"{prefix}.{metadata.PropertyName}" : metadata.PropertyName;
                     }
 
                     if (value != null)
