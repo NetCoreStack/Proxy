@@ -12,10 +12,13 @@ namespace NetCoreStack.Proxy
 
         public IDictionary<string, string> DefaultHeaders { get; }
 
+        public IList<IModelResolver> ModelResolvers { get; }
+
         public ProxyBuilderOptions()
         {
             DefaultHeaders = new Dictionary<string, string>();
             ProxyList = new List<Type>();
+            ModelResolvers = new List<IModelResolver>();
         }
 
         /// <summary>

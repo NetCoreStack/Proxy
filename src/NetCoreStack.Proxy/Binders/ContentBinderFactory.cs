@@ -5,11 +5,6 @@ namespace NetCoreStack.Proxy
 {
     public static class ContentBinderFactory
     {
-        static ContentBinderFactory()
-        {
-
-        }
-
         public static IContentModelBinder GetContentModelBinder(HttpMethod httpMethod)
         {
             if (httpMethod == HttpMethod.Get)

@@ -1,15 +1,31 @@
-﻿using NetCoreStack.Proxy.Test.Contracts;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Xunit;
 
 namespace NetCoreStack.Proxy.Tests
 {
     public class ModelTypeTests
     {
-        private ResolvedContentResult GetResolvedContentResult(object model)
+        private IList<IModelResolver> GetModelResolvers()
+        {
+            return new List<IModelResolver>
+            {
+                new SimpleModelResolver(),
+                new EnumerableModelResolver(),
+                new ComplexModelResolver(),
+                new SystemObjectModelResolver(),
+                new FormFileModelResolver()
+            };
+        }
+
+        private ModelDictionaryResult GetResolvedContentResult(object model)
         {
             var metadataProvider = new ProxyMetadataProvider();
             var modelMetadata = metadataProvider.GetMetadataForType(model.GetType());
@@ -18,6 +34,22 @@ namespace NetCoreStack.Proxy.Tests
             DefaultModelContentResolver contentResolver = new DefaultModelContentResolver(metadataProvider);
             return contentResolver.Resolve(new List<ProxyModelMetadata> { modelMetadata }, args);
         }
+
+        //[Fact]
+        //public void ProxyModelMetadataInfoPrimitiveTests()
+        //{
+        //    int intValue = 1;
+        //    var contentResult = GetResolvedContentResult(intValue);
+
+        //    var expect = new Dictionary<string, string>()
+        //    {
+        //        ["intValue"] = "1",
+        //    };
+
+        //    var actual = contentResult.Dictionary;
+        //    Assert.Equal(expect, contentResult.Dictionary);
+        //    Assert.True(1 == actual.Count);
+        //}
 
         [Fact]
         public void ProxyModelMetadataInfoComplexTypeModelTests()
@@ -338,6 +370,76 @@ namespace NetCoreStack.Proxy.Tests
             var actual = contentResult.Dictionary;
             Assert.Equal(expect, contentResult.Dictionary);
             Assert.Equal(7, actual.Count);
+        }
+
+        [Fact]
+        public void ProxyModelMetadataInfoForSingleFile()
+        {
+            var content = "some text content";
+            var bytes = Encoding.UTF8.GetBytes(content);
+            var length = bytes.Length;
+            var ms = new MemoryStream();
+            var formFile = new FormFile(ms, 0, length, "file", "some_text_file.txt");
+            var model = new SingleFileModel
+            {
+                File = formFile
+            };
+
+            var contentResult = GetResolvedContentResult(model);
+            var files = contentResult.Files;            
+            var dictionary = contentResult.Dictionary;
+            Assert.True(1 == files.Count);
+            Assert.True(0 == dictionary.Count);
+
+            Assert.Equal("some_text_file.txt", files["File"].FileName);
+            Assert.Equal(length, files["File"].Length);
+        }
+
+        [Fact]
+        public void ProxyModelMetadataInfoForEnumerableFile()
+        {
+            var content = "some text content";
+            var bytes = Encoding.UTF8.GetBytes(content);
+            var length = bytes.Length;
+            var ms = new MemoryStream();
+            var formFile = new FormFile(ms, 0, length, "file", "some_text_file.txt");
+            var model = new EnumerableFileModel
+            {
+                Files = new[] { formFile }
+            };
+
+            var contentResult = GetResolvedContentResult(model);
+            var files = contentResult.Files;
+            var dictionary = contentResult.Dictionary;
+            Assert.True(1 == files.Count);
+            Assert.True(0 == dictionary.Count);
+
+            Assert.Equal("some_text_file.txt", files["Files[0]"].FileName);
+        }
+
+        [Fact]
+        public void ProxyModelMetadataInfoForFileModel()
+        {
+            var content = "some text content";
+            var bytes = Encoding.UTF8.GetBytes(content);
+            var length = bytes.Length;
+            var ms = new MemoryStream();
+            var formFile = new FormFile(ms, 0, length, "file", "some_text_file.txt");
+            var model = new FileModel
+            {
+                InnerFileModel = new InnerFileModel
+                {
+                    Files = new[] { formFile, formFile }
+                }
+            };
+
+            var contentResult = GetResolvedContentResult(model);
+            var files = contentResult.Files;
+            var dictionary = contentResult.Dictionary;
+            Assert.True(2 == files.Count);
+            Assert.True(0 == dictionary.Count);
+
+            Assert.Equal("some_text_file.txt", files["InnerFileModel.Files[0]"].FileName);
         }
     }
 }

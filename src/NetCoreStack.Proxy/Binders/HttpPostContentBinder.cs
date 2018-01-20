@@ -12,7 +12,7 @@ namespace NetCoreStack.Proxy
             var isMultiPartFormData = bindingContext.IsMultiPartFormData;
             if (isMultiPartFormData)
             {
-                ResolvedContentResult result = bindingContext.GetResolvedContentResult();
+                ModelDictionaryResult result = bindingContext.GetResolvedContentResult();
                 var content = GetMultipartFormDataContent(result);
                 bindingContext.ContentResult = ContentModelBindingResult.Success(content);
                 return;

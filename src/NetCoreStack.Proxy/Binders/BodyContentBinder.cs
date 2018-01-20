@@ -32,7 +32,7 @@ namespace NetCoreStack.Proxy
             return new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
         }
 
-        protected virtual MultipartFormDataContent GetMultipartFormDataContent(ResolvedContentResult contentResult)
+        protected virtual MultipartFormDataContent GetMultipartFormDataContent(ModelDictionaryResult contentResult)
         {
             MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
             foreach (KeyValuePair<string, string> entry in contentResult.Dictionary)

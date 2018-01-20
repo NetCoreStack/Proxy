@@ -6,7 +6,7 @@ namespace NetCoreStack.Proxy.Extensions
 {
     public static class ContentModelBindingContextExtensions
     {
-        public static ResolvedContentResult GetResolvedContentResult(this ContentModelBindingContext bindingContext)
+        public static ModelDictionaryResult GetResolvedContentResult(this ContentModelBindingContext bindingContext)
         {
             return bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
         }

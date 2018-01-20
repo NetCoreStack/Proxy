@@ -4,6 +4,6 @@ namespace NetCoreStack.Proxy
 {
     public interface IModelContentResolver
     {
-        ResolvedContentResult Resolve(List<ProxyModelMetadata> parameters, object[] args);
+        ModelDictionaryResult Resolve(List<ProxyModelMetadata> parameters, object[] args);
     }
 }

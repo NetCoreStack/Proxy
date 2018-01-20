@@ -12,7 +12,7 @@ namespace NetCoreStack.Proxy
 
         public override void BindContent(ContentModelBindingContext bindingContext)
         {
-            ResolvedContentResult result = bindingContext.GetResolvedContentResult();
+            ModelDictionaryResult result = bindingContext.GetResolvedContentResult();
             List<string> keys = result.Dictionary.Keys.ToList();
             EnsureTemplate(bindingContext.MethodMarkerTemplate, bindingContext.Args, bindingContext.UriDefinition, result.Dictionary, keys);
             if (bindingContext.ArgsLength == 1)

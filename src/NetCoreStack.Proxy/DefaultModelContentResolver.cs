@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -12,6 +13,37 @@ namespace NetCoreStack.Proxy
         public DefaultModelContentResolver(ProxyMetadataProvider metadataProvider)
         {
             MetadataProvider = metadataProvider;
+        }
+
+        private void TrySetFormFile(string prefix, ProxyModelMetadata modelMetadata, ModelDictionaryResult result, object value)
+        {
+            if (modelMetadata.IsNullableValueType)
+            {
+                // recall with prefix
+                TrySetFormFile(prefix, modelMetadata.ElementType, result, value);
+                return;
+            }
+
+            if (modelMetadata.IsEnumerableType)
+            {
+                var enumerable = value as IEnumerable<IFormFile>;
+                int index = 0;
+                foreach (var item in enumerable)
+                {
+                    if (item != null)
+                    {
+                        result.Files.Add($"{prefix}[{index}]", item);
+                    }
+                    index++;
+                }
+
+                return;
+            }
+
+            if (modelMetadata.IsFormFile)
+            {
+                result.Files.Add(prefix, (IFormFile)value);
+            }            
         }
 
         private void SetSimpleEnumerable(string key, Dictionary<string, string> dictionary, object value)
@@ -31,8 +63,8 @@ namespace NetCoreStack.Proxy
         private void TrySetSystemObjectValue(string key, 
             PropertyInfo propertyInfo, 
             string propertyName, 
-            Type containerType, 
-            Dictionary<string, string> dictionary, 
+            Type containerType,
+            ModelDictionaryResult result, 
             object value)
         {
             var objModelMetadata = new ProxyModelMetadata(propertyInfo,
@@ -43,7 +75,7 @@ namespace NetCoreStack.Proxy
 
             if (objModelMetadata.IsSimpleType)
             {
-                dictionary.Add(key, Convert.ToString(value));
+                result.Dictionary.Add(key, Convert.ToString(value));
                 return;
             }
 
@@ -51,21 +83,29 @@ namespace NetCoreStack.Proxy
             {
                 if (objModelMetadata.ElementType.IsSimpleType)
                 {
-                    SetSimpleEnumerable(key, dictionary, value);
+                    SetSimpleEnumerable(key, result.Dictionary, value);
                 }
                 else
                 {
-                    TrySetValueInner(key, objModelMetadata, dictionary, value);
+                    TrySetValueInner(key, objModelMetadata, result, value);
                 }
 
                 return;
             }
 
             // Anonymous object resolver
-            ResolveInternal(objModelMetadata, dictionary, value, key);
+            for (int i = 0; i < objModelMetadata.Properties.Count; i++)
+            {
+                var modelMetadata = objModelMetadata.Properties[i];
+                var v = modelMetadata.PropertyInfo.GetValue(value);
+                if (v != null)
+                {
+                    ResolveInternal(modelMetadata, result, v, isTopLevelObject: false, prefix: key);
+                }
+            }            
         }
 
-        private void TrySetValueInner(string key, ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value)
+        private void TrySetValueInner(string key, ProxyModelMetadata modelMetadata, ModelDictionaryResult result, object value)
         {
             var count = modelMetadata.ElementType.PropertiesCount;
             var elementProperties = modelMetadata.ElementType.Properties;
@@ -80,42 +120,35 @@ namespace NetCoreStack.Proxy
                     {
                         var propKey = $"{key}[{index}]";
                         var propValue = propertyInfo?.GetValue(v);
-                        ResolveInternal(elementModelMetadata, dictionary, propValue, propKey);
+                        ResolveInternal(elementModelMetadata, result, propValue, isTopLevelObject:false, prefix: propKey);
                         index++;
                     }
                 }
             }
         }
 
-        private void TrySetValue(string prefix, ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value)
+        private void TrySetValue(string prefix, ProxyModelMetadata modelMetadata, ModelDictionaryResult result, object value)
         {
-            var key = modelMetadata.PropertyName;
-            if (!string.IsNullOrEmpty(prefix))
-                key = $"{prefix}.{key}";
+            var key = prefix;
 
             if (modelMetadata.IsNullableValueType)
             {
                 // recall with prefix
-                TrySetValue(prefix, modelMetadata.ElementType, dictionary, value);
+                TrySetValue(prefix, modelMetadata.ElementType, result, value);
                 return;
             }
 
             if (modelMetadata.IsSimpleType)
             {
-                dictionary.Add(key, Convert.ToString(value));
+                result.Dictionary.Add(key, Convert.ToString(value));
                 return;
-            }
-
-            if (modelMetadata.IsFormFile)
-            {
-                // TODO Gencebay
             }
 
             if (modelMetadata.IsEnumerableType)
             {
                 if (modelMetadata.ElementType.IsSimpleType)
                 {
-                    SetSimpleEnumerable(key, dictionary, value);
+                    SetSimpleEnumerable(key, result.Dictionary, value);
                 }
                 else if(modelMetadata.ElementType.IsSystemObject)
                 {
@@ -123,29 +156,39 @@ namespace NetCoreStack.Proxy
                         modelMetadata.ElementType.PropertyInfo,
                         modelMetadata.ElementType.PropertyName, 
                         modelMetadata.ContainerType, 
-                        dictionary, value);
+                        result, value);
                 }
                 else
                 {
-                    TrySetValueInner(key, modelMetadata, dictionary, value);
+                    TrySetValueInner(key, modelMetadata, result, value);
                 }
 
                 return;
             }
-
-            // If typeof(object)
+            
             if (modelMetadata.IsSystemObject)
             {
-                TrySetSystemObjectValue(key, modelMetadata.PropertyInfo, modelMetadata.PropertyName, modelMetadata.ContainerType, dictionary, value);
+                TrySetSystemObjectValue(key, modelMetadata.PropertyInfo, modelMetadata.PropertyName, modelMetadata.ContainerType, result, value);
             }
         }
 
-        private void ResolveInternal(ProxyModelMetadata modelMetadata, Dictionary<string, string> dictionary, object value, string prefix = "")
+        private void ResolveInternal(ProxyModelMetadata modelMetadata, ModelDictionaryResult result, object value, bool isTopLevelObject = false, string prefix = "")
         {
+            var key = isTopLevelObject ? string.Empty : modelMetadata.PropertyName;
+            if (!string.IsNullOrEmpty(prefix))
+                key = $"{prefix}.{key}";
+
+            if (modelMetadata.IsFormFile || (modelMetadata.IsEnumerableType && modelMetadata.ElementType.IsFormFile))
+            {
+                TrySetFormFile(key, modelMetadata, result, value);
+                return;
+            }
+
+            var dictionary = result.Dictionary;
             var count = modelMetadata.PropertiesCount;
             if (count == 0)
             {
-                TrySetValue(prefix, modelMetadata, dictionary, value);
+                TrySetValue(key, modelMetadata, result, value);
                 return;
             }
 
@@ -154,44 +197,41 @@ namespace NetCoreStack.Proxy
                 var metadata = modelMetadata.Properties[i];
                 if (metadata.ContainerType != null)
                 {
-                    var parent = prefix;
-                    if (!metadata.IsSimpleType && 
-                        !metadata.IsEnumerableType &&
-                        !metadata.IsNullableValueType &&
-                        !metadata.IsSystemObject)
-                    {
-                        parent = !string.IsNullOrEmpty(prefix) ? $"{prefix}.{metadata.PropertyName}" : metadata.PropertyName;
-                    }
-
                     if (value != null)
                     {
                         var v = metadata.PropertyInfo.GetValue(value);
                         if (v != null)
                         {
-                            ResolveInternal(metadata, dictionary, v, parent);
+                            ResolveInternal(metadata, result, v, isTopLevelObject: false, prefix: key);
                         }
                     }
                 }
                 else
                 {
-                    ResolveInternal(metadata, dictionary, value);
+                    ResolveInternal(metadata, result, value);
                 }
             }
         }
 
         // Per request parameter context resolver
-        public ResolvedContentResult Resolve(List<ProxyModelMetadata> parameters, object[] args)
+        public ModelDictionaryResult Resolve(List<ProxyModelMetadata> parameters, object[] args)
         {
-            var dictionary = new Dictionary<string, string>(StringComparer.Ordinal);
-            var count = parameters.Count;
+            var result = new ModelDictionaryResult(new Dictionary<string, string>(StringComparer.Ordinal), 
+                new Dictionary<string, IFormFile>(StringComparer.Ordinal));
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < parameters.Count; i++)
             {
                 var modelMetadata = parameters[i];
-                ResolveInternal(modelMetadata, dictionary, args[i]);
+                string prefix = string.Empty;
+                if (modelMetadata.ContainerType == null && !string.IsNullOrEmpty(modelMetadata.PropertyName))
+                {
+                    prefix = modelMetadata.PropertyName;
+                }
+
+                ResolveInternal(modelMetadata, result, args[i], isTopLevelObject: true, prefix: prefix);
             }
 
-            return new ResolvedContentResult(dictionary);
+            return result;
         }
     }
 }

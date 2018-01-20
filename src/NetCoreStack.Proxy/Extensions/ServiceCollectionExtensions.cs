@@ -50,23 +50,28 @@ namespace NetCoreStack.Proxy
 
             services.TryAddSingleton<RoundRobinManager>();
 
-            var proxyBuilderOptions = new ProxyBuilderOptions();
-            setup?.Invoke(proxyBuilderOptions);
-            foreach (var item in proxyBuilderOptions.ProxyList)
+            var options = new ProxyBuilderOptions();
+            options.ModelResolvers.Add(new SimpleModelResolver());
+            options.ModelResolvers.Add(new EnumerableModelResolver());
+            options.ModelResolvers.Add(new ComplexModelResolver());
+            options.ModelResolvers.Add(new SystemObjectModelResolver());
+            options.ModelResolvers.Add(new FormFileModelResolver());
+            setup?.Invoke(options);
+            foreach (var item in options.ProxyList)
             {
                 var type = item.GetTypeInfo().AsType();
                 var genericRegistry = registryDelegate.MakeGenericMethod(type);
                 genericRegistry.Invoke(null, new object[] { services });
             }
 
-            if (proxyBuilderOptions.ProxyContextFilter != null)
+            if (options.ProxyContextFilter != null)
             {
-                services.TryAdd(ServiceDescriptor.Scoped(typeof(IProxyContextFilter), proxyBuilderOptions.ProxyContextFilter));
+                services.TryAdd(ServiceDescriptor.Scoped(typeof(IProxyContextFilter), options.ProxyContextFilter));
             }
 
-            var headerValues = new DefaultHeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };
+            var headerValues = new DefaultHeaderValues { Headers = options.DefaultHeaders };
             services.AddSingleton(Options.Create(headerValues));
-            services.AddSingleton(proxyBuilderOptions);
+            services.AddSingleton(options);
         }
 
         internal static void RegisterProxy<TProxy>(IServiceCollection services) where TProxy : IApiContract

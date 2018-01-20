@@ -109,4 +109,24 @@ namespace NetCoreStack.Proxy.Test.Contracts
     {
         public IEnumerable<Uri> IEnumerableUri { get; set; }
     }
+
+    public class SingleFileModel
+    {
+        public IFormFile File { get; set; }
+    }
+
+    public class EnumerableFileModel
+    {
+        public IEnumerable<IFormFile> Files { get; set; }
+    }
+
+    public class InnerFileModel
+    {
+        public IEnumerable<IFormFile> Files { get; set; }
+    }
+
+    public class FileModel
+    {
+        public InnerFileModel InnerFileModel { get; set; }
+    }
 }
