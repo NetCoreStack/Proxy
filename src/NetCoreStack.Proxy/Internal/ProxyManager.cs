@@ -81,21 +81,25 @@ namespace NetCoreStack.Proxy
         public bool HasFilter { get; }
         public List<IProxyRequestFilter> RequestFilters { get; }
 
-        private HttpRequestMessage CreateHttpRequest()
+        private HttpRequestMessage CreateHttpRequest(ProxyMethodDescriptor methodDescriptor)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
 
             foreach (KeyValuePair<string, string> entry in _headerProvider.Headers)
             {
                 requestMessage.Headers.Add(entry.Key, entry.Value);
-            } 
+            }
+
+            foreach (KeyValuePair<string, string> entry in methodDescriptor.Headers)
+            {
+                requestMessage.Headers.Add(entry.Key, entry.Value);
+            }
 
             return requestMessage;
         }
 
         public async Task<RequestContext> CreateRequestAsync(RequestDescriptor descriptor)
         {
-            HttpRequestMessage request = CreateHttpRequest();
             var proxyDescriptor = _typeManager.ProxyDescriptors.FirstOrDefault(x => x.ProxyType == descriptor.ProxyType);
 
             if (proxyDescriptor == null)
@@ -107,6 +111,7 @@ namespace NetCoreStack.Proxy
             if (!proxyDescriptor.Methods.TryGetValue(descriptor.TargetMethod, out methodDescriptor))
                 throw new ArgumentOutOfRangeException("Method (Action) info could not be found!");
 
+            HttpRequestMessage request = CreateHttpRequest(methodDescriptor);
             request.Method = methodDescriptor.HttpMethod;
             var methodPath = descriptor.TargetMethod.Name;
             if (methodDescriptor.MethodMarkerTemplate.HasValue())

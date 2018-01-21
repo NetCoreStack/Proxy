@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 
 namespace NetCoreStack.Proxy
 {
@@ -22,5 +23,6 @@ namespace NetCoreStack.Proxy
         public List<ProxyModelMetadata> Parameters { get; set; }
         public ContentModelBindingResult ContentResult { get; set; }
         public ProxyUriDefinition UriDefinition { get; set; }
+        public HttpMethod HttpMethod { get; set; }
     }
 }

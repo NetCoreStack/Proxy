@@ -80,6 +80,14 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
             _logger.LogDebug(JsonConvert.SerializeObject(new { id, model }));
         }
 
+        [HttpPut(nameof(CreateOrUpdateKey))]
+        public async Task<bool> CreateOrUpdateKey(string key, Bar body)
+        {
+            await Task.CompletedTask;
+            _logger.LogDebug(JsonConvert.SerializeObject(new { key, body }));
+            return true;
+        }
+
         [HttpDelete(nameof(TaskActionDelete))]
         public async Task TaskActionDelete(long id)
         {

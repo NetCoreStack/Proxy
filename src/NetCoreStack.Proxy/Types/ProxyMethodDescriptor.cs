@@ -23,13 +23,15 @@ namespace NetCoreStack.Proxy
 
         public bool IsMultiPartFormData { get; set; }
 
-        public List<ProxyModelMetadata> Parameters { get; set; }
+        public List<ProxyModelMetadata> Parameters { get; }
 
         public bool IsVoidReturn { get; }
 
         public bool IsTaskReturn { get; }
 
         public bool IsGenericTaskReturn { get; }
+
+        public Dictionary<string, string> Headers { get; }
 
         public ProxyMethodDescriptor(MethodInfo methodInfo)
         {
@@ -38,6 +40,8 @@ namespace NetCoreStack.Proxy
             IsVoidReturn = ReturnType == typeof(void);
             IsTaskReturn = ReturnType.IsAssignableFrom(typeof(Task)) ? true : false;
             IsGenericTaskReturn = ReturnType.IsGenericTask() ? true : false;
+            Headers = new Dictionary<string, string>(StringComparer.Ordinal);
+            Parameters = new List<ProxyModelMetadata>();
 
             if (IsGenericTaskReturn)
             {

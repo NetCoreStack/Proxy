@@ -176,7 +176,16 @@ namespace NetCoreStack.Proxy
         {
             var key = isTopLevelObject ? string.Empty : modelMetadata.PropertyName;
             if (!string.IsNullOrEmpty(prefix))
-                key = $"{prefix}.{key}";
+            {
+                if (string.IsNullOrEmpty(key))
+                {
+                    key = prefix;
+                }
+                else
+                {
+                    key = $"{prefix}.{key}";
+                }
+            }
 
             if (modelMetadata.IsFormFile || (modelMetadata.IsEnumerableType && modelMetadata.ElementType.IsFormFile))
             {

@@ -6,7 +6,6 @@ namespace NetCoreStack.Proxy
     public abstract class ContentModelBinder : IContentModelBinder
     {
         protected virtual void EnsureTemplate(string methodMarkerTemplate,
-            object[] args,
             ProxyUriDefinition proxyUriDefinition,
             Dictionary<string, string> argsDic,
             List<string> keys)
@@ -18,8 +17,11 @@ namespace NetCoreStack.Proxy
                     for (int i = 0; i < proxyUriDefinition.ParameterParts.Count; i++)
                     {
                         var key = keys[i];
-                        proxyUriDefinition.UriBuilder.Path += ($"/{WebUtility.UrlEncode(args[i]?.ToString())}");
-                        argsDic.Remove(key);
+                        if(argsDic.TryGetValue(key, out string value))
+                        {
+                            proxyUriDefinition.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
+                            argsDic.Remove(key);
+                        }
                     }
                 }
             }

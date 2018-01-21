@@ -28,6 +28,7 @@ namespace NetCoreStack.Proxy
 
             var bindingContext = new ContentModelBindingContext
             {
+                HttpMethod = httpMethod,
                 UriDefinition = proxyUriDefinition,
                 MethodMarkerTemplate = descriptor.MethodMarkerTemplate,
                 IsMultiPartFormData = isMultiPartFormData,

@@ -14,11 +14,14 @@ namespace NetCoreStack.Proxy
 
         public bool HasParameter { get; private set; }
 
+        public List<string> TemplateKeys { get; private set; }
+
         public List<TemplatePart> ParameterParts { get; private set; }
 
         public ProxyUriDefinition(UriBuilder uriBuilder)
         {
             UriBuilder = uriBuilder;
+            TemplateKeys = new List<string>();
         }
 
         public void ResolveTemplate(RouteTemplate routeTemplate, string route, string template)
@@ -38,11 +41,11 @@ namespace NetCoreStack.Proxy
                         return;
                     }
 
-                    var segments = routeTemplate.Segments
+                    TemplateKeys = routeTemplate.Segments
                         .SelectMany(s => s.Parts.Where(p => p.IsLiteral)
                         .Select(t => t.Text)).ToList();
 
-                    tmpl = string.Join("/", segments);
+                    tmpl = string.Join("/", TemplateKeys);
                     TemplateCache.Add(key, tmpl);
 
                     path += $"{route}/{tmpl}";

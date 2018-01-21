@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace NetCoreStack.Proxy.Tests
 {
     public class ProxyCreationTests
     {
+        private readonly string _someKey = "248fd6db0ae44ec48169fa2391b067da";
+
         protected IServiceProvider Resolver { get; }
         protected IConfigurationRoot Configuration { get; }
 
@@ -49,7 +52,8 @@ namespace NetCoreStack.Proxy.Tests
         public async Task GetWithComplexReferenceTypeTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var task = guidelineApi.GetWithComplexReferenceType(new CollectionRequest {
+            var task = guidelineApi.GetWithComplexReferenceType(new CollectionRequest
+            {
                 Draw = 1,
                 Filters = "",
                 Length = 10,
@@ -127,6 +131,20 @@ namespace NetCoreStack.Proxy.Tests
             });
 
             Assert.True(true);
+        }
+
+        [Fact]
+        public async Task CreateOrUpdateKeyTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var result = await guidelineApi.CreateOrUpdateKey(_someKey, new Bar
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2,
+                Foo = new Foo { IEnumerableInt = new[] { 1, 3, 5, 7, 9 }, String = "Foo string value!" }
+            });
+            Assert.True(result);
         }
 
         [Fact]

@@ -67,6 +67,19 @@ namespace NetCoreStack.Proxy.Internal
                     var httpMethodAttribute = method.GetCustomAttributes(inherit: true)
                         .OfType<HttpMethodMarkerAttribute>().FirstOrDefault();
 
+                    var httpHeaders = method.GetCustomAttribute<HttpHeadersAttribute>();
+                    if (httpHeaders != null && httpHeaders.Headers != null)
+                    {
+                        foreach (var header in httpHeaders.Headers)
+                        {
+                            var token = header.Split(':');
+                            if (token.Length > 1)
+                            {
+                                proxyMethodDescriptor.Headers[token[0].Trim()] = token[1].Trim();
+                            }
+                        }
+                    }
+
                     if (httpMethodAttribute != null)
                     {
                         if (httpMethodAttribute.Template.HasValue())
@@ -88,7 +101,6 @@ namespace NetCoreStack.Proxy.Internal
                     }
 
                     bool isMultipartFormData = false;
-                    proxyMethodDescriptor.Parameters = new List<ProxyModelMetadata>();
                     foreach (var parameter in method.GetParameters())
                     {
                         var modelMetadata = MetadataProvider.GetMetadataForParameter(parameter);
