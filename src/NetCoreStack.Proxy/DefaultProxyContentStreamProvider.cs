@@ -26,15 +26,11 @@ namespace NetCoreStack.Proxy
             var isMultiPartFormData = descriptor.IsMultiPartFormData;
             var contentModelBinder = ContentBinderFactory.GetContentModelBinder(httpMethod);
 
-            var bindingContext = new ContentModelBindingContext
+            var bindingContext = new ContentModelBindingContext(httpMethod, descriptor, proxyUriDefinition)
             {
-                HttpMethod = httpMethod,
-                UriDefinition = proxyUriDefinition,
-                MethodMarkerTemplate = descriptor.MethodMarkerTemplate,
                 IsMultiPartFormData = isMultiPartFormData,
                 ModelContentResolver = ContentResolver,
                 Args = requestContext.Args,
-                Parameters = descriptor.Parameters
             };
 
             contentModelBinder.BindContent(bindingContext);

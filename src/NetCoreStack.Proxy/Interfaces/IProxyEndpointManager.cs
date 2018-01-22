@@ -2,6 +2,6 @@
 {
     public interface IProxyEndpointManager
     {
-        ProxyUriDefinition CreateUriDefinition(ProxyDescriptor descriptor, string regionKey, string targetMethodName);
+        ProxyUriDefinition CreateUriDefinition(ProxyMethodDescriptor methodDescriptor, string route, string regionKey, string targetMethodName);
     }
 }

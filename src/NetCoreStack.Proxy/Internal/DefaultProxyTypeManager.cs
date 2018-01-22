@@ -1,4 +1,5 @@
-﻿using NetCoreStack.Contracts;
+﻿using Microsoft.AspNetCore.Routing.Template;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -83,7 +84,24 @@ namespace NetCoreStack.Proxy.Internal
                     if (httpMethodAttribute != null)
                     {
                         if (httpMethodAttribute.Template.HasValue())
-                            proxyMethodDescriptor.MethodMarkerTemplate = httpMethodAttribute.Template;
+                        {
+                            var template = httpMethodAttribute.Template;
+                            proxyMethodDescriptor.MethodMarkerTemplate = template;
+                            var routeTemplate = TemplateParser.Parse(template);
+                            if (routeTemplate != null)
+                            {
+                                proxyMethodDescriptor.RouteTemplate = routeTemplate;
+                                proxyMethodDescriptor.ParameterParts = new List<TemplatePart>(routeTemplate.Parameters);
+
+                                proxyMethodDescriptor.TemplateKeys = routeTemplate.Segments
+                                    .SelectMany(s => s.Parts.Where(p => p.IsLiteral)
+                                    .Select(t => t.Text)).ToList();
+
+                                proxyMethodDescriptor.TemplateParameterKeys = routeTemplate.Segments
+                                    .SelectMany(s => s.Parts.Where(p => p.IsParameter)
+                                    .Select(t => t.Name)).ToList();
+                            }
+                        }
 
                         if (httpMethodAttribute is HttpGetMarkerAttribute)
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Get;

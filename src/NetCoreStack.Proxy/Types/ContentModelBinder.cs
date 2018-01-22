@@ -1,27 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace NetCoreStack.Proxy
 {
     public abstract class ContentModelBinder : IContentModelBinder
     {
-        protected virtual void EnsureTemplate(string methodMarkerTemplate,
-            ProxyUriDefinition proxyUriDefinition,
-            Dictionary<string, string> argsDic,
-            List<string> keys)
+        protected virtual void EnsureTemplate(ContentModelBindingContext context, Dictionary<string, string> argsDic, List<string> keys)
         {
-            if (!string.IsNullOrEmpty(methodMarkerTemplate))
+            if (!string.IsNullOrEmpty(context.MethodMarkerTemplate))
             {
-                if (proxyUriDefinition.HasParameter)
+                for (int i = 0; i < context.ParameterParts.Count; i++)
                 {
-                    for (int i = 0; i < proxyUriDefinition.ParameterParts.Count; i++)
+                    var key = keys[i];
+                    if (argsDic.TryGetValue(key, out string value))
                     {
-                        var key = keys[i];
-                        if(argsDic.TryGetValue(key, out string value))
-                        {
-                            proxyUriDefinition.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
-                            argsDic.Remove(key);
-                        }
+                        context.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
+                        argsDic.Remove(key);
                     }
                 }
             }

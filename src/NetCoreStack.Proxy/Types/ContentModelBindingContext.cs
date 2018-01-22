@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Routing.Template;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
@@ -14,15 +16,33 @@ namespace NetCoreStack.Proxy
             }
         }
 
-        public UriBuilder UriBuilder => UriDefinition?.UriBuilder;
+        public bool HasAnyTemplateParameterKey
+        {
+            get
+            {
+                return TemplateParameterKeys.Any();
+            }
+        }
+
+        public UriBuilder UriBuilder => UriDefinition.UriBuilder;
         public Uri Uri => UriBuilder.Uri;
-        public string MethodMarkerTemplate { get; set; }
+        public string MethodMarkerTemplate => MethodDescriptor.MethodMarkerTemplate;
+        public List<TemplatePart> ParameterParts => MethodDescriptor.ParameterParts;
+        public List<string> TemplateParameterKeys => MethodDescriptor.TemplateParameterKeys;
+        public List<ProxyModelMetadata> Parameters => MethodDescriptor.Parameters;
         public bool IsMultiPartFormData { get; set; }
+        public ContentModelBindingResult ContentResult { get; set; }
         public object[] Args { get; set; }
         public IModelContentResolver ModelContentResolver { get; set; }
-        public List<ProxyModelMetadata> Parameters { get; set; }
-        public ContentModelBindingResult ContentResult { get; set; }
-        public ProxyUriDefinition UriDefinition { get; set; }
-        public HttpMethod HttpMethod { get; set; }
+        public HttpMethod HttpMethod { get; }
+        public ProxyUriDefinition UriDefinition { get; }
+        public ProxyMethodDescriptor MethodDescriptor { get; }
+
+        public ContentModelBindingContext(HttpMethod httpMethod, ProxyMethodDescriptor methodDescriptor, ProxyUriDefinition proxyUriDefinition)
+        {
+            HttpMethod = httpMethod ?? throw new ArgumentNullException(nameof(httpMethod));
+            MethodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
+            UriDefinition = proxyUriDefinition ?? throw new ArgumentNullException(nameof(proxyUriDefinition));
+        }
     }
 }

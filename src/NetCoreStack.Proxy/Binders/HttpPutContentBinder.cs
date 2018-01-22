@@ -11,7 +11,15 @@ namespace NetCoreStack.Proxy
         public override void BindContent(ContentModelBindingContext bindingContext)
         {
             var isMultiPartFormData = bindingContext.IsMultiPartFormData;
-            //var templateParameterKeys = bindingContext.UriDefinition.TemplateParameterKeys;
+            var hasAnyTemplateParameterKey = bindingContext.HasAnyTemplateParameterKey;
+            if (bindingContext.ArgsLength == 1 && hasAnyTemplateParameterKey)
+            {
+                ModelDictionaryResult mdr = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
+                List<string> mdrKeys = mdr.Dictionary.Keys.ToList();
+                EnsureTemplate(bindingContext, mdr.Dictionary, mdrKeys);
+                return;
+            }
+
             //List<ProxyModelMetadata> modelMetadataKeyList = new List<ProxyModelMetadata>();
             //int parameterOffset = 0;
             //foreach (var key in templateParameterKeys)
@@ -26,9 +34,10 @@ namespace NetCoreStack.Proxy
             //    }
             //}
 
+
             ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
             List<string> keys = result.Dictionary.Keys.ToList();
-            EnsureTemplate(bindingContext.MethodMarkerTemplate, bindingContext.UriDefinition, result.Dictionary, keys);
+            EnsureTemplate(bindingContext, result.Dictionary, keys);
 
             if (isMultiPartFormData)
             { 

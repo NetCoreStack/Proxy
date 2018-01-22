@@ -87,5 +87,10 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
             await Task.CompletedTask;
             _logger.LogWarning(JsonConvert.SerializeObject(new { id }));
         }
+
+        public Task<bool> CreateOrUpdateKey(string key)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

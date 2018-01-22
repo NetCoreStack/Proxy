@@ -120,6 +120,14 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        public async Task CreateOrUpdateNoBodyKeyTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var result = await guidelineApi.CreateOrUpdateKey(_someKey);
+            Assert.True(result);
+        }
+
+        [Fact]
         public async Task CreateOrUpdateKeyTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();

@@ -13,7 +13,7 @@ namespace NetCoreStack.Proxy
             RoundRobinManager = roundRobinManager;
         }
 
-        public ProxyUriDefinition CreateUriDefinition(ProxyDescriptor descriptor, string regionKey, string targetMethodName)
+        public ProxyUriDefinition CreateUriDefinition(ProxyMethodDescriptor methodDescriptor, string route, string regionKey, string targetMethodName)
         {
             var uriBuilder = RoundRobinManager.RoundRobinUri(regionKey);
             if (uriBuilder == null)
@@ -23,12 +23,12 @@ namespace NetCoreStack.Proxy
 
             var uriDefinition = new ProxyUriDefinition(uriBuilder);
 
-            if (!string.IsNullOrEmpty(descriptor.Route))
+            if (!string.IsNullOrEmpty(route))
             {
                 if (targetMethodName.ToLower() == HttpMethod.Get.Method.ToLower())
                 {
                     var path = uriDefinition.UriBuilder.Path ?? string.Empty;
-                    path += $"{descriptor.Route}/";
+                    path += $"{route}/";
                     uriDefinition.UriBuilder.Path = path;
                 }
                 else
@@ -36,8 +36,7 @@ namespace NetCoreStack.Proxy
                     if (targetMethodName.StartsWith("/"))
                         targetMethodName = targetMethodName.Substring(1);
 
-                    var routeTemplate = TemplateParser.Parse(targetMethodName);
-                    uriDefinition.ResolveTemplate(routeTemplate, descriptor.Route, targetMethodName);
+                    uriDefinition.ResolveTemplate(methodDescriptor, route, targetMethodName);
                 }
             }
 

@@ -1,6 +1,8 @@
-﻿using NetCoreStack.Proxy.Extensions;
+﻿using Microsoft.AspNetCore.Routing.Template;
+using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -20,6 +22,7 @@ namespace NetCoreStack.Proxy
         public HttpMethod HttpMethod { get; set; }
 
         public TimeSpan? Timeout { get; set; }
+        public RouteTemplate RouteTemplate { get; set; }
 
         public bool IsMultiPartFormData { get; set; }
 
@@ -30,6 +33,14 @@ namespace NetCoreStack.Proxy
         public bool IsTaskReturn { get; }
 
         public bool IsGenericTaskReturn { get; }
+
+        public List<string> TemplateKeys { get; set; }
+
+        public List<string> TemplateParameterKeys { get; set; }
+
+        public List<TemplatePart> ParameterParts { get; set; }
+
+        public bool HasAnyTemplateParameterKey => TemplateParameterKeys.Any();
 
         public Dictionary<string, string> Headers { get; }
 
@@ -42,6 +53,9 @@ namespace NetCoreStack.Proxy
             IsGenericTaskReturn = ReturnType.IsGenericTask() ? true : false;
             Headers = new Dictionary<string, string>(StringComparer.Ordinal);
             Parameters = new List<ProxyModelMetadata>();
+            ParameterParts = new List<TemplatePart>();
+            TemplateKeys = new List<string>();
+            TemplateParameterKeys = new List<string>();
 
             if (IsGenericTaskReturn)
             {

@@ -117,7 +117,7 @@ namespace NetCoreStack.Proxy
             if (methodDescriptor.MethodMarkerTemplate.HasValue())
                 methodPath = methodDescriptor.MethodMarkerTemplate;
 
-            ProxyUriDefinition proxyUriDefinition = _endpointManager.CreateUriDefinition(proxyDescriptor, regionKey, methodPath);
+            ProxyUriDefinition proxyUriDefinition = _endpointManager.CreateUriDefinition(methodDescriptor, proxyDescriptor.Route, regionKey, methodPath);
             TimeSpan? timeout = methodDescriptor.Timeout;
 
             request.RequestUri = proxyUriDefinition.UriBuilder.Uri;

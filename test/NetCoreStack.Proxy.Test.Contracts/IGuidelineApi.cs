@@ -33,6 +33,9 @@ namespace NetCoreStack.Proxy.Test.Contracts
         [HttpPutMarker(Template = "kv/{key}")]
         Task<bool> CreateOrUpdateKey(string key, Bar body);
 
+        [HttpPutMarker(Template = "kv/nobody/{key}")]
+        Task<bool> CreateOrUpdateKey(string key);
+
         [HttpDeleteMarker]
         Task TaskActionDelete(long id);
     }
