@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
+﻿using Microsoft.AspNetCore.Http.Internal;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;

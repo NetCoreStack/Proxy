@@ -1,5 +1,4 @@
-﻿using NetCoreStack.Proxy.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 
@@ -12,18 +11,25 @@ namespace NetCoreStack.Proxy
         public override void BindContent(ContentModelBindingContext bindingContext)
         {
             var isMultiPartFormData = bindingContext.IsMultiPartFormData;
-            var templateKeys = bindingContext.UriDefinition.TemplateKeys;
-
-            // bindingContext.Parameters.Select(p => p.PropertyName);
-
-            //if (bindingContext.ArgsLength == 1)
+            //var templateParameterKeys = bindingContext.UriDefinition.TemplateParameterKeys;
+            //List<ProxyModelMetadata> modelMetadataKeyList = new List<ProxyModelMetadata>();
+            //int parameterOffset = 0;
+            //foreach (var key in templateParameterKeys)
             //{
-
+            //    // Key template must be top level object property or parameter
+            //    ProxyModelMetadata keyModelMetadata = bindingContext.Parameters.FirstOrDefault(p => p.PropertyName == key);
+            //    if (keyModelMetadata != null)
+            //    {
+            //        modelMetadataKeyList.Add(keyModelMetadata);
+            //        bindingContext.Parameters.Remove(keyModelMetadata);
+            //        parameterOffset++;
+            //    }
             //}
 
-            ModelDictionaryResult result = bindingContext.GetResolvedContentResult();
+            ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
             List<string> keys = result.Dictionary.Keys.ToList();
             EnsureTemplate(bindingContext.MethodMarkerTemplate, bindingContext.UriDefinition, result.Dictionary, keys);
+
             if (isMultiPartFormData)
             { 
                 var content = GetMultipartFormDataContent(result);

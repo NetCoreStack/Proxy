@@ -45,7 +45,7 @@ namespace NetCoreStack.Proxy
 
         public bool IsReferenceOrNullableType { get; private set; }
 
-        public IReadOnlyList<ProxyModelMetadata> Properties { get; private set; }
+        public IList<ProxyModelMetadata> Properties { get; private set; }
 
         public int PropertiesCount => Properties.Count;
 

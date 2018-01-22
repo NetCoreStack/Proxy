@@ -26,7 +26,7 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         {
             await Task.CompletedTask;
             var query = HttpContext.Request.QueryString.HasValue ? HttpContext.Request.QueryString.Value : string.Empty;
-            _logger.LogDebug(JsonConvert.SerializeObject(model));
+            _logger.LogWarning(JsonConvert.SerializeObject(model));
         }
 
         [HttpGet(nameof(TaskOperation))]
@@ -40,7 +40,7 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         {
             await Task.CompletedTask;
             var query = HttpContext.Request.QueryString.HasValue ? HttpContext.Request.QueryString.Value : string.Empty;
-            _logger.LogDebug(JsonConvert.SerializeObject(new { i, s, l, dt, query }));
+            _logger.LogWarning(JsonConvert.SerializeObject(new { i, s, l, dt, query }));
             return 17;
         }
 
@@ -49,7 +49,7 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         {
             await Task.CompletedTask;
             var query = HttpContext.Request.QueryString.HasValue ? HttpContext.Request.QueryString.Value : string.Empty;
-            _logger.LogDebug(JsonConvert.SerializeObject(new { request, query }));
+            _logger.LogWarning(JsonConvert.SerializeObject(new { request, query }));
         }
 
         [HttpGet(nameof(GetEnumerableModels))]
@@ -70,21 +70,14 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         public async Task TaskActionPost([FromBody]ComplexTypeModel model)
         {
             await Task.CompletedTask;
-            _logger.LogDebug(JsonConvert.SerializeObject(model));
+            _logger.LogWarning(JsonConvert.SerializeObject(model));
         }
 
-        [HttpPut(nameof(TaskActionPut))]
-        public async Task TaskActionPut(long id, SampleModel model)
-        {
-            await Task.CompletedTask;
-            _logger.LogDebug(JsonConvert.SerializeObject(new { id, model }));
-        }
-
-        [HttpPut(nameof(CreateOrUpdateKey))]
+        [HttpPut("kv")]
         public async Task<bool> CreateOrUpdateKey(string key, Bar body)
         {
             await Task.CompletedTask;
-            _logger.LogDebug(JsonConvert.SerializeObject(new { key, body }));
+            _logger.LogWarning(JsonConvert.SerializeObject(new { key, body }));
             return true;
         }
 
@@ -92,7 +85,7 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         public async Task TaskActionDelete(long id)
         {
             await Task.CompletedTask;
-            _logger.LogDebug(JsonConvert.SerializeObject(new { id }));
+            _logger.LogWarning(JsonConvert.SerializeObject(new { id }));
         }
     }
 }

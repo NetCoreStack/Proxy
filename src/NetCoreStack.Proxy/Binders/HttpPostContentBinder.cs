@@ -1,5 +1,4 @@
-﻿using NetCoreStack.Proxy.Extensions;
-using System.Net.Http;
+﻿using System.Net.Http;
 
 namespace NetCoreStack.Proxy
 {
@@ -12,7 +11,7 @@ namespace NetCoreStack.Proxy
             var isMultiPartFormData = bindingContext.IsMultiPartFormData;
             if (isMultiPartFormData)
             {
-                ModelDictionaryResult result = bindingContext.GetResolvedContentResult();
+                ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
                 var content = GetMultipartFormDataContent(result);
                 bindingContext.ContentResult = ContentModelBindingResult.Success(content);
                 return;

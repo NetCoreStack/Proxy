@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,19 +117,6 @@ namespace NetCoreStack.Proxy.Tests
             var collection = await guidelineApi.GetCollectionStreamTask();
             Assert.True(collection != null);
             Assert.True(collection.Data.Count() == 5);
-        }
-
-        [Fact]
-        public async Task TaskActionPutTest()
-        {
-            var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            await guidelineApi.TaskActionPut(1, new SampleModel
-            {
-                Date = DateTime.Now,
-                String = "Sample model"
-            });
-
-            Assert.True(true);
         }
 
         [Fact]

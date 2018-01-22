@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace NetCoreStack.Proxy
@@ -227,7 +228,7 @@ namespace NetCoreStack.Proxy
         {
             var result = new ModelDictionaryResult(new Dictionary<string, string>(StringComparer.Ordinal), 
                 new Dictionary<string, IFormFile>(StringComparer.Ordinal));
-
+            
             for (int i = 0; i < parameters.Count; i++)
             {
                 var modelMetadata = parameters[i];

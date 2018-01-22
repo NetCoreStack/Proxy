@@ -24,9 +24,6 @@ namespace NetCoreStack.Proxy.Test.Contracts
         [HttpPostMarker]
         Task TaskActionPost(ComplexTypeModel model);
 
-        [HttpPutMarker]
-        Task TaskActionPut(long id, SampleModel model);
-
         /// <summary>
         /// Template and parameter usage, key parameter will be part of the request Url and extracting it as api/guideline/kv/<key>
         /// </summary>

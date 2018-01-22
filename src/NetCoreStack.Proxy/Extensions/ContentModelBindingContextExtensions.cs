@@ -6,11 +6,6 @@ namespace NetCoreStack.Proxy.Extensions
 {
     public static class ContentModelBindingContextExtensions
     {
-        public static ModelDictionaryResult GetResolvedContentResult(this ContentModelBindingContext bindingContext)
-        {
-            return bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
-        }
-
         public static void TrySetContent(this ContentModelBindingContext bindingContext, HttpRequestMessage httpRequest)
         {
             if (bindingContext.ContentResult != null && bindingContext.ContentResult.IsContentSet)
