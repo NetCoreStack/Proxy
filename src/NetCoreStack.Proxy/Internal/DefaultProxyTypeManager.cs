@@ -75,6 +75,14 @@ namespace NetCoreStack.Proxy.Internal
                                     "Remove FromBody attribute to proper model binding.");
                             }
                         }
+                        else
+                        {
+                            var properties = modelMetadata.ToFlat().ToList();
+                            if (properties.Any(p => p.IsFormFile))
+                            {
+                                isMultipartFormData = true;
+                            }
+                        }
 
                         proxyMethodDescriptor.Parameters.Add(modelMetadata);
                     }

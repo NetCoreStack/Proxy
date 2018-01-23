@@ -24,6 +24,24 @@ namespace NetCoreStack.Proxy.Test.Contracts
         [HttpPostMarker]
         Task TaskActionPost(ComplexTypeModel model);
 
+        [HttpPostMarker]
+        Task TaskSingleFileModel(SingleFileModel model);
+
+        [HttpPostMarker]
+        Task TaskEnumerableFileModel(EnumerableFileModel model);
+
+        [HttpPutMarker(Template = "TaskKeyAndSingleFileModel/{key}")]
+        Task TaskKeyAndSingleFileModel(string key, SingleFileModel model);
+
+        [HttpPutMarker(Template = "TaskKeyAndMultipleFileModel/{key}")]
+        Task TaskKeyAndEnumerableFileModel(string key, EnumerableFileModel model);
+
+        [HttpPutMarker(Template = "TaskKeyAndSingleFileAndPropsModel/{key}")]
+        Task TaskKeyAndSingleFileAndPropsModel(string key, SingleFileAndPropsModel model);
+
+        [HttpPutMarker(Template = "TaskKeySingleFileAndBarModel/{key}")]
+        Task TaskKeySingleFileAndBarModel(string key, SingleFileModel model, Bar bar);
+
         /// <summary>
         /// Template and parameter usage, key parameter will be part of the request Url and extracting it as api/guideline/kv/<key>
         /// </summary>

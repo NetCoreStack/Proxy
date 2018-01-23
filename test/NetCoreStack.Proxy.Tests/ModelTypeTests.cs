@@ -358,11 +358,8 @@ namespace NetCoreStack.Proxy.Tests
         [Fact]
         public void ProxyModelMetadataInfoForSingleFile()
         {
-            var content = "some text content";
-            var bytes = Encoding.UTF8.GetBytes(content);
-            var length = bytes.Length;
-            var ms = new MemoryStream();
-            var formFile = new FormFile(ms, 0, length, "file", "some_text_file.txt");
+            var formFile = TestHelper.GetFormFile("file");
+            var length = formFile.Length;
             var model = new SingleFileModel
             {
                 File = formFile
@@ -381,11 +378,9 @@ namespace NetCoreStack.Proxy.Tests
         [Fact]
         public void ProxyModelMetadataInfoForEnumerableFile()
         {
-            var content = "some text content";
-            var bytes = Encoding.UTF8.GetBytes(content);
-            var length = bytes.Length;
-            var ms = new MemoryStream();
-            var formFile = new FormFile(ms, 0, length, "file", "some_text_file.txt");
+            var formFile = TestHelper.GetFormFile("file");
+            var length = formFile.Length;
+
             var model = new EnumerableFileModel
             {
                 Files = new[] { formFile }
@@ -403,11 +398,7 @@ namespace NetCoreStack.Proxy.Tests
         [Fact]
         public void ProxyModelMetadataInfoForFileModel()
         {
-            var content = "some text content";
-            var bytes = Encoding.UTF8.GetBytes(content);
-            var length = bytes.Length;
-            var ms = new MemoryStream();
-            var formFile = new FormFile(ms, 0, length, "file", "some_text_file.txt");
+            var formFile = TestHelper.GetFormFile("file");
             var model = new FileModel
             {
                 InnerFileModel = new InnerFileModel

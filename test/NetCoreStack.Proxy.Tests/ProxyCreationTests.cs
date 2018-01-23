@@ -1,10 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -117,6 +122,78 @@ namespace NetCoreStack.Proxy.Tests
             var collection = await guidelineApi.GetCollectionStreamTask();
             Assert.True(collection != null);
             Assert.True(collection.Data.Count() == 5);
+        }
+
+        [Fact]
+        public async Task TaskSingleFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new SingleFileModel
+            {
+                File = TestHelper.GetFormFile("file")
+            };
+
+            await guidelineApi.TaskSingleFileModel(model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskKeyAndSingleFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new SingleFileModel
+            {
+                File = TestHelper.GetFormFile("file")
+            };
+
+            await guidelineApi.TaskKeyAndSingleFileModel(_someKey, model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskKeyAndSingleFileAndPropsModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new SingleFileAndPropsModel
+            {
+                Int = 6,
+                String = "Some string value!",
+                File = TestHelper.GetFormFile("file")
+            };
+
+            await guidelineApi.TaskKeyAndSingleFileAndPropsModel(_someKey, model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskEnumerableFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new EnumerableFileModel
+            {
+                Files = new[] { TestHelper.GetFormFile("files", "file1.txt"), TestHelper.GetFormFile("files", "file2.txt") }
+            };
+
+            await guidelineApi.TaskEnumerableFileModel(model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskKeyAndEnumerableFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new EnumerableFileModel
+            {
+                Files = new[] { TestHelper.GetFormFile("files", "file1.txt"), TestHelper.GetFormFile("files", "file2.txt") }
+            };
+
+            await guidelineApi.TaskKeyAndEnumerableFileModel(_someKey, model);
+            Assert.True(true);
         }
 
         [Fact]

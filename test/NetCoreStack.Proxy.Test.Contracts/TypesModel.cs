@@ -110,6 +110,13 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public IFormFile File { get; set; }
     }
 
+    public class SingleFileAndPropsModel
+    {
+        public string String { get; set; }
+        public int Int { get; set; }
+        public IFormFile File { get; set; }
+    }
+
     public class EnumerableFileModel
     {
         public IEnumerable<IFormFile> Files { get; set; }

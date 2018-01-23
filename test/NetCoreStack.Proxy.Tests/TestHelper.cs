@@ -6,11 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Moq;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace NetCoreStack.Proxy.Tests
 {
@@ -79,6 +81,26 @@ namespace NetCoreStack.Proxy.Tests
             });
 
             CreateHttpContext(services.BuildServiceProvider());
+        }
+
+        public static FormFile GetFormFile(string name, string fileName = "")
+        {
+            var content = "some text content";
+            var bytes = Encoding.UTF8.GetBytes(content);
+            var length = bytes.Length;
+            var ms = new MemoryStream(bytes);
+
+            fileName = string.IsNullOrEmpty(fileName) ? "some_text_file.txt" : fileName;
+            var formFile = new FormFile(ms, 0, length, name, fileName)
+            {
+                Headers = new HeaderDictionary
+                {
+                    [HeaderNames.ContentType] = "text/plain",
+                    [HeaderNames.ContentDisposition] = $"form-data; name=\"{name}\"; filename=\"{fileName}\""
+                }
+            };
+
+            return formFile;
         }
     }
 }
