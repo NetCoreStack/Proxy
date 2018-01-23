@@ -1,25 +1,38 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 
 namespace NetCoreStack.Proxy
 {
     public abstract class ContentModelBinder : IContentModelBinder
     {
-        protected virtual void EnsureTemplate(ContentModelBindingContext context, Dictionary<string, string> argsDic, List<string> keys)
+        protected virtual EnsureTemplateResult EnsureTemplate(ContentModelBindingContext bindingContext)
         {
-            if (!string.IsNullOrEmpty(context.MethodMarkerTemplate))
+            int parameterOffset = 0;
+            if (bindingContext.HasAnyTemplateParameterKey)
             {
-                for (int i = 0; i < context.ParameterParts.Count; i++)
+                for (int i = 0; i < bindingContext.TemplateParameterKeys.Count; i++)
                 {
-                    var key = keys[i];
-                    if (argsDic.TryGetValue(key, out string value))
-                    {
-                        context.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
-                        argsDic.Remove(key);
-                    }
+                    var keyParameter = bindingContext.TemplateParameterKeys[i];
+                    var keyModelMetadata = bindingContext.Parameters.FirstOrDefault(x => x.PropertyName == keyParameter);
+                    var value = bindingContext.ModelContentResolver.ResolveParameter(keyModelMetadata, bindingContext.Args[i], false);
+                    bindingContext.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
+                    parameterOffset++;
                 }
             }
+
+            bool ignorePrefix = false;
+            if (parameterOffset == bindingContext.ArgsLength - 1)
+            {
+                ignorePrefix = true;
+            }
+
+            if (parameterOffset == bindingContext.ArgsLength)
+            {
+                // all parameters are resolved
+                return EnsureTemplateResult.Completed(parameterOffset, ignorePrefix);
+            }
+
+            return EnsureTemplateResult.Continue(parameterOffset, ignorePrefix);
         }
 
         public abstract void BindContent(ContentModelBindingContext bindingContext);

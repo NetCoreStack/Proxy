@@ -81,16 +81,17 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
             return true;
         }
 
+        [HttpPut("kv/nobody")]
+        public Task<bool> CreateOrUpdateKey(string key)
+        {
+            throw new NotImplementedException();
+        }
+
         [HttpDelete(nameof(TaskActionDelete))]
         public async Task TaskActionDelete(long id)
         {
             await Task.CompletedTask;
             _logger.LogWarning(JsonConvert.SerializeObject(new { id }));
-        }
-
-        public Task<bool> CreateOrUpdateKey(string key)
-        {
-            throw new NotImplementedException();
         }
     }
 }

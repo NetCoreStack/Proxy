@@ -34,22 +34,6 @@ namespace NetCoreStack.Proxy.Tests
             return contentResolver.Resolve(new List<ProxyModelMetadata> { modelMetadata }, args);
         }
 
-        //[Fact]
-        //public void ProxyModelMetadataInfoPrimitiveTests()
-        //{
-        //    int intValue = 1;
-        //    var contentResult = GetResolvedContentResult(intValue);
-
-        //    var expect = new Dictionary<string, string>()
-        //    {
-        //        ["intValue"] = "1",
-        //    };
-
-        //    var actual = contentResult.Dictionary;
-        //    Assert.Equal(expect, contentResult.Dictionary);
-        //    Assert.True(1 == actual.Count);
-        //}
-
         [Fact]
         public void ProxyModelMetadataInfoComplexTypeModelTests()
         {

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Routing.Template;
-using System;
+﻿using System;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy

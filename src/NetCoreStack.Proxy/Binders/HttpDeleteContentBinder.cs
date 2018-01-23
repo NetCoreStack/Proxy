@@ -1,6 +1,4 @@
 ﻿using NetCoreStack.Proxy.Extensions;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 
 namespace NetCoreStack.Proxy
@@ -11,9 +9,13 @@ namespace NetCoreStack.Proxy
 
         public override void BindContent(ContentModelBindingContext bindingContext)
         {
-            ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
-            List<string> keys = result.Dictionary.Keys.ToList();
-            EnsureTemplate(bindingContext, result.Dictionary, keys);
+            EnsureTemplateResult ensureTemplateResult = EnsureTemplate(bindingContext);
+            if (ensureTemplateResult.BindingCompleted)
+                return;
+
+            ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, 
+                bindingContext.Args, 
+                ensureTemplateResult.ParameterOffset);
 
             bindingContext.TryUpdateUri(result.Dictionary);
         }

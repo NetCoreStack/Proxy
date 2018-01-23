@@ -68,6 +68,7 @@ namespace NetCoreStack.Proxy
                 responseContext = await ProxyResultExecutor.ExecuteAsync(response,
                     requestContext,
                     genericReturnType);
+
             }
             catch (Exception ex)
             {

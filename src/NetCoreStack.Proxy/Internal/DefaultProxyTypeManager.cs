@@ -60,6 +60,25 @@ namespace NetCoreStack.Proxy.Internal
                 foreach (var method in methods)
                 {
                     var proxyMethodDescriptor = new ProxyMethodDescriptor(method);
+                    bool isMultipartFormData = false;
+                    foreach (var parameter in method.GetParameters())
+                    {
+                        var modelMetadata = MetadataProvider.GetMetadataForParameter(parameter);
+                        if (modelMetadata.IsFormFile)
+                        {
+                            isMultipartFormData = true;
+                            if (parameter.CustomAttributes
+                                .Any(a => a.AttributeType.Name == "FromBodyAttribute"))
+                            {
+                                throw new ProxyException($"Parameter: \"{parameter.ParameterType.Name} as {parameter.Name}\" " +
+                                    "contains IFormFile type property. " +
+                                    "Remove FromBody attribute to proper model binding.");
+                            }
+                        }
+
+                        proxyMethodDescriptor.Parameters.Add(modelMetadata);
+                    }
+                    proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
 
                     var timeoutAttr = method.GetCustomAttribute<ApiTimeoutAttribute>();
                     if (timeoutAttr != null)
@@ -91,7 +110,7 @@ namespace NetCoreStack.Proxy.Internal
                             if (routeTemplate != null)
                             {
                                 proxyMethodDescriptor.RouteTemplate = routeTemplate;
-                                proxyMethodDescriptor.ParameterParts = new List<TemplatePart>(routeTemplate.Parameters);
+                                proxyMethodDescriptor.TemplateParts = new List<TemplatePart>(routeTemplate.Parameters);
 
                                 proxyMethodDescriptor.TemplateKeys = routeTemplate.Segments
                                     .SelectMany(s => s.Parts.Where(p => p.IsLiteral)
@@ -104,13 +123,39 @@ namespace NetCoreStack.Proxy.Internal
                         }
 
                         if (httpMethodAttribute is HttpGetMarkerAttribute)
+                        {
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
+                        }
                         else if (httpMethodAttribute is HttpPostMarkerAttribute)
+                        {
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Post;
+                        }
                         else if (httpMethodAttribute is HttpPutMarkerAttribute)
+                        {
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Put;
+                            if(proxyMethodDescriptor.HasAnyTemplateParameterKey)
+                            {
+                                for (int i = 0; i < proxyMethodDescriptor.TemplateParameterKeys.Count; i++)
+                                {
+                                    var key = proxyMethodDescriptor.TemplateParameterKeys[i];
+                                    var templatePartParameterOrderedModel = proxyMethodDescriptor.Parameters[i];
+                                    if (templatePartParameterOrderedModel == null || templatePartParameterOrderedModel.PropertyName != key)
+                                    {
+                                        throw new ProxyException($"Key parameter: \"{key}\" does not match on the corresponding method parameter order.");
+                                    }
+
+                                    if (!templatePartParameterOrderedModel.IsSimpleType)
+                                    {
+                                        throw new ProxyException($"Key parameter: \"{key}\" type: \"{ templatePartParameterOrderedModel.ModelType.Name }\" " +
+                                            $"must be ProxyModelMetadata.IsSimpleType to proper HTTP PUT Uri-Key (Url) model binding.");
+                                    }
+                                }
+                            }
+                        }                            
                         else if (httpMethodAttribute is HttpDeleteMarkerAttribute)
+                        {
                             proxyMethodDescriptor.HttpMethod = HttpMethod.Delete;
+                        }   
                     }
                     else
                     {
@@ -118,26 +163,6 @@ namespace NetCoreStack.Proxy.Internal
                         proxyMethodDescriptor.HttpMethod = HttpMethod.Get;
                     }
 
-                    bool isMultipartFormData = false;
-                    foreach (var parameter in method.GetParameters())
-                    {
-                        var modelMetadata = MetadataProvider.GetMetadataForParameter(parameter);
-                        if (modelMetadata.IsFormFile)
-                        {
-                            isMultipartFormData = true;
-                            if (parameter.CustomAttributes
-                                .Any(a => a.AttributeType.Name == "FromBodyAttribute"))
-                            {
-                                throw new ProxyException($"Parameter: \"{parameter.ParameterType.Name} as {parameter.Name}\" " +
-                                    "contains IFormFile type property. " +
-                                    "Remove FromBody attribute to proper model binding.");
-                            }
-                        }
-
-                        proxyMethodDescriptor.Parameters.Add(modelMetadata);
-                    }
-                    
-                    proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
                     descriptor.Methods.Add(method, proxyMethodDescriptor);
                 }
 

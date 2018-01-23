@@ -27,7 +27,7 @@ namespace NetCoreStack.Proxy
         public UriBuilder UriBuilder => UriDefinition.UriBuilder;
         public Uri Uri => UriBuilder.Uri;
         public string MethodMarkerTemplate => MethodDescriptor.MethodMarkerTemplate;
-        public List<TemplatePart> ParameterParts => MethodDescriptor.ParameterParts;
+        public List<TemplatePart> TemplateParts => MethodDescriptor.TemplateParts;
         public List<string> TemplateParameterKeys => MethodDescriptor.TemplateParameterKeys;
         public List<ProxyModelMetadata> Parameters => MethodDescriptor.Parameters;
         public bool IsMultiPartFormData { get; set; }

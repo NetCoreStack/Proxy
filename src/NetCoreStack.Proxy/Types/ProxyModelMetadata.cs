@@ -62,7 +62,7 @@ namespace NetCoreStack.Proxy
             PropertyInfo = propertyInfo;
         }
 
-        private bool IsSimple(Type type)
+        public bool IsSimple(Type type)
         {
             var typeInfo = type.GetTypeInfo();
 

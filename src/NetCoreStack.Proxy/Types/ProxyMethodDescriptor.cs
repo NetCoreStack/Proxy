@@ -38,7 +38,7 @@ namespace NetCoreStack.Proxy
 
         public List<string> TemplateParameterKeys { get; set; }
 
-        public List<TemplatePart> ParameterParts { get; set; }
+        public List<TemplatePart> TemplateParts { get; set; }
 
         public bool HasAnyTemplateParameterKey => TemplateParameterKeys.Any();
 
@@ -53,7 +53,7 @@ namespace NetCoreStack.Proxy
             IsGenericTaskReturn = ReturnType.IsGenericTask() ? true : false;
             Headers = new Dictionary<string, string>(StringComparer.Ordinal);
             Parameters = new List<ProxyModelMetadata>();
-            ParameterParts = new List<TemplatePart>();
+            TemplateParts = new List<TemplatePart>();
             TemplateKeys = new List<string>();
             TemplateParameterKeys = new List<string>();
 

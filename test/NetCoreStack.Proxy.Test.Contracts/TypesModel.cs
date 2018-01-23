@@ -51,11 +51,6 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public Bar Bar { get; set; }
     }
 
-    public class ComplextTypeModelWithFiles : ComplexTypeModel
-    {
-        public IEnumerable<IFormFile> Files { get; set; }
-    }
-
     public enum SomeEnum
     {
         Value0 = 0,

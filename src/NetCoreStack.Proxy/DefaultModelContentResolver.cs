@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace NetCoreStack.Proxy
@@ -224,24 +223,44 @@ namespace NetCoreStack.Proxy
         }
 
         // Per request parameter context resolver
-        public ModelDictionaryResult Resolve(List<ProxyModelMetadata> parameters, object[] args)
+        public ModelDictionaryResult Resolve(List<ProxyModelMetadata> parameters, object[] args, int parameterOffset = 0, bool ignoreModelPrefix = false)
         {
             var result = new ModelDictionaryResult(new Dictionary<string, string>(StringComparer.Ordinal), 
                 new Dictionary<string, IFormFile>(StringComparer.Ordinal));
             
-            for (int i = 0; i < parameters.Count; i++)
+            for (int i = parameterOffset; i < parameters.Count; i++)
             {
                 var modelMetadata = parameters[i];
-                string prefix = string.Empty;
-                if (modelMetadata.ContainerType == null && !string.IsNullOrEmpty(modelMetadata.PropertyName))
+                var modelPrefix = string.Empty;
+                if (!ignoreModelPrefix)
                 {
-                    prefix = modelMetadata.PropertyName;
+                    if (modelMetadata.ContainerType == null && !string.IsNullOrEmpty(modelMetadata.PropertyName))
+                    {
+                        modelPrefix = modelMetadata.PropertyName;
+                    }
                 }
-
-                ResolveInternal(modelMetadata, result, args[i], isTopLevelObject: true, prefix: prefix);
+                ResolveInternal(modelMetadata, result, args[i], isTopLevelObject: true, prefix: modelPrefix);
             }
 
             return result;
+        }
+
+        public string ResolveParameter(ProxyModelMetadata modelMetadata, object value, bool isTopLevelObject, string prefix = "")
+        {
+            var result = new ModelDictionaryResult(new Dictionary<string, string>(StringComparer.Ordinal),
+               new Dictionary<string, IFormFile>(StringComparer.Ordinal));
+
+            ResolveInternal(modelMetadata, result, value, isTopLevelObject: isTopLevelObject, prefix: prefix);
+
+            if(result.Dictionary.TryGetValue(modelMetadata.PropertyName, out string propValue))
+            {
+                return propValue;
+            }
+            else
+            {
+                throw new InvalidOperationException($"The parameter does not found in resolver dictionary! " +
+                    $"Name: \"{modelMetadata.PropertyName}\", Type: \"{modelMetadata.ModelType.Name}\"");
+            }
         }
     }
 }

@@ -8,10 +8,18 @@ namespace NetCoreStack.Proxy
         
         public override void BindContent(ContentModelBindingContext bindingContext)
         {
+            EnsureTemplateResult ensureTemplateResult = EnsureTemplate(bindingContext);
+            if (ensureTemplateResult.BindingCompleted)
+                return;
+
+            ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters,
+                bindingContext.Args,
+                ensureTemplateResult.ParameterOffset,
+                ensureTemplateResult.IgnoreModelPrefix);
+
             var isMultiPartFormData = bindingContext.IsMultiPartFormData;
             if (isMultiPartFormData)
             {
-                ModelDictionaryResult result = bindingContext.ModelContentResolver.Resolve(bindingContext.Parameters, bindingContext.Args);
                 var content = GetMultipartFormDataContent(result);
                 bindingContext.ContentResult = ContentModelBindingResult.Success(content);
                 return;

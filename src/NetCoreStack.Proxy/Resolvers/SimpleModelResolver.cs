@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetCoreStack.Proxy
+﻿namespace NetCoreStack.Proxy
 {
     public class SimpleModelResolver : ModelResolverBase
     {
