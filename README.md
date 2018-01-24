@@ -1,30 +1,73 @@
-### Cross-Platform .NET Core HTTP Base Flying Proxy
+### Cross-Platform .NET Standard HTTP Base Flying Proxy
 
-This project is demonstrating manage and consume distributed API - Micro Service 
-from different regions (endpoints) with ease. 
+This project is demonstrating manage and consume distributed HTTP APIs and Micro Services
+from different regions (hosts) with ease.
 
-Flying Proxy allows the management of scalable applications, trigger many operations at the same time from your clients (SPA Web App or Mobile App) and 
-start to consume your new resource (Backend Instance, APIs) that you can simply add.
+Flying Proxy allows the management of scalable applications, trigger many operations at the same time from your clients (Desktop, Web or Mobile App) and start to consume your new resources that you can simply add.
 
 Flying Proxy aims to:
 - Simple scalability
 - Effective and type-safe management of distributed architecture
 - Better performance
 - Maintainability
-- Provide updated API or SDK usage
 
-[Latest release on Nuget](https://www.nuget.org/packages/NetCoreStack.Proxy/)
+### Sample Client (Web)
 
-### Usage for Client Side
+#### Add ProxySettings section to the appsettings.json
+```json
+"ProxySettings": {
+    "RegionKeys": {
+        "Main": "http://localhost:5000/,http://localhost:5001/",
+        "Authorization": "http://localhost:5002/",
+        "Integrations": "http://localhost:5003/"
+    }
+}
+```
+
+#### APIs Definitions
+```csharp
+// This API expose methods from localhost:5000 and localhost:5001 as configured on ProxySettings
+[ApiRoute("api/[controller]", regionKey: "Main")]
+public interface IGuidelineApi : IApiContract
+{
+    [HttpHeaders("X-Method-Header: Some Value")]
+    Task TaskOperation();
+
+    int PrimitiveReturn(int i, string s, long l, DateTime dt);
+
+    Task<IEnumerable<SampleModel>> GetEnumerableModels();
+
+    Task GetWithReferenceType(SimpleModel model);
+
+    /// <summary>
+    /// Default Content-Type is ModelAware.
+    /// If the any parameter(s) has FormFile type property that will be MultipartFormData 
+    /// if not will be JSON
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPostMarker]
+    Task TaskActionPost(ComplexTypeModel model);
+
+    /// <summary>
+    /// Template and parameter usage, key parameter will be part of the request Url 
+    /// and extracting it as api/guideline/kv/<key>
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="body"></param>
+    /// <returns></returns>
+    [HttpPutMarker(Template = "kv/{key}")]
+    Task<bool> CreateOrUpdateKey(string key, Bar body);
+}
+```
 
 #### Startup ConfigureServices
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    // Add NetCoreProxy Dependencies and Configuration
     services.AddNetCoreProxy(Configuration, options =>
     {
-        // Register the API to use as Proxy
+        // Register the API to use as a Proxy
         options.Register<IGuidelineApi>();
     });
 
@@ -33,7 +76,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-#### Example dependency injection
+#### Proxy Usage (DI)
 ```csharp
 public class TestController : Controller
 {
@@ -49,41 +92,6 @@ public class TestController : Controller
         var items = await _api.GetPostsAsync();
         return Json(items);
     }
-}
-```
-
-#### Add configuration section to the appsettings.json file (or your configuration file)
-##### Example:
-```json
-"ProxySettings": {
-    "RegionKeys": {
-      "Main": "http://localhost:5000/,http://localhost:5001/",
-      "Authorization": "http://localhost:5002/",
-      "Integrations": "http://localhost:5003/"
-    }
-  }
-```
-
-### Usage for Contracts (Common) Side
-
-#### API Contract Definition (Default HttpMethod is HttpGet)
-```csharp
-// This API expose methods from localhost:5000 and localhost:5001 as configured on ProxySettings
-[ApiRoute("api/[controller]", regionKey: "Main")]
-public interface IGuidelineApi : IApiContract
-{
-    void VoidOperation();
-
-    int PrimitiveReturn(int i, string s, long l, DateTime dt);
-
-    Task TaskOperation();
-
-    Task<IEnumerable<Post>> GetPostsAsync();
-
-    Task GetWithReferenceType(SimpleModel model);
-
-    [HttpPostMarker]
-    Task TaskActionPost(SimpleModel model);
 }
 ```
 
@@ -173,6 +181,7 @@ Use [HttpLive](https://github.com/gencebay/httplive)
 
 	httplive -p 5003,5004 -d test/NetCoreStack.Proxy.Tests/httplive.db
 
+[Latest release on Nuget](https://www.nuget.org/packages/NetCoreStack.Proxy/)
 
 ### Prerequisites
 > [ASP.NET Core](https://github.com/aspnet/Home)
