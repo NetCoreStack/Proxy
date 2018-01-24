@@ -1,10 +1,18 @@
 ﻿using System.Linq;
 using System.Net;
+using System.Net.Http;
 
 namespace NetCoreStack.Proxy
 {
     public abstract class ContentModelBinder : IContentModelBinder
     {
+        protected HttpMethod HttpMethod { get; }
+
+        public ContentModelBinder(HttpMethod httpMethod)
+        {
+            HttpMethod = httpMethod;
+        }
+
         protected virtual EnsureTemplateResult EnsureTemplate(ContentModelBindingContext bindingContext)
         {
             int parameterOffset = 0;

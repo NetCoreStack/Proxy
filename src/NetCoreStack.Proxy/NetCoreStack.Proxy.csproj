@@ -14,6 +14,7 @@
     <PackageReference Include="NetCoreStack.Contracts" Version="2.0.5" />
     <PackageReference Include="NetCoreStack.DispatchProxyAsync" Version="2.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
   </ItemGroup>
   
 </Project>

@@ -15,7 +15,7 @@ namespace NetCoreStack.Proxy
             typeof(ServiceCollectionExtensions).GetTypeInfo().GetDeclaredMethod("RegisterProxy");
 
         public static void AddNetCoreProxy(this IServiceCollection services, 
-            IConfigurationRoot configuration,
+            IConfiguration configuration,
             Action<ProxyBuilderOptions> setup)
         {
             services.AddOptions();
@@ -47,6 +47,8 @@ namespace NetCoreStack.Proxy
             services.TryAdd(ServiceDescriptor.Singleton<IDefaultHeaderProvider, DefaultHeaderProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyContentStreamProvider, DefaultProxyContentStreamProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyEndpointManager, DefaultProxyEndpointManager>());
+            services.TryAdd(ServiceDescriptor.Singleton<IModelJsonSerializer, DefaultModelJsonSerializer>());
+            services.TryAdd(ServiceDescriptor.Singleton<IModelXmlSerializer, DefaultModelXmlSerializer>());
 
             services.TryAddSingleton<RoundRobinManager>();
 

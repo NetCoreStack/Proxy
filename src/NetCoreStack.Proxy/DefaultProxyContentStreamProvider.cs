@@ -1,4 +1,5 @@
 ﻿using NetCoreStack.Proxy.Extensions;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -6,11 +7,15 @@ namespace NetCoreStack.Proxy
 {
     public class DefaultProxyContentStreamProvider : IProxyContentStreamProvider
     {
+        private readonly IServiceProvider _serviceProvider;
         public ProxyMetadataProvider MetadataProvider { get; }
         public IModelContentResolver ContentResolver { get; }
 
-        public DefaultProxyContentStreamProvider(ProxyMetadataProvider metadataProvider, IModelContentResolver contentResolver)
+        public DefaultProxyContentStreamProvider(IServiceProvider serviceProvider,
+            ProxyMetadataProvider metadataProvider,
+            IModelContentResolver contentResolver)
         {
+            _serviceProvider = serviceProvider;
             MetadataProvider = metadataProvider;
             ContentResolver = contentResolver;
         }
@@ -23,12 +28,11 @@ namespace NetCoreStack.Proxy
             await Task.CompletedTask;
 
             var httpMethod = descriptor.HttpMethod;
-            var isMultiPartFormData = descriptor.IsMultiPartFormData;
-            var contentModelBinder = ContentBinderFactory.GetContentModelBinder(httpMethod);
+            var contentModelBinder = ContentBinderFactory.GetContentModelBinder(_serviceProvider, httpMethod, descriptor.ContentType);
 
             var bindingContext = new ContentModelBindingContext(httpMethod, descriptor, proxyUriDefinition)
             {
-                IsMultiPartFormData = isMultiPartFormData,
+                ContentType = descriptor.ContentType,
                 ModelContentResolver = ContentResolver,
                 Args = requestContext.Args,
             };

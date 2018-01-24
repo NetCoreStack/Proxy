@@ -86,14 +86,28 @@ namespace NetCoreStack.Proxy.Internal
 
                         proxyMethodDescriptor.Parameters.Add(modelMetadata);
                     }
-                    proxyMethodDescriptor.IsMultiPartFormData = isMultipartFormData;
+
+                    var httpMethodAttribute = method.GetCustomAttributes(inherit: true)
+                        .OfType<HttpMethodMarkerAttribute>().FirstOrDefault();
+
+                    if (httpMethodAttribute is HttpPostMarkerAttribute postMarker)
+                    {
+                        proxyMethodDescriptor.ContentType = postMarker.ContentType;
+                    }
+
+                    if (httpMethodAttribute is HttpPutMarkerAttribute putMarker)
+                    {
+                        proxyMethodDescriptor.ContentType = putMarker.ContentType;
+                    }
+
+                    if (isMultipartFormData)
+                    {
+                        proxyMethodDescriptor.ContentType = ContentType.MultipartFormData;
+                    }
 
                     var timeoutAttr = method.GetCustomAttribute<ApiTimeoutAttribute>();
                     if (timeoutAttr != null)
                         proxyMethodDescriptor.Timeout = timeoutAttr.Timeout;
-
-                    var httpMethodAttribute = method.GetCustomAttributes(inherit: true)
-                        .OfType<HttpMethodMarkerAttribute>().FirstOrDefault();
 
                     var httpHeaders = method.GetCustomAttribute<HttpHeadersAttribute>();
                     if (httpHeaders != null && httpHeaders.Headers != null)

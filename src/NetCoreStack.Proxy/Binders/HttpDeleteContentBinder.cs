@@ -5,7 +5,11 @@ namespace NetCoreStack.Proxy
 {
     public class HttpDeleteContentBinder : ContentModelBinder
     {
-        HttpMethod HttpMethod => HttpMethod.Delete;
+        public HttpDeleteContentBinder(HttpMethod httpMethod)
+            :base(httpMethod)
+        {
+
+        }
 
         public override void BindContent(ContentModelBindingContext bindingContext)
         {

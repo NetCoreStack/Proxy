@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.Internal;
+﻿using NetCoreStack.Proxy.Internal;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace NetCoreStack.Proxy.Tests
@@ -414,6 +412,21 @@ namespace NetCoreStack.Proxy.Tests
             Assert.True(0 == dictionary.Count);
 
             Assert.Equal("some_text_file.txt", files["InnerFileModel.Files[0]"].FileName);
+        }
+
+        [Fact]
+        public void XmlSerializationTest()
+        {
+            var model = new BarSimple
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2
+            };
+
+            var serializer = new DefaultModelXmlSerializer();
+            var result = serializer.Serialize(model);
+            Assert.True(true);
         }
     }
 }

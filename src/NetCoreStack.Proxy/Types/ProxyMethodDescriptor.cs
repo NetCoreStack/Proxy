@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Routing.Template;
+using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Extensions;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace NetCoreStack.Proxy
         public TimeSpan? Timeout { get; set; }
         public RouteTemplate RouteTemplate { get; set; }
 
-        public bool IsMultiPartFormData { get; set; }
+        public ContentType ContentType { get; set; } = ContentType.ModelAware;
 
         public List<ProxyModelMetadata> Parameters { get; }
 

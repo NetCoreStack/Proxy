@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace NetCoreStack.Proxy.Test.Contracts
 {
@@ -71,6 +72,13 @@ namespace NetCoreStack.Proxy.Test.Contracts
         public int someint { get; set; }
         public SomeEnum SomeEnum { get; set; }
         public Foo Foo { get; set; }
+    }
+
+    public class BarSimple
+    {
+        public string String { get; set; }
+        public int someint { get; set; }
+        public SomeEnum SomeEnum { get; set; }
     }
 
     public class ObjectModel

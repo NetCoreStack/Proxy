@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Routing.Template;
+using NetCoreStack.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace NetCoreStack.Proxy
         public List<TemplatePart> TemplateParts => MethodDescriptor.TemplateParts;
         public List<string> TemplateParameterKeys => MethodDescriptor.TemplateParameterKeys;
         public List<ProxyModelMetadata> Parameters => MethodDescriptor.Parameters;
-        public bool IsMultiPartFormData { get; set; }
+        public ContentType ContentType { get; set; }
         public ContentModelBindingResult ContentResult { get; set; }
         public object[] Args { get; set; }
         public IModelContentResolver ModelContentResolver { get; set; }

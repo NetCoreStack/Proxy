@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Headers;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -20,7 +15,7 @@ namespace NetCoreStack.Proxy.Tests
         private readonly string _someKey = "248fd6db0ae44ec48169fa2391b067da";
 
         protected IServiceProvider Resolver { get; }
-        protected IConfigurationRoot Configuration { get; }
+        protected IConfiguration Configuration { get; }
 
         public ProxyCreationTests()
         {
@@ -104,6 +99,31 @@ namespace NetCoreStack.Proxy.Tests
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskActionPost(TypesModelHelper.GetComplexTypeModel());
+        }
+
+        [Fact]
+        public async Task TaskActionBarMultipartFormDataTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskActionBarMultipartFormData(new Bar
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2,
+                Foo = new Foo { IEnumerableInt = new[] { 1, 3, 5, 7, 9 }, String = "Foo string value!" }
+            });
+        }
+
+        [Fact]
+        public async Task TaskActionBarSimpleXml()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskActionBarSimpleXml(new BarSimple
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2,
+            });
         }
 
         [Fact]

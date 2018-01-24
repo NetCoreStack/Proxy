@@ -5,7 +5,11 @@ namespace NetCoreStack.Proxy
 {
     public class HttpGetContentBinder : ContentModelBinder
     {
-        HttpMethod HttpMethod => HttpMethod.Get;
+        public HttpGetContentBinder(HttpMethod httpMethod)
+            : base(httpMethod)
+        {
+
+        }
 
         public override void BindContent(ContentModelBindingContext bindingContext)
         {
@@ -17,7 +21,7 @@ namespace NetCoreStack.Proxy
                 bindingContext.Args,
                 ensureTemplateResult.ParameterOffset,
                 ensureTemplateResult.IgnoreModelPrefix);
-            
+
             bindingContext.TryUpdateUri(result.Dictionary);
         }
     }

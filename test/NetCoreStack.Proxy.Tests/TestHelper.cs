@@ -20,7 +20,7 @@ namespace NetCoreStack.Proxy.Tests
     {
         public static HttpContext HttpContext { get; set; }
 
-        public static IConfigurationRoot Configuration { get; set; }
+        public static IConfiguration Configuration { get; set; }
 
         private static void CreateHttpContext(IServiceProvider serviceProvider)
         {

@@ -95,6 +95,12 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
             _logger.LogWarning(JsonConvert.SerializeObject(new { name, fileName, length }));
         }
 
+        [HttpPost(nameof(TaskActionBarMultipartFormData))]
+        public Task TaskActionBarMultipartFormData(Bar model)
+        {
+            throw new NotImplementedException();
+        }
+
         [HttpPut("kv")]
         public async Task<bool> CreateOrUpdateKey(string key, Bar body)
         {
@@ -139,6 +145,11 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         }
 
         public Task TaskKeyAndEnumerableFileModel(string key, EnumerableFileModel model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TaskActionBarSimpleXml(BarSimple model)
         {
             throw new NotImplementedException();
         }

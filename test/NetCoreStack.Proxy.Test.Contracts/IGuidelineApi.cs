@@ -21,8 +21,19 @@ namespace NetCoreStack.Proxy.Test.Contracts
 
         Task<CollectionResult<SampleModel>> GetCollectionStreamTask();
 
+        /// <summary>
+        /// Default Content-Type is ModelAware if it is not contain FormFile type property that will be JSON body
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPostMarker]
         Task TaskActionPost(ComplexTypeModel model);
+
+        [HttpPostMarker(ContentType = ContentType.MultipartFormData)]
+        Task TaskActionBarMultipartFormData(Bar model);
+
+        [HttpPostMarker(ContentType = ContentType.Xml)]
+        Task TaskActionBarSimpleXml(BarSimple model);
 
         [HttpPostMarker]
         Task TaskSingleFileModel(SingleFileModel model);
