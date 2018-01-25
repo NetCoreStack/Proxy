@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using NetCoreStack.Contracts;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -12,89 +12,234 @@ namespace NetCoreStack.Proxy.Tests
 {
     public class ProxyCreationTests
     {
-        protected IServiceProvider Resolver { get; }
-        protected IConfigurationRoot Configuration { get; }
-        protected TestHostingServer<ServerApp.Startup> TestServer { get; }
+        private readonly string _someKey = "248fd6db0ae44ec48169fa2391b067da";
 
-        private void RegisterServices(IServiceCollection services)
-        {
-            var httpClientAccessor = new Mock<IHttpClientAccessor>();
-            httpClientAccessor.Setup(x => x.HttpClient).Returns(TestServer.Client);
-            services.AddSingleton<IHttpClientAccessor>(httpClientAccessor.Object);
-        }
+        protected IServiceProvider Resolver { get; }
+        protected IConfiguration Configuration { get; }
 
         public ProxyCreationTests()
         {
-            TestServer = new TestHostingServer<ServerApp.Startup>();
-            Resolver = TestHelper.GetServiceProvider(RegisterServices);
+            Resolver = TestHelper.HttpContext.RequestServices;
             Configuration = TestHelper.Configuration;
         }
 
         [Fact]
-        public void VoidCall()
+        public async Task TaskOperationTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            guidelineApi.VoidOperation();
+            var task = guidelineApi.TaskOperation();
+            await task;
         }
 
         [Fact]
-        public async Task TaskCallHttpPostWithReferenceTypeParameter()
+        public async Task GetComplexTypeTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SimpleModel
+            var task = guidelineApi.GetComplexType(TypesModelHelper.GetComplexTypeModel());
+            await task;
+        }
+
+        [Fact]
+        public async Task PrimitiveReturnTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var task = guidelineApi.PrimitiveReturn(int.MaxValue, "some string", long.MaxValue, DateTime.Now);
+            await task;
+        }
+
+        [Fact]
+        public async Task GetWithComplexReferenceTypeTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var task = guidelineApi.GetWithComplexReferenceType(new CollectionRequest
             {
-                Name = nameof(TaskCallHttpPostWithReferenceTypeParameter),
-                Date = DateTime.Now,
-                Value = "<<string>>"
-            };
-            await guidelineApi.TaskActionPost(simpleModel);
-        }
-
-        [Fact]
-        public async Task TaskCallHttpGetWithReferenceTypeParameter()
-        {
-            var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var simpleModel = new SimpleModel
-            {
-                Name = nameof(TaskCallHttpGetWithReferenceTypeParameter),
-                Date = DateTime.Now,
-                Value = "<<string>>"
-            };
-            await guidelineApi.GetWithReferenceType(simpleModel);
-        }
-
-        [Fact]
-        public async Task GenericTaskResultCall()
-        {
-            var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetPostsAsync();
-            Assert.True(items.GetType() == typeof(List<Post>));
-        }
-
-        [Fact]
-        public async Task GetCollectionStream()
-        {
-            var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            var items = await guidelineApi.GetCollectionStream();
-            Assert.True(items.GetType() == typeof(CollectionResult<Post>));
-        }
-
-        [Fact]
-        public async Task TaskActionPut()
-        {
-            var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            await guidelineApi.TaskActionPut(1, new SimpleModel
-            {
-                Date = DateTime.Now,
-                Name = "Sample model",
-                Value = "{foo: bar}"
+                Draw = 1,
+                Filters = "",
+                Length = 10,
+                Metadata = typeof(ComplexTypeModel).FullName,
+                Start = 0,
+                Search = null,
+                Text = "",
+                Columns = new List<Column>
+                {
+                    new Column
+                    {
+                        Composer = "",
+                        Data = nameof(ComplexTypeModel.Int),
+                        Meta = typeof(int).Name,
+                        Search = null,
+                        Searchable = true,
+                        Orderable = true
+                    },
+                    new Column
+                    {
+                        Composer = "",
+                        Data = nameof(ComplexTypeModel.String),
+                        Meta = typeof(String).Name,
+                        Search = null,
+                        Searchable = false,
+                        Orderable = false
+                    }
+                },
+                Order = new List<OrderDescriptor>
+                {
+                    new OrderDescriptor
+                    {
+                        ColumnIndex = 0,
+                        Direction = ListSortDirection.Ascending
+                    }
+                }
             });
 
+            await task;
+        }
+
+        [Fact]
+        public async Task TaskCallHttpPostWithReferenceTypeParameterTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskComplexTypeModel(TypesModelHelper.GetComplexTypeModel());
+        }
+
+        [Fact]
+        public async Task TaskActionBarMultipartFormDataTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskActionBarMultipartFormData(new Bar
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2,
+                Foo = new Foo { IEnumerableInt = new[] { 1, 3, 5, 7, 9 }, String = "Foo string value!" }
+            });
+        }
+
+        [Fact]
+        public async Task TaskActionBarSimpleXml()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            await guidelineApi.TaskActionBarSimpleXml(new BarSimple
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2,
+            });
+        }
+
+        [Fact]
+        public async Task GenericTaskResultCallTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var items = await guidelineApi.GetEnumerableModels();
+            Assert.True(items != null);
+            Assert.True(items.Count() == 4);
+        }
+
+        [Fact]
+        public async Task GetCollectionStreamTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var collection = await guidelineApi.GetCollectionStreamTask();
+            Assert.True(collection != null);
+            Assert.True(collection.Data.Count() == 5);
+        }
+
+        [Fact]
+        public async Task TaskSingleFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new SingleFileModel
+            {
+                File = TestHelper.GetFormFile("file")
+            };
+
+            await guidelineApi.TaskSingleFileModel(model);
             Assert.True(true);
         }
 
         [Fact]
-        public async Task TaskActionDelete()
+        public async Task TaskKeyAndSingleFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new SingleFileModel
+            {
+                File = TestHelper.GetFormFile("file")
+            };
+
+            await guidelineApi.TaskKeyAndSingleFileModel(_someKey, model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskKeyAndSingleFileAndPropsModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new SingleFileAndPropsModel
+            {
+                Int = 6,
+                String = "Some string value!",
+                File = TestHelper.GetFormFile("file")
+            };
+
+            await guidelineApi.TaskKeyAndSingleFileAndPropsModel(_someKey, model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskEnumerableFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new EnumerableFileModel
+            {
+                Files = new[] { TestHelper.GetFormFile("files", "file1.txt"), TestHelper.GetFormFile("files", "file2.txt") }
+            };
+
+            await guidelineApi.TaskEnumerableFileModel(model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskKeyAndEnumerableFileModel()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+
+            var model = new EnumerableFileModel
+            {
+                Files = new[] { TestHelper.GetFormFile("files", "file1.txt"), TestHelper.GetFormFile("files", "file2.txt") }
+            };
+
+            await guidelineApi.TaskKeyAndEnumerableFileModel(_someKey, model);
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task CreateOrUpdateNoBodyKeyTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var result = await guidelineApi.CreateOrUpdateKey(_someKey);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task CreateOrUpdateKeyTest()
+        {
+            var guidelineApi = Resolver.GetService<IGuidelineApi>();
+            var result = await guidelineApi.CreateOrUpdateKey(_someKey, new Bar
+            {
+                String = "Bar string value!",
+                someint = 6,
+                SomeEnum = SomeEnum.Value2,
+                Foo = new Foo { IEnumerableInt = new[] { 1, 3, 5, 7, 9 }, String = "Foo string value!" }
+            });
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task TaskActionDeleteTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskActionDelete(1);

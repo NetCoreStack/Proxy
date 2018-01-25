@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -16,7 +15,7 @@ namespace NetCoreStack.Proxy
             typeof(ServiceCollectionExtensions).GetTypeInfo().GetDeclaredMethod("RegisterProxy");
 
         public static void AddNetCoreProxy(this IServiceCollection services, 
-            IConfigurationRoot configuration,
+            IConfiguration configuration,
             Action<ProxyBuilderOptions> setup)
         {
             services.AddOptions();
@@ -37,29 +36,44 @@ namespace NetCoreStack.Proxy
             }
 
             services.Configure<ProxyOptions>(configuration.GetSection(Constants.ProxySettings));
+            services.AddSingleton<ProxyMetadataProvider>();
             services.AddSingleton<IProxyTypeManager, DefaultProxyTypeManager>();
 
-            services.TryAdd(ServiceDescriptor.Singleton<IHttpContextAccessor, HttpContextAccessor>());
+            services.TryAdd(ServiceDescriptor.Scoped<IProxyContextFilter, DefaultProxyContextFilter>());
+
+            services.TryAdd(ServiceDescriptor.Singleton<IModelContentResolver, DefaultModelContentResolver>());
             services.TryAdd(ServiceDescriptor.Singleton<IHttpClientAccessor, DefaultHttpClientAccessor>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyManager, ProxyManager>());
-            services.TryAdd(ServiceDescriptor.Singleton<IHeaderProvider, DefaultHeaderProvider>());
+            services.TryAdd(ServiceDescriptor.Singleton<IDefaultHeaderProvider, DefaultHeaderProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyContentStreamProvider, DefaultProxyContentStreamProvider>());
             services.TryAdd(ServiceDescriptor.Singleton<IProxyEndpointManager, DefaultProxyEndpointManager>());
+            services.TryAdd(ServiceDescriptor.Singleton<IModelJsonSerializer, DefaultModelJsonSerializer>());
+            services.TryAdd(ServiceDescriptor.Singleton<IModelXmlSerializer, DefaultModelXmlSerializer>());
 
             services.TryAddSingleton<RoundRobinManager>();
 
-            var proxyBuilderOptions = new ProxyBuilderOptions();
-            setup?.Invoke(proxyBuilderOptions);
-            foreach (var item in proxyBuilderOptions.ProxyList)
+            var options = new ProxyBuilderOptions();
+            options.ModelResolvers.Add(new SimpleModelResolver());
+            options.ModelResolvers.Add(new EnumerableModelResolver());
+            options.ModelResolvers.Add(new ComplexModelResolver());
+            options.ModelResolvers.Add(new SystemObjectModelResolver());
+            options.ModelResolvers.Add(new FormFileModelResolver());
+            setup?.Invoke(options);
+            foreach (var item in options.ProxyList)
             {
                 var type = item.GetTypeInfo().AsType();
                 var genericRegistry = registryDelegate.MakeGenericMethod(type);
                 genericRegistry.Invoke(null, new object[] { services });
             }
 
-            var headerValues = new HeaderValues { Headers = proxyBuilderOptions.DefaultHeaders };
+            if (options.ProxyContextFilter != null)
+            {
+                services.TryAdd(ServiceDescriptor.Scoped(typeof(IProxyContextFilter), options.ProxyContextFilter));
+            }
+
+            var headerValues = new DefaultHeaderValues { Headers = options.DefaultHeaders };
             services.AddSingleton(Options.Create(headerValues));
-            services.AddSingleton(proxyBuilderOptions);
+            services.AddSingleton(options);
         }
 
         internal static void RegisterProxy<TProxy>(IServiceCollection services) where TProxy : IApiContract
