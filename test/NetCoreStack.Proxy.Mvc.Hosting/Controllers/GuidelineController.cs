@@ -70,8 +70,8 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
             return null;
         }
 
-        [HttpPost(nameof(TaskActionPost))]
-        public async Task TaskActionPost([FromBody]ComplexTypeModel model)
+        [HttpPost(nameof(TaskComplexTypeModel))]
+        public async Task TaskComplexTypeModel([FromBody]ComplexTypeModel model)
         {
             await Task.CompletedTask;
             _logger.LogWarning(JsonConvert.SerializeObject(model));

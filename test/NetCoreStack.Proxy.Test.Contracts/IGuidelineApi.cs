@@ -27,7 +27,7 @@ namespace NetCoreStack.Proxy.Test.Contracts
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPostMarker]
-        Task TaskActionPost(ComplexTypeModel model);
+        Task TaskComplexTypeModel(ComplexTypeModel model);
 
         [HttpPostMarker(ContentType = ContentType.MultipartFormData)]
         Task TaskActionBarMultipartFormData(Bar model);

@@ -98,7 +98,7 @@ namespace NetCoreStack.Proxy.Tests
         public async Task TaskCallHttpPostWithReferenceTypeParameterTest()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
-            await guidelineApi.TaskActionPost(TypesModelHelper.GetComplexTypeModel());
+            await guidelineApi.TaskComplexTypeModel(TypesModelHelper.GetComplexTypeModel());
         }
 
         [Fact]
