@@ -102,6 +102,7 @@ public class HomeController : Controller
 ```
 
 ## Sample Server
+
 ### API Implementation
 ```csharp
 [Route("api/[controller]")]
@@ -122,6 +123,12 @@ public class GuidelineController : Controller, IGuidelineApi
 
     [HttpPost(nameof(TaskActionBarMultipartFormData))]
     public Task TaskActionBarMultipartFormData(Bar model)
+    {
+        ...
+    }
+
+	[HttpPut("kv")]
+    public async Task<bool> CreateOrUpdateKey(string key, Bar body)
     {
         ...
     }
