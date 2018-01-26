@@ -12,7 +12,40 @@ namespace NetCoreStack.Proxy
             RoundRobinManager = roundRobinManager;
         }
 
-        public ProxyUriDefinition CreateUriDefinition(ProxyMethodDescriptor methodDescriptor, string route, string regionKey, string targetMethodName)
+        private string ConcatRoute(string route, string methodName)
+        {
+            string path = string.Empty;
+            if (string.IsNullOrEmpty(route))
+            {
+                path = methodName;
+            }
+            else
+            {
+                path = $"{route}/{methodName}";
+            }
+
+            return path;
+        }
+
+        private void ResolveTemplate(UriBuilder uriBuilder, ProxyMethodDescriptor methodDescriptor, string route, string targetMethodName)
+        {
+            var path = uriBuilder.Path ?? string.Empty;
+            if (methodDescriptor.RouteTemplate != null)
+            {
+                if (methodDescriptor.RouteTemplate.Parameters.Count > 0)
+                {
+                    var methodName = string.Join("/", methodDescriptor.TemplateKeys);
+                    path += ConcatRoute(route, methodName);
+                    uriBuilder.Path = path;
+                    return;
+                }
+            }
+
+            path += ConcatRoute(route, targetMethodName);
+            uriBuilder.Path = path;
+        }
+
+        public UriBuilder CreateUriBuilder(ProxyMethodDescriptor methodDescriptor, string route, string regionKey, string targetMethodName)
         {
             var uriBuilder = RoundRobinManager.RoundRobinUri(regionKey);
             if (uriBuilder == null)
@@ -20,26 +53,21 @@ namespace NetCoreStack.Proxy
                 throw new ArgumentNullException(nameof(uriBuilder));
             }
 
-            var uriDefinition = new ProxyUriDefinition(uriBuilder);
-
-            if (!string.IsNullOrEmpty(route))
+            if (targetMethodName.ToLower() == HttpMethod.Get.Method.ToLower())
             {
-                if (targetMethodName.ToLower() == HttpMethod.Get.Method.ToLower())
-                {
-                    var path = uriDefinition.UriBuilder.Path ?? string.Empty;
-                    path += $"{route}/";
-                    uriDefinition.UriBuilder.Path = path;
-                }
-                else
-                {
-                    if (targetMethodName.StartsWith("/"))
-                        targetMethodName = targetMethodName.Substring(1);
+                var path = uriBuilder.Path ?? string.Empty;                
+                path += string.IsNullOrEmpty(route) ? "" : $"{route}/";
+                uriBuilder.Path = path;
+            }
+            else
+            {
+                if (targetMethodName.StartsWith("/"))
+                    targetMethodName = targetMethodName.Substring(1);
 
-                    uriDefinition.ResolveTemplate(methodDescriptor, route, targetMethodName);
-                }
+                ResolveTemplate(uriBuilder, methodDescriptor, route, targetMethodName);
             }
 
-            return uriDefinition;
+            return uriBuilder;
         }
     }
 }

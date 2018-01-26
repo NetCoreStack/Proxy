@@ -24,8 +24,7 @@ namespace NetCoreStack.Proxy
                 return TemplateParameterKeys.Any();
             }
         }
-
-        public UriBuilder UriBuilder => UriDefinition.UriBuilder;
+        
         public Uri Uri => UriBuilder.Uri;
         public string MethodMarkerTemplate => MethodDescriptor.MethodMarkerTemplate;
         public List<TemplatePart> TemplateParts => MethodDescriptor.TemplateParts;
@@ -36,14 +35,14 @@ namespace NetCoreStack.Proxy
         public object[] Args { get; set; }
         public IModelContentResolver ModelContentResolver { get; set; }
         public HttpMethod HttpMethod { get; }
-        public ProxyUriDefinition UriDefinition { get; }
+        public UriBuilder UriBuilder { get; set; }
         public ProxyMethodDescriptor MethodDescriptor { get; }
 
-        public ContentModelBindingContext(HttpMethod httpMethod, ProxyMethodDescriptor methodDescriptor, ProxyUriDefinition proxyUriDefinition)
+        public ContentModelBindingContext(HttpMethod httpMethod, ProxyMethodDescriptor methodDescriptor, UriBuilder uriBuilder)
         {
             HttpMethod = httpMethod ?? throw new ArgumentNullException(nameof(httpMethod));
             MethodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
-            UriDefinition = proxyUriDefinition ?? throw new ArgumentNullException(nameof(proxyUriDefinition));
+            UriBuilder = uriBuilder ?? throw new ArgumentNullException(nameof(uriBuilder));
         }
     }
 }

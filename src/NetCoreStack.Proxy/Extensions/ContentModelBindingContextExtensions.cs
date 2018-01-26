@@ -16,10 +16,10 @@ namespace NetCoreStack.Proxy.Extensions
 
         public static void TryUpdateUri(this ContentModelBindingContext bindingContext, Dictionary<string, string> dictionary)
         {
-            if (bindingContext.UriDefinition != null)
+            if (bindingContext.UriBuilder != null)
             {
                 var uriBuilder = new UriBuilder(bindingContext.Uri.ToQueryString(dictionary));
-                bindingContext.UriDefinition.UriBuilder = uriBuilder;
+                bindingContext.UriBuilder = uriBuilder;
             }            
         }
     }

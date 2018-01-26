@@ -153,5 +153,10 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         {
             throw new NotImplementedException();
         }
+
+        public Task UploadAsync(FileProxyUploadContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

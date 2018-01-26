@@ -38,6 +38,8 @@ namespace NetCoreStack.Proxy.Internal
                     throw new ProxyException($"Specify the \"{nameof(pathAttr.RegionKey)}\"!");
 
                 var route = proxyType.Name.GetApiRootPath(pathAttr.RouteTemplate);
+                if (route.StartsWith("/"))
+                    route = route.Substring(1);
 
                 ProxyDescriptor descriptor = new ProxyDescriptor(proxyType, pathAttr.RegionKey, route);
 

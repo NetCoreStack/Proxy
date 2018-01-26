@@ -159,6 +159,21 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        public async Task UploadAsyncTemplateTest()
+        {
+            var fileProxyApi = Resolver.GetService<IFileProxyApi>();
+
+            var model = new FileProxyUploadContext
+            {
+                Directory = "proxy-fs/123456",
+                Files = new[] { TestHelper.GetFormFile("files", "file1.txt"), TestHelper.GetFormFile("files", "file2.txt") }
+            };
+
+            await fileProxyApi.UploadAsync(model);
+            Assert.True(true);
+        }
+
+        [Fact]
         public async Task TaskKeyAndSingleFileModel()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();

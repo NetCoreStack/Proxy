@@ -77,6 +77,7 @@ namespace NetCoreStack.Proxy.Tests
                 options.DefaultHeaders.Add("X-NetCoreStack-Header", "ProxyHeaderValue");
                 options.RegisterFilter<CustomProxyContextFilter>();
                 options.Register<IGuidelineApi>();
+                options.Register<IFileProxyApi>();
                 options.Register<IConsulApi>();
             });
 

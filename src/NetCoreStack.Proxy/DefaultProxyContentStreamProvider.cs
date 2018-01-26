@@ -23,14 +23,14 @@ namespace NetCoreStack.Proxy
         public async Task CreateRequestContentAsync(RequestDescriptor requestContext, 
             HttpRequestMessage request, 
             ProxyMethodDescriptor descriptor,
-            ProxyUriDefinition proxyUriDefinition)
+            UriBuilder uriBuilder)
         {
             await Task.CompletedTask;
 
             var httpMethod = descriptor.HttpMethod;
             var contentModelBinder = ContentBinderFactory.GetContentModelBinder(_serviceProvider, httpMethod, descriptor.ContentType);
 
-            var bindingContext = new ContentModelBindingContext(httpMethod, descriptor, proxyUriDefinition)
+            var bindingContext = new ContentModelBindingContext(httpMethod, descriptor, uriBuilder)
             {
                 ContentType = descriptor.ContentType,
                 ModelContentResolver = ContentResolver,

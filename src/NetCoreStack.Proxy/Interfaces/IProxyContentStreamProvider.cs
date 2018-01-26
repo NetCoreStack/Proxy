@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NetCoreStack.Proxy
@@ -8,6 +9,6 @@ namespace NetCoreStack.Proxy
         Task CreateRequestContentAsync(RequestDescriptor requestDescriptor, 
             HttpRequestMessage request, 
             ProxyMethodDescriptor descriptor, 
-            ProxyUriDefinition proxyUriDefinition);
+            UriBuilder uriBuilder);
     }
 }

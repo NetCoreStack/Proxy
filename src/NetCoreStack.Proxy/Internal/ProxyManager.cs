@@ -117,11 +117,10 @@ namespace NetCoreStack.Proxy
             if (methodDescriptor.MethodMarkerTemplate.HasValue())
                 methodPath = methodDescriptor.MethodMarkerTemplate;
 
-            ProxyUriDefinition proxyUriDefinition = _endpointManager.CreateUriDefinition(methodDescriptor, proxyDescriptor.Route, regionKey, methodPath);
+            UriBuilder uriBuilder = _endpointManager.CreateUriBuilder(methodDescriptor, proxyDescriptor.Route, regionKey, methodPath);
             TimeSpan? timeout = methodDescriptor.Timeout;
-
-            request.RequestUri = proxyUriDefinition.UriBuilder.Uri;
-            await _streamProvider.CreateRequestContentAsync(descriptor, request, methodDescriptor, proxyUriDefinition);
+            
+            await _streamProvider.CreateRequestContentAsync(descriptor, request, methodDescriptor, uriBuilder);
 
             return new RequestContext(request,
                 methodDescriptor,
