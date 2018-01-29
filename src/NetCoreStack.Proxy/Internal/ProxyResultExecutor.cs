@@ -33,6 +33,12 @@ namespace NetCoreStack.Proxy.Internal
                 throw new ProxyException(message, null);
             }
 
+            if (methodDescriptor.IsByteArrayReturn)
+            {
+                context.Value = await response.Content.ReadAsByteArrayAsync();
+                return context;
+            }
+
             if (methodDescriptor.IsVoidReturn)
                 return context;
 

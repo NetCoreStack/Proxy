@@ -145,6 +145,14 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        public async Task GetSingleFileWithKeyTemplate()
+        {
+            var guidelineApi = Resolver.GetService<IFileProxyApi>();
+            byte[] bytes = await guidelineApi.GetFileAsync("5a6ee0791653ff2348f1cd32", "pdf-sample.pdf");
+            Assert.True(true);
+        }
+
+        [Fact]
         public async Task TaskSingleFileModel()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();

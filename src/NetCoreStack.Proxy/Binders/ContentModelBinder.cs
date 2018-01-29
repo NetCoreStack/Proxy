@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 
@@ -22,6 +23,11 @@ namespace NetCoreStack.Proxy
                 {
                     var keyParameter = bindingContext.TemplateParameterKeys[i];
                     var keyModelMetadata = bindingContext.Parameters.FirstOrDefault(x => x.PropertyName == keyParameter);
+                    if (keyModelMetadata == null)
+                    {
+                        throw new ArgumentOutOfRangeException("Key parameter name does not match the template key. Please check template key(s) of the method.");
+                    }
+
                     var value = bindingContext.ModelContentResolver.ResolveParameter(keyModelMetadata, bindingContext.Args[i], false);
                     bindingContext.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
                     parameterOffset++;

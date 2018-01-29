@@ -158,5 +158,10 @@ namespace NetCoreStack.Proxy.Mvc.Hosting.Controllers
         {
             throw new NotImplementedException();
         }
+
+        public Task<byte[]> GetFileAsync(string id, string fileName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

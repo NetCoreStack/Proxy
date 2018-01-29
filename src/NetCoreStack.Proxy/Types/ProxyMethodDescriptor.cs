@@ -44,6 +44,7 @@ namespace NetCoreStack.Proxy
         public bool HasAnyTemplateParameterKey => TemplateParameterKeys.Any();
 
         public Dictionary<string, string> Headers { get; }
+        public bool IsByteArrayReturn { get; }
 
         public ProxyMethodDescriptor(MethodInfo methodInfo)
         {
@@ -61,6 +62,17 @@ namespace NetCoreStack.Proxy
             if (IsGenericTaskReturn)
             {
                 UnderlyingReturnType = ReturnType.GetGenericArguments()[0];
+                if (typeof(byte[]).IsAssignableFrom(UnderlyingReturnType))
+                {
+                    IsByteArrayReturn = true;
+                }
+            }
+            else
+            {
+                if (typeof(byte[]).IsAssignableFrom(ReturnType))
+                {
+                    IsByteArrayReturn = true;
+                }
             }
         }
     }
