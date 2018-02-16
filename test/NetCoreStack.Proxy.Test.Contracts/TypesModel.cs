@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using NetCoreStack.Contracts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -64,6 +65,12 @@ namespace NetCoreStack.Proxy.Test.Contracts
     {
         public string String { get; set; }
         public IEnumerable<int> IEnumerableInt { get; set; }
+    }
+
+    public class FooColumns
+    {
+        public string String { get; set; }
+        public List<Column> IEnumerableColumns { get; set; }
     }
 
     public class Bar

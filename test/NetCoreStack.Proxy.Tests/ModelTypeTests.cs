@@ -1,8 +1,11 @@
-﻿using NetCoreStack.Proxy.Internal;
+﻿using NetCoreStack.Contracts;
+using NetCoreStack.Proxy.Internal;
 using NetCoreStack.Proxy.Test.Contracts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -165,6 +168,25 @@ namespace NetCoreStack.Proxy.Tests
             
             Assert.Equal(expect, contentResult.Dictionary);
             Assert.Equal(6, contentResult.Dictionary.Count);
+        }
+
+        [Fact]
+        public void ProxyModelMetadataInfoForFooModelNull()
+        {
+            Foo model = new Foo
+            {
+                String = "Foo string value!",
+                IEnumerableInt = null
+            };
+
+            var contentResult = GetResolvedContentResult(model);
+
+            var expect = new Dictionary<string, string>()
+            {
+                ["String"] = "Foo string value!"
+            };
+
+            Assert.Equal(expect, contentResult.Dictionary);
         }
 
         [Fact]
@@ -412,6 +434,24 @@ namespace NetCoreStack.Proxy.Tests
             Assert.True(0 == dictionary.Count);
 
             Assert.Equal("some_text_file.txt", files["InnerFileModel.Files[0]"].FileName);
+        }
+
+        [Fact]
+        public void FooColumnEnumerableNullItemTest()
+        {
+            var objStr = File.ReadAllText("ObjFile.txt");
+            CollectionRequest collection = JsonConvert.DeserializeObject<CollectionRequest>(objStr);
+
+            var fooColums = new FooColumns {
+                IEnumerableColumns = new List<Column>()
+            };
+            foreach (var item in collection.Columns)
+            {
+                fooColums.IEnumerableColumns.Add(item);
+            }
+
+            var contentResult = GetResolvedContentResult(collection);
+            Assert.True(true);
         }
 
         [Fact]

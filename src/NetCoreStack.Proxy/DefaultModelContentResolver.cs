@@ -118,6 +118,11 @@ namespace NetCoreStack.Proxy
                     var index = 0;
                     foreach (var v in values)
                     {
+                        if (v == null)
+                        {
+                            continue;
+                        }
+
                         var propKey = $"{key}[{index}]";
                         var propValue = propertyInfo?.GetValue(v);
                         ResolveInternal(elementModelMetadata, result, propValue, isTopLevelObject:false, prefix: propKey);
