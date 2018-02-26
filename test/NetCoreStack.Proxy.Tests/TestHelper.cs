@@ -11,6 +11,7 @@ using Moq;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -79,6 +80,12 @@ namespace NetCoreStack.Proxy.Tests
                 options.Register<IGuidelineApi>();
                 options.Register<IFileProxyApi>();
                 options.Register<IConsulApi>();
+
+                options.CultureFactory = () =>
+                {
+                    var thread = System.Threading.Thread.CurrentThread;
+                    return thread.CurrentCulture;
+                };
             });
 
             CreateHttpContext(services.BuildServiceProvider());

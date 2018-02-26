@@ -25,42 +25,12 @@ namespace NetCoreStack.Proxy
             IOptions<ProxyOptions> options,
             IEnumerable<IProxyRequestFilter> requestFilters)
         {
-            if (typeManager == null)
-            {
-                throw new ArgumentNullException(nameof(typeManager));
-            }
-
-            if (headerProvider == null)
-            {
-                throw new ArgumentNullException(nameof(headerProvider));
-            }
-
-            if (httpClientAccessor == null)
-            {
-                throw new ArgumentNullException(nameof(httpClientAccessor));
-            }
-
-            if (endpointManager == null)
-            {
-                throw new ArgumentNullException(nameof(endpointManager));
-            }
-
-            if (streamProvider == null)
-            {
-                throw new ArgumentNullException(nameof(endpointManager));
-            }
-
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            _typeManager = typeManager;
-            _headerProvider = headerProvider;
-            _httpClientAccessor = httpClientAccessor;
-            _endpointManager = endpointManager;
-            _streamProvider = streamProvider;
-            _options = options;
+            _typeManager = typeManager ?? throw new ArgumentNullException(nameof(typeManager));
+            _headerProvider = headerProvider ?? throw new ArgumentNullException(nameof(headerProvider));
+            _httpClientAccessor = httpClientAccessor ?? throw new ArgumentNullException(nameof(httpClientAccessor));
+            _endpointManager = endpointManager ?? throw new ArgumentNullException(nameof(endpointManager));
+            _streamProvider = streamProvider ?? throw new ArgumentNullException(nameof(endpointManager));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
 
             RequestFilters = new List<IProxyRequestFilter>();
             if (requestFilters != null && requestFilters.Any())
@@ -81,16 +51,32 @@ namespace NetCoreStack.Proxy
         public bool HasFilter { get; }
         public List<IProxyRequestFilter> RequestFilters { get; }
 
-        private HttpRequestMessage CreateHttpRequest(ProxyMethodDescriptor methodDescriptor)
+        private HttpRequestMessage CreateHttpRequest(ProxyMethodDescriptor methodDescriptor, RequestDescriptor requestDescriptor)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage();
 
-            foreach (KeyValuePair<string, string> entry in _headerProvider.Headers)
+            var headers = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(requestDescriptor.ClientIp))
             {
-                requestMessage.Headers.Add(entry.Key, entry.Value);
+                headers.Add("X-Forwarded-For", requestDescriptor.ClientIp);
             }
 
-            foreach (KeyValuePair<string, string> entry in methodDescriptor.Headers)
+            if (!string.IsNullOrEmpty(requestDescriptor.UserAgent))
+            {
+                headers.Add("User-Agent", requestDescriptor.UserAgent);
+            }
+
+            if (requestDescriptor.Culture != null)
+            {
+                headers.Add("Accept-Language", requestDescriptor.Culture.Name);
+            }
+
+            headers.Merge(_headerProvider.Headers, true);
+
+            headers.Merge(methodDescriptor.Headers, true);
+
+            foreach (KeyValuePair<string, string> entry in headers)
             {
                 requestMessage.Headers.Add(entry.Key, entry.Value);
             }
@@ -98,9 +84,9 @@ namespace NetCoreStack.Proxy
             return requestMessage;
         }
 
-        public async Task<RequestContext> CreateRequestAsync(RequestDescriptor descriptor)
+        public async Task<RequestContext> CreateRequestAsync(RequestDescriptor requestDescriptor)
         {
-            var proxyDescriptor = _typeManager.ProxyDescriptors.FirstOrDefault(x => x.ProxyType == descriptor.ProxyType);
+            var proxyDescriptor = _typeManager.ProxyDescriptors.FirstOrDefault(x => x.ProxyType == requestDescriptor.ProxyType);
 
             if (proxyDescriptor == null)
                 throw new ArgumentOutOfRangeException("Proxy type could not be found!");
@@ -108,19 +94,19 @@ namespace NetCoreStack.Proxy
             var regionKey = proxyDescriptor.RegionKey;
 
             ProxyMethodDescriptor methodDescriptor;
-            if (!proxyDescriptor.Methods.TryGetValue(descriptor.TargetMethod, out methodDescriptor))
+            if (!proxyDescriptor.Methods.TryGetValue(requestDescriptor.TargetMethod, out methodDescriptor))
                 throw new ArgumentOutOfRangeException("Method (Action) info could not be found!");
 
-            HttpRequestMessage request = CreateHttpRequest(methodDescriptor);
+            HttpRequestMessage request = CreateHttpRequest(methodDescriptor, requestDescriptor);
             request.Method = methodDescriptor.HttpMethod;
-            var methodPath = descriptor.TargetMethod.Name;
+            var methodPath = requestDescriptor.TargetMethod.Name;
             if (methodDescriptor.MethodMarkerTemplate.HasValue())
                 methodPath = methodDescriptor.MethodMarkerTemplate;
 
             UriBuilder uriBuilder = _endpointManager.CreateUriBuilder(methodDescriptor, proxyDescriptor.Route, regionKey, methodPath);
             TimeSpan? timeout = methodDescriptor.Timeout;
             
-            await _streamProvider.CreateRequestContentAsync(descriptor, request, methodDescriptor, uriBuilder);
+            await _streamProvider.CreateRequestContentAsync(requestDescriptor, request, methodDescriptor, uriBuilder);
 
             return new RequestContext(request,
                 methodDescriptor,

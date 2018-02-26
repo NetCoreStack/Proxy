@@ -5,6 +5,7 @@ using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -95,15 +96,19 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        [Trait("Category", "Group")]
         public async Task TaskCallHttpPostWithReferenceTypeParameterTest()
         {
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("tr-TR");
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskComplexTypeModel(TypesModelHelper.GetComplexTypeModel());
         }
 
         [Fact]
+        [Trait("Category", "Group")]
         public async Task TaskActionBarMultipartFormDataTest()
         {
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("fr-FR");
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskActionBarMultipartFormData(new Bar
             {
@@ -115,8 +120,10 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        [Trait("Category", "Group")]
         public async Task TaskActionBarSimpleXml()
         {
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
             await guidelineApi.TaskActionBarSimpleXml(new BarSimple
             {

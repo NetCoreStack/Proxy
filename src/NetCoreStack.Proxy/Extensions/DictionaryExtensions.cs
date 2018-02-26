@@ -74,5 +74,16 @@ namespace NetCoreStack.Proxy.Extensions
             // encode and create url
             return AddQueryString(baseUrl.AbsoluteUri, dictionary);
         }
+
+        internal static void Merge(this IDictionary<string, string> instance, IDictionary<string, string> from, bool replaceExisting)
+        {
+            foreach (KeyValuePair<string, string> entry in from)
+            {
+                if (replaceExisting || !instance.ContainsKey(entry.Key))
+                {
+                    instance[entry.Key] = entry.Value;
+                }
+            }
+        }
     }
 }

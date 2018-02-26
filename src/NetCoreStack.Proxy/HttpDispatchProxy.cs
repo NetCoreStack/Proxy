@@ -45,11 +45,14 @@ namespace NetCoreStack.Proxy
 
         private async Task<ResponseContext> InternalInvokeAsync(MethodInfo targetMethod, object[] args, Type genericReturnType = null)
         {
+            var culture = _proxyContext.CultureFactory?.Invoke();
+
             var descriptor = new RequestDescriptor(targetMethod,
                 _proxyContext.ProxyType,
                 _proxyContext.ClientIp,
                 _proxyContext.UserAgent,
                 _proxyContext.Query,
+                culture,
                 args);
 
             RequestContext requestContext = await _proxyManager.CreateRequestAsync(descriptor);

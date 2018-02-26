@@ -1,6 +1,7 @@
 ﻿using NetCoreStack.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace NetCoreStack.Proxy
 {
@@ -13,6 +14,8 @@ namespace NetCoreStack.Proxy
         public IDictionary<string, string> DefaultHeaders { get; }
 
         public IList<IModelResolver> ModelResolvers { get; }
+
+        public Func<CultureInfo> CultureFactory { get; set; }
 
         public ProxyBuilderOptions()
         {

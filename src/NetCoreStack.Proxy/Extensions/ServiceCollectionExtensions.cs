@@ -74,6 +74,12 @@ namespace NetCoreStack.Proxy
             var headerValues = new DefaultHeaderValues { Headers = options.DefaultHeaders };
             services.AddSingleton(Options.Create(headerValues));
             services.AddSingleton(options);
+
+            if (options.CultureFactory != null)
+            {
+                var defaultCultureFactory = new DefaultCultureFactory(options.CultureFactory);
+                services.AddSingleton<ICultureFactory>(defaultCultureFactory);
+            }
         }
 
         internal static void RegisterProxy<TProxy>(IServiceCollection services) where TProxy : IApiContract
