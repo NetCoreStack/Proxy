@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
-    <PackageReference Include="NetCoreStack.Contracts" Version="2.0.6" />
+    <PackageReference Include="NetCoreStack.Contracts" Version="2.0.7" />
   </ItemGroup>
 
 </Project>

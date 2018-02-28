@@ -9,7 +9,7 @@ namespace NetCoreStack.Proxy.Internal
     {
         internal static TProxy CreateProxy<TProxy>(IServiceProvider container) where TProxy : IApiContract
         {
-            dynamic proxy = DispatchProxyAsync.Create<TProxy, HttpDispatchProxy>();
+            object proxy = DispatchProxyAsync.Create<TProxy, HttpDispatchProxy>();
             var proxyContextFilter = container.GetRequiredService<IProxyContextFilter>();
             var proxyContext = new ProxyContext(typeof(TProxy));
 
@@ -20,8 +20,15 @@ namespace NetCoreStack.Proxy.Internal
             }
 
             proxyContextFilter.Invoke(proxyContext);
-            proxy.Initialize(proxyContext, container.GetService<IProxyManager>());
-            return proxy;            
+
+            var initializer = proxy.GetType().GetMethod(nameof(HttpDispatchProxy.Initialize));
+            if (initializer == null)
+            {
+                throw new ArgumentNullException(nameof(initializer));
+            }
+
+            initializer.Invoke(proxy, new[] { proxyContext, (object)container.GetService<IProxyManager>() });
+            return (TProxy)proxy;            
         }
     }
 }
