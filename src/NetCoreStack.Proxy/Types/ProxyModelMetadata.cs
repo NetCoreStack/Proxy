@@ -107,7 +107,9 @@ namespace NetCoreStack.Proxy
                 PropertyInfo propertyInfo = ContainerType?.GetProperty(PropertyName);
                 if (propertyInfo != null)
                 {
-                    ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType));
+                    ElementType = new ProxyModelMetadata(propertyInfo, 
+                        ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType), 
+                        reflectedType: _reflectedType);
                 }
 
                 IsFormFile = typeof(IFormFile).IsAssignableFrom(elementType);
@@ -133,7 +135,9 @@ namespace NetCoreStack.Proxy
                 PropertyInfo propertyInfo = ContainerType?.GetProperty(PropertyName);
                 if (propertyInfo != null)
                 {
-                    ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType), _reflectedType);
+                    ElementType = new ProxyModelMetadata(propertyInfo, 
+                        ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType), 
+                        reflectedType: _reflectedType);
                 }
             }
 
@@ -143,7 +147,9 @@ namespace NetCoreStack.Proxy
                 PropertyInfo pInfo = ContainerType?.GetProperty(PropertyName);
                 if (pInfo != null)
                 {
-                    ElementType = new ProxyModelMetadata(pInfo, ProxyModelMetadataIdentity.ForProperty(elementType, pInfo.Name, ModelType));
+                    ElementType = new ProxyModelMetadata(pInfo, 
+                        ProxyModelMetadataIdentity.ForProperty(elementType, pInfo.Name, ModelType),
+                        reflectedType: _reflectedType);
                 }
             }
 
