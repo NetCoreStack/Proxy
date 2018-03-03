@@ -275,5 +275,47 @@ namespace NetCoreStack.Proxy.Tests
             await guidelineApi.TaskActionDelete(1);
             Assert.True(true);
         }
+
+        [Fact]
+        public async Task SelfApiOperation()
+        {
+            var selfApi = Resolver.GetService<ISelfApi>();
+            await selfApi.Operation(new Baz { String = "Some string", Self = new Self { Int = 7 } });
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task SelfApiOperationCollection()
+        {
+            var selfApi = Resolver.GetService<ISelfApi>();
+            await selfApi.OperationCollection(new Baz2
+            {
+                String = "Some string",
+                SelfCollection = new List<SelfCollection> { new SelfCollection { String = "Collection string" } }
+            });
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task SelfApiWithThisOperation()
+        {
+            var selfApi = Resolver.GetService<ISelfApi>();
+            var baz = new Baz
+            {
+                String = "Some string"
+            };
+
+            var self = new Self
+            {
+                Baz = baz,
+                Int = 7
+            };
+
+            baz.Self = self;
+
+            await selfApi.Operation(baz);
+            Assert.True(true);
+        }
     }
 }

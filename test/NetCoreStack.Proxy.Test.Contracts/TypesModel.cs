@@ -3,7 +3,6 @@ using NetCoreStack.Contracts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 
 namespace NetCoreStack.Proxy.Test.Contracts
 {
@@ -145,5 +144,29 @@ namespace NetCoreStack.Proxy.Test.Contracts
     public class FileModel
     {
         public InnerFileModel InnerFileModel { get; set; }
+    }
+
+    public class Baz
+    {
+        public string String { get; set; }
+        public Self Self { get; set; }
+    }
+
+    public class Self
+    {
+        public int Int { get; set; }
+        public Baz Baz { get; set; }
+    }
+
+    public class Baz2
+    {
+        public string String { get; set; }
+        public IEnumerable<SelfCollection> SelfCollection { get; set; }
+    }
+
+    public class SelfCollection
+    {
+        public string String { get; set; }
+        public Baz2 Baz2 { get; set; }
     }
 }

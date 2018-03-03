@@ -11,6 +11,7 @@ namespace NetCoreStack.Proxy
     public class ProxyModelMetadata: IEquatable<ProxyModelMetadata>
     {
         private int? _hashCode;
+        private Type _reflectedType;
         protected ProxyModelMetadataIdentity Identity { get; }
 
         public Type ModelType => Identity.ModelType;
@@ -49,15 +50,16 @@ namespace NetCoreStack.Proxy
 
         public int PropertiesCount => Properties.Count;
 
-        public ProxyModelMetadata(ProxyModelMetadataIdentity identity)
+        public ProxyModelMetadata(ProxyModelMetadataIdentity identity, Type reflectedType = null)
         {
+            _reflectedType = reflectedType;
             Identity = identity;
             Properties = new List<ProxyModelMetadata>();
             InitializeTypeInformation();
         }
 
-        public ProxyModelMetadata(PropertyInfo propertyInfo, ProxyModelMetadataIdentity identity)
-            :this(identity)
+        internal ProxyModelMetadata(PropertyInfo propertyInfo, ProxyModelMetadataIdentity identity, Type reflectedType = null)
+            :this(identity, reflectedType)
         {
             PropertyInfo = propertyInfo;
         }
@@ -131,7 +133,7 @@ namespace NetCoreStack.Proxy
                 PropertyInfo propertyInfo = ContainerType?.GetProperty(PropertyName);
                 if (propertyInfo != null)
                 {
-                    ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType));
+                    ElementType = new ProxyModelMetadata(propertyInfo, ProxyModelMetadataIdentity.ForProperty(elementType, propertyInfo.Name, ModelType), _reflectedType);
                 }
             }
 
@@ -153,7 +155,20 @@ namespace NetCoreStack.Proxy
                 List<ProxyModelMetadata> metadataList = new List<ProxyModelMetadata>();
                 foreach (var prop in properties)
                 {
-                    metadataList.Add(new ProxyModelMetadata(prop, ProxyModelMetadataIdentity.ForProperty(prop.PropertyType, prop.Name, ModelType)));
+                    if (_reflectedType == null)
+                    {
+                        _reflectedType = prop.ReflectedType;
+                    }
+
+                    if (_reflectedType == prop.PropertyType)
+                    {
+                        // self reference loop
+                        continue;
+                    }
+                    
+                    metadataList.Add(new ProxyModelMetadata(prop,
+                        ProxyModelMetadataIdentity.ForProperty(prop.PropertyType, prop.Name, ModelType),
+                        reflectedType: _reflectedType));
                 }
 
                 Properties = metadataList;

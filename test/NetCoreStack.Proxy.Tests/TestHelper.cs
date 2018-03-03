@@ -80,6 +80,7 @@ namespace NetCoreStack.Proxy.Tests
                 options.Register<IGuidelineApi>();
                 options.Register<IFileProxyApi>();
                 options.Register<IConsulApi>();
+                options.Register<ISelfApi>();
 
                 options.CultureFactory = () =>
                 {

@@ -6,7 +6,9 @@ namespace NetCoreStack.Proxy.Internal
     {
         public string Serialize(object value)
         {
-            return JsonConvert.SerializeObject(value);
+            return JsonConvert.SerializeObject(value, new JsonSerializerSettings {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
         }
     }
 }
