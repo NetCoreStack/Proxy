@@ -171,7 +171,13 @@ namespace NetCoreStack.Proxy
                         // self reference loop
                         continue;
                     }
-                    
+
+                    if (ModelType == prop.PropertyType)
+                    {
+                        // Parent child ref - self reference loop
+                        continue;
+                    }
+
                     metadataList.Add(new ProxyModelMetadata(prop,
                         ProxyModelMetadataIdentity.ForProperty(prop.PropertyType, prop.Name, ModelType),
                         reflectedType: _reflectedType));

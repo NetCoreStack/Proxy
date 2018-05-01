@@ -317,5 +317,27 @@ namespace NetCoreStack.Proxy.Tests
             await selfApi.Operation(baz);
             Assert.True(true);
         }
+
+        [Fact]
+        public async Task AttachmentApiTests()
+        {
+            var api = Resolver.GetService<IAttachmentApi>();
+            await api.PutSubtitleAttachmentList(new SubtitleAttachmentDto {
+                SubtitleAttachmentList = new List<SubtitleAttachment>
+                {
+                    new SubtitleAttachment
+                    {
+                        Attachment = new Attachment
+                        {
+                            Name = "Some attachment",
+                            Content = "Lorem ipsum dolar sit amet"
+                        },
+                        CategoryId = 2,
+                        SeasonId = 1
+                    }
+                }
+            });
+            Assert.True(true);
+        }
     }
 }
