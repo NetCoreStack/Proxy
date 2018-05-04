@@ -26,8 +26,14 @@ namespace NetCoreStack.Proxy
             {
                 formFile.CopyTo(ms);
                 var fileContent = new ByteArrayContent(ms.ToArray());
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(formFile.ContentType);
-                fileContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(formFile.ContentDisposition);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType) { CharSet = Encoding.UTF8.WebName };
+                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"file\"",
+                    FileName = $"\"{formFile.FileName}\"",
+                    Size = formFile.Length
+                };
+                
                 multipartFormDataContent.Add(fileContent, key, formFile.FileName);
             }
         }
