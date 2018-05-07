@@ -2,6 +2,7 @@
 using NetCoreStack.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -27,7 +28,21 @@ namespace NetCoreStack.Proxy
             {
                 formFile.CopyTo(ms);
                 var fileContent = new ByteArrayContent(ms.ToArray());
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType) { CharSet = Encoding.UTF8.WebName };
+
+                if (MediaTypeHeaderValue.TryParse(formFile.ContentType, out MediaTypeHeaderValue media))
+                {
+                    if (media.CharSet == null)
+                    {
+                        media.CharSet = Encoding.UTF8.WebName;
+                    }
+
+                    fileContent.Headers.ContentType = media;
+                }
+                else
+                {
+                    // TODO  Log
+                }
+                
                 fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue(formData)
                 {
                     Name = formFile.Name,

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Moq;
+using NetCoreStack.Mvc.Helpers;
 using NetCoreStack.Proxy.Test.Contracts;
 using System;
 using System.Collections.Generic;
@@ -106,6 +107,26 @@ namespace NetCoreStack.Proxy.Tests
                 Headers = new HeaderDictionary
                 {
                     [HeaderNames.ContentType] = "text/plain",
+                    [HeaderNames.ContentDisposition] = $"form-data; name=\"{name}\"; filename=\"{fileName}\""
+                }
+            };
+
+            return formFile;
+        }
+
+        public static FormFile GetFormFile(string name, string fileName, string contentType = null)
+        {
+            var bytes = File.ReadAllBytes(fileName);
+            var length = bytes.Length;
+            var ms = new MemoryStream(bytes);
+
+            contentType = contentType ?? MimeTypeHelper.Resolve(Path.GetExtension(fileName));
+
+            var formFile = new FormFile(ms, 0, length, name, fileName)
+            {
+                Headers = new HeaderDictionary
+                {
+                    [HeaderNames.ContentType] = contentType,
                     [HeaderNames.ContentDisposition] = $"form-data; name=\"{name}\"; filename=\"{fileName}\""
                 }
             };

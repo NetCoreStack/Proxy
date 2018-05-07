@@ -160,13 +160,30 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        public async Task GetSingleFileWithKeyTemplateAndUtf8()
+        {
+            var proxy = Resolver.GetService<IFileProxyApi>();
+
+            await proxy.UploadAsync(new FileProxyUploadContext
+            {
+                Directory = "5a6ee0791653ff2348f1cd32",
+                Files = new[]
+                {
+                    TestHelper.GetFormFile("files", "SampleĞüişçWord.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8")
+                }
+            });
+
+            Assert.True(true);
+        }
+
+        [Fact]
         public async Task TaskSingleFileModel()
         {
             var guidelineApi = Resolver.GetService<IGuidelineApi>();
 
             var model = new SingleFileModel
             {
-                File = TestHelper.GetFormFile("file")
+                File = TestHelper.GetFormFile("file", "SampleĞüişçWord.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8")
             };
 
             await guidelineApi.TaskSingleFileModel(model);
