@@ -12,6 +12,7 @@ namespace NetCoreStack.Proxy
 {
     public abstract class BodyContentBinder : ContentModelBinder
     {
+		private const string formData = "form-data";
         protected IModelSerializer ModelSerializer { get; }
 
         public BodyContentBinder(HttpMethod httpMethod, IModelSerializer modelSerializer)
@@ -20,14 +21,20 @@ namespace NetCoreStack.Proxy
             ModelSerializer = modelSerializer;
         }
 
-        protected virtual void AddFile(string key, MultipartFormDataContent multipartFormDataContent, IFormFile formFile)
+       protected virtual void AddFile(string key, MultipartFormDataContent multipartFormDataContent, IFormFile formFile)
         {
             using (var ms = new MemoryStream())
             {
                 formFile.CopyTo(ms);
                 var fileContent = new ByteArrayContent(ms.ToArray());
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(formFile.ContentType);
-                fileContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(formFile.ContentDisposition);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType) { CharSet = Encoding.UTF8.WebName };
+                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue(formData)
+                {
+                    Name = formFile.Name,
+                    FileName = formFile.FileName,
+                    Size = formFile.Length
+                };
+                
                 multipartFormDataContent.Add(fileContent, key, formFile.FileName);
             }
         }
