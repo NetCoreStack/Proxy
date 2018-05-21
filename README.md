@@ -1,3 +1,8 @@
+# NetCoreStack Proxy
+[![NuGet](https://img.shields.io/nuget/v/NetCoreStack.Proxy.svg?longCache=true&style=flat-square)](https://www.nuget.org/packages/NetCoreStack.Proxy)
+[![NuGet](https://img.shields.io/nuget/dt/NetCoreStack.Proxy.svg?longCache=true&style=flat-square)](https://www.nuget.org/packages/NetCoreStack.Proxy)
+
+
 ### Cross-Platform .NET Standard HTTP Base Flying Proxy
 
 This project is demonstrating manage and consume distributed HTTP APIs and Micro Services
