@@ -160,6 +160,14 @@ namespace NetCoreStack.Proxy.Tests
         }
 
         [Fact]
+        public async Task GetFileWithSpaceTest()
+        {
+            var guidelineApi = Resolver.GetService<IFileProxyApi>();
+            byte[] bytes = await guidelineApi.GetFileAsync("5a6ee0791653ff2348f1cd32", Uri.EscapeUriString("Open Source.png"));
+            Assert.True(true);
+        }
+
+        [Fact]
         public async Task GetSingleFileWithKeyTemplateAndUtf8()
         {
             var proxy = Resolver.GetService<IFileProxyApi>();
@@ -368,6 +376,14 @@ namespace NetCoreStack.Proxy.Tests
                     }
                 }
             });
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task TaskSmsSendTests()
+        {
+            var api = Resolver.GetService<ISmsApi>();
+            var result = await api.Send("000 111 22 33", "Proxy test content", true, 120);
             Assert.True(true);
         }
     }

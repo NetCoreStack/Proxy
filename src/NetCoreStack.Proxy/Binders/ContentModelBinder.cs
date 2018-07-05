@@ -29,7 +29,7 @@ namespace NetCoreStack.Proxy
                     }
 
                     var value = bindingContext.ModelContentResolver.ResolveParameter(keyModelMetadata, bindingContext.Args[i], false);
-                    bindingContext.UriBuilder.Path += ($"/{WebUtility.UrlEncode(value)}");
+                    bindingContext.UriBuilder.Path += ($"/{Uri.EscapeUriString(value)}");
                     parameterOffset++;
                 }
             }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace NetCoreStack.Proxy.Test.Contracts
 {
-    [ApiRoute("/", regionKey: "Main")]
+    [ApiRoute("/", regionKey: "FS")]
     public interface IFileProxyApi : IApiContract
     {
         [HttpGetMarker(Template = "proxy-fs/{id}/{filename}")]
