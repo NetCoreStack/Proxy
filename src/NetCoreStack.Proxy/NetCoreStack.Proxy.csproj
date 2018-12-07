@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
     <PackageReference Include="NetCoreStack.Contracts" Version="2.0.7" />
-    <PackageReference Include="NetCoreStack.DispatchProxyAsync" Version="2.0.2" />
+    <PackageReference Include="NetCoreStack.DispatchProxyAsync" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
   </ItemGroup>
